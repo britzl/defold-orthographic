@@ -1,0 +1,132 @@
+images {
+  image: "/examples/assets/images/set1_tiles.png"
+}
+images {
+  image: "/examples/assets/images/blue_circle.png"
+}
+images {
+  image: "/examples/assets/images/green_circle.png"
+}
+images {
+  image: "/examples/assets/images/green_button07.png"
+}
+images {
+  image: "/examples/assets/images/blue_button07.png"
+}
+images {
+  image: "/examples/assets/images/hitman1_gun.png"
+}
+images {
+  image: "/examples/assets/images/crosshair_outline_large.png"
+}
+animations {
+  id: "blue_player"
+  images {
+    image: "/examples/assets/images/playerBlue_walk1_new.png"
+  }
+  images {
+    image: "/examples/assets/images/playerBlue_walk2_new.png"
+  }
+  images {
+    image: "/examples/assets/images/playerBlue_walk3_new.png"
+  }
+  images {
+    image: "/examples/assets/images/playerBlue_walk4_new.png"
+  }
+  images {
+    image: "/examples/assets/images/playerBlue_walk5_new.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 15
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "green_player_walk"
+  images {
+    image: "/examples/assets/images/playerGreen_walk1.png"
+  }
+  images {
+    image: "/examples/assets/images/playerGreen_walk2.png"
+  }
+  images {
+    image: "/examples/assets/images/playerGreen_walk3.png"
+  }
+  images {
+    image: "/examples/assets/images/playerGreen_walk4.png"
+  }
+  images {
+    image: "/examples/assets/images/playerGreen_walk5.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 15
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "blue_walk_once"
+  images {
+    image: "/examples/assets/images/playerBlue_walk1_new.png"
+  }
+  images {
+    image: "/examples/assets/images/playerBlue_walk2_new.png"
+  }
+  images {
+    image: "/examples/assets/images/playerBlue_walk3_new.png"
+  }
+  images {
+    image: "/examples/assets/images/playerBlue_walk4_new.png"
+  }
+  images {
+    image: "/examples/assets/images/playerBlue_walk5_new.png"
+  }
+  playback: PLAYBACK_ONCE_PINGPONG
+  fps: 15
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "green_walk_once"
+  images {
+    image: "/examples/assets/images/playerGreen_walk1.png"
+  }
+  images {
+    image: "/examples/assets/images/playerGreen_walk2.png"
+  }
+  images {
+    image: "/examples/assets/images/playerGreen_walk3.png"
+  }
+  images {
+    image: "/examples/assets/images/playerGreen_walk4.png"
+  }
+  images {
+    image: "/examples/assets/images/playerGreen_walk5.png"
+  }
+  playback: PLAYBACK_ONCE_PINGPONG
+  fps: 15
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "blue_idle"
+  images {
+    image: "/examples/assets/images/playerBlue_walk1_new.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 30
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "green_player_idle"
+  images {
+    image: "/examples/assets/images/playerGreen_walk1.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 60
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+margin: 0
+extrude_borders: 2
+inner_padding: 0

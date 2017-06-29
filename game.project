@@ -1,0 +1,30 @@
+[project]
+title = Orthographic
+version = 0.9
+dependencies = https://github.com/britzl/ludobits/archive/master.zip
+
+[bootstrap]
+main_collection = /examples/top_down_camera/top_down_camera.collectionc
+render = /render/improved.renderc
+
+[input]
+game_binding = /input/game.input_bindingc
+
+[display]
+width = 1280
+height = 720
+
+[physics]
+scale = 0.02
+debug = 0
+gravity_y = 0
+
+[script]
+shared_state = 1
+
+[library]
+include_dirs = orthographic
+
+[graphics]
+max_debug_vertices = 50000
+

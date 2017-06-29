@@ -1,0 +1,28 @@
+go.property("near_z", -1)
+go.property("far_z", 1)
+go.property("projection", hash("FIXED"))
+go.property("enabled", true)
+
+local camera = require "orthographic.camera"
+
+local ENABLE = hash("enable")
+local DISABLE = hash("disable")
+local UPDATE_VIEW_PROJECTION = hash("update_view_projection")
+
+function update(self, dt)
+	if self.enabled then
+		-- update view projection after all game objects have been updated
+		-- will jitter otherwise
+		msg.post("#", UPDATE_VIEW_PROJECTION)
+	end
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == UPDATE_VIEW_PROJECTION then
+		camera.send_view_projection(go.get_id())
+	elseif message_id == ENABLE then
+		self.enabled = true
+	elseif message_id == DISABLE then
+		self.enabled = false
+	end
+end
