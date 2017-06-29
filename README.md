@@ -18,10 +18,10 @@ Select the script component attached to the ```camera.go``` to modify the proper
 This is the near and far z-values used in the projection matrix, ie the near and far clipping plane. Anything with a z-value inside this range will be drawn by the render script.
 
 #### projection (hash)
-The camera supports different kinds of orthographic projections.
+The camera supports different kinds of orthographic projections:
 
-	DEFAULT - The camera will use the default projection matrix where aspect ratio isn't maintained and content is stretched/shrunk when the window is resized.
-	FIXED - The camera will use a fixed projection where the aspect ratio is maintained and additional content will be visible if the aspect ratio differs from the width/height ratio from game.project.
+* DEFAULT - The camera will use the default projection matrix where aspect ratio isn't maintained and content is stretched/shrunk when the window is resized.
+* FIXED - The camera will use a fixed projection where the aspect ratio is maintained and additional content will be visible if the aspect ratio differs from the width/height ratio from game.project.
 
 Additional custom projections can be added. See ```camera.add_projector()``` below.
 
@@ -54,6 +54,19 @@ An alternative approach is to ignore the set_view_projection message and directl
 		render.set_view(camera.get_view(camera_id))
 		render.set_projection(camera.get_projection(camera_id))
 		-- draw using the view and projection
+
+## The Orthographic Camera API
+
+#### camera.sceen_to_world(camera_id, x, y, [z])
+Convert screen coordinates to world coordinates, based on the projection of the camera.
+
+#### camera.add_projector(projector_id, projector_fn)
+Add a custom projector that can be used by camera.
+
+projector_id (hash) - Id of the projector. Used as a value in the ```projection``` field of the camera script.
+
+projector_fn - The function to call when a projection matrix is needed for the camera. The function will receive the id, near_z and far_z values of the camera.
+
 
 ## License
 This library is released under the same [Terms and Conditions as Defold](http://www.defold.com/about-terms/).

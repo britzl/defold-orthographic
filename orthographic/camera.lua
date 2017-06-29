@@ -31,12 +31,12 @@ local projectors = {}
 
 -- the default projector from the default render script
 -- will stretch content
-projectors[hash("DEFAULT")] = function(near_z, far_z)
+projectors[hash("DEFAULT")] = function(camera_id, near_z, far_z)
 	return vmath.matrix4_orthographic(0, DISPLAY_WIDTH, 0, DISPLAY_HEIGHT, near_z, far_z)
 end
 
 -- fixed aspect ratio projector
-projectors[hash("FIXED")] = function(near_z, far_z)
+projectors[hash("FIXED")] = function(camera_id, near_z, far_z)
 	local zoom_factor = math.min(window_width / DISPLAY_WIDTH, window_height / DISPLAY_HEIGHT)
 	local projected_width = window_width / zoom_factor
 	local projected_height = window_height / zoom_factor
@@ -47,10 +47,10 @@ end
 
 --- Add a custom projector
 -- @param projector_id Unique id of the projector (hash)
--- @param fn The function to call when the projection matrix needs to be calculated
+-- @param projector_fn The function to call when the projection matrix needs to be calculated
 -- The function will receive near_z and far_z as arguments
-function M.add_projector(projector_id, fn)
-	orthographic_projectors[projector_id] = fn
+function M.add_projector(projector_id, projector_fn
+	orthographic_projectors[projector_id] = projector_fn
 end
 
 
@@ -63,7 +63,7 @@ function M.get_projection(camera_id)
 	local near_z = go.get(url, "near_z")
 	local far_z = go.get(url, "far_z")
 	local projector_fn = projectors[projector_id] or projectors[hash("DEFAULT")]
-	return projector_fn(near_z, far_z)
+	return projector_fn(camera_id, near_z, far_z)
 end
 
 
@@ -73,7 +73,7 @@ end
 function M.get_view(camera_id)
 	local pos = go.get_world_position(camera_id)
 	local rot = go.get_world_rotation(camera_id)
-	
+
 	local look_at = pos + vmath.rotate(rot, vmath.vector3(0, 0, -1.0))
 	local up = vmath.rotate(rot, vmath.vector3(0, 1.0, 0))
 	local view = vmath.matrix4_look_at(pos, look_at, up)
