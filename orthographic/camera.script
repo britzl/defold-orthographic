@@ -1,12 +1,10 @@
 go.property("near_z", -1)
 go.property("far_z", 1)
-go.property("projection", hash("FIXED"))
+go.property("projection", hash("DEFAULT"))
 go.property("enabled", true)
 
 local camera = require "orthographic.camera"
 
-local DISPLAY_WIDTH = tonumber(sys.get_config("display.width"))
-local DISPLAY_HEIGHT = tonumber(sys.get_config("display.height"))
 
 local ENABLE = hash("enable")
 local DISABLE = hash("disable")

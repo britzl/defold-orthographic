@@ -1,26 +1,31 @@
-local input = require "ludobits.m.input"
-
 local SPEED = 400
 
 function init(self)
-	input.acquire()
+	msg.post(".", "acquire_input_focus")
+	self.input = {}
 end
 
 function update(self, dt)
 	local pos = go.get_position()
-	if input.is_pressed(hash("up")) then
+	if self.input[hash("up")] then
 		pos.y = pos.y + SPEED * dt
-	elseif input.is_pressed(hash("down")) then
+	elseif self.input[hash("down")] then
 		pos.y = pos.y - SPEED * dt
 	end
-	if input.is_pressed(hash("left")) then
+	if self.input[hash("left")] then
 		pos.x = pos.x - SPEED * dt
-	elseif input.is_pressed(hash("right")) then
+	elseif self.input[hash("right")] then
 		pos.x = pos.x + SPEED * dt
 	end
 	go.set_position(pos)
 end
 
 function on_input(self, action_id, action)
-	input.on_input(action_id, action)
+	if action_id then
+		if action.pressed then
+			self.input[action_id] = true
+		elseif action.released then
+			self.input[action_id] = false
+		end
+	end
 end

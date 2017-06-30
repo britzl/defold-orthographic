@@ -11,7 +11,10 @@ Or point to the ZIP file of a [specific release](https://github.com/britzl/defol
 ## Basic usage
 Add the ```camera.go``` to a collection. Depending on your use case you can either add the camera as a child of a game object to have the camera always follow that object or you could add the camera as a root game object and move or animate it manually using code or using the Orthographic Camera API (see below).
 
-The camera will send view projection messages to the render script while it is enabled. Make sure your render script handles this message! See below for details.
+The camera will send view projection messages to the render script while it is enabled. Make sure your render script handles this message! See the section on render script integration below.
+
+## Window resize handler
+In order for the camera to be able to
 
 ## Configuration
 Select the script component attached to the ```camera.go``` to modify the properties. The camera has the following configurable properties:
@@ -20,12 +23,7 @@ Select the script component attached to the ```camera.go``` to modify the proper
 This is the near and far z-values used in the projection matrix, ie the near and far clipping plane. Anything with a z-value inside this range will be drawn by the render script.
 
 #### projection (hash)
-The camera supports different kinds of orthographic projections:
-
-* DEFAULT - The camera will use the default projection matrix where aspect ratio isn't maintained and content is stretched/shrunk when the window is resized.
-* FIXED - The camera will use a fixed projection where the aspect ratio is maintained and additional content will be visible if the aspect ratio differs from the width/height ratio from game.project.
-
-Additional custom projections can be added. See ```camera.add_projector()``` below.
+The camera can be configured to support different kinds of orthographic projections. By default there's only a single option ```DEFAULT```, and that is the same orthographic projection that is used in the default render script (ie aspect ratio isn't maintained and content is stretched). Additional custom projections can be added. See ```camera.add_projector()``` below. Refer to the render script of the example project to see an example of a projector that maintains aspect ratio.
 
 #### enabled (boolean)
 This controls if the camera is enabled by default or not. Send ```enable``` and ```disable``` messages to the script or use ```go.set(id, "enable", true|false)``` to toggle this value.
@@ -120,6 +118,13 @@ Add a custom projector that can be used by cameras in your project (see configur
 **PARAMETERS**
 * ```projector_id``` (hash) - Id of the projector. Used as a value in the ```projection``` field of the camera script.
 * ```projector_fn``` (function) - The function to call when a projection matrix is needed for the camera. The function will receive the id, near_z and far_z values of the camera.
+
+### camera.window_resized(width, height)
+Call this function when the window has been resized. This can be detected by setting up a window listener using the [window.set_listener(callback) function](https://www.defold.com/ref/window/#window.set_listener:callback).
+
+**PARAMETERS**
+* ```width``` (number)
+* ```height``` (number)
 
 ### shake
 Message equivalent to ```camera.shake()```. Supports ```intensity```, ```duration``` and ```direction```.

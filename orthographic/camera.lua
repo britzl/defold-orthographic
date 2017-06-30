@@ -7,21 +7,12 @@ M.SHAKE_BOTH = hash("both")
 M.SHAKE_HORIZONTAL = hash("horizontal")
 M.SHAKE_VERTICAL = hash("vertical")
 
-
 local DISPLAY_WIDTH = tonumber(sys.get_config("display.width"))
 local DISPLAY_HEIGHT = tonumber(sys.get_config("display.height"))
 local window_width = DISPLAY_WIDTH
 local window_height = DISPLAY_HEIGHT
 
 local OFFSET = vmath.vector3(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, 0)
-
-local app = require "ludobits.m.app"
-app.window.add_listener(function(self, event, data)
-	if event == window.WINDOW_EVENT_RESIZED then
-		window_width = data.width
-		window_height = data.height
-	end
-end)
 
 local cameras = {}
 
@@ -35,22 +26,12 @@ projectors[hash("DEFAULT")] = function(camera_id, near_z, far_z)
 	return vmath.matrix4_orthographic(0, DISPLAY_WIDTH, 0, DISPLAY_HEIGHT, near_z, far_z)
 end
 
--- fixed aspect ratio projector
-projectors[hash("FIXED")] = function(camera_id, near_z, far_z)
-	local zoom_factor = math.min(window_width / DISPLAY_WIDTH, window_height / DISPLAY_HEIGHT)
-	local projected_width = window_width / zoom_factor
-	local projected_height = window_height / zoom_factor
-	local xoffset = -(projected_width - DISPLAY_WIDTH) / 2
-	local yoffset = -(projected_height - DISPLAY_HEIGHT) / 2
-	return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
-end
-
 --- Add a custom projector
 -- @param projector_id Unique id of the projector (hash)
 -- @param projector_fn The function to call when the projection matrix needs to be calculated
 -- The function will receive near_z and far_z as arguments
 function M.add_projector(projector_id, projector_fn)
-	orthographic_projectors[projector_id] = projector_fn
+	projectors[projector_id] = projector_fn
 end
 
 
@@ -74,6 +55,16 @@ local function calculate_view(camera_id, offset)
 	local up = vmath.rotate(rot, vmath.vector3(0, 1.0, 0))
 	local view = vmath.matrix4_look_at(pos, look_at, up)
 	return view
+end
+
+
+--- Call this function when the window has been resized. This can be detected
+-- by setting up a window listener using the window.set_listener(callback) function.
+-- @param width
+-- @param height
+function M.window_resized(width, height)
+	window_width = width
+	window_height = height
 end
 
 
