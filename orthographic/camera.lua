@@ -9,8 +9,6 @@ M.SHAKE_VERTICAL = hash("vertical")
 
 local DISPLAY_WIDTH = tonumber(sys.get_config("display.width"))
 local DISPLAY_HEIGHT = tonumber(sys.get_config("display.height"))
-local window_width = DISPLAY_WIDTH
-local window_height = DISPLAY_HEIGHT
 
 local OFFSET = vmath.vector3(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, 0)
 
@@ -55,16 +53,6 @@ local function calculate_view(camera_id, offset)
 	local up = vmath.rotate(rot, vmath.vector3(0, 1.0, 0))
 	local view = vmath.matrix4_look_at(pos, look_at, up)
 	return view
-end
-
-
---- Call this function when the window has been resized. This can be detected
--- by setting up a window listener using the window.set_listener(callback) function.
--- @param width
--- @param height
-function M.window_resized(width, height)
-	window_width = width
-	window_height = height
 end
 
 

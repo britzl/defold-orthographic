@@ -118,13 +118,6 @@ Add a custom projector that can be used by cameras in your project (see configur
 * ```projector_id``` (hash) - Id of the projector. Used as a value in the ```projection``` field of the camera script.
 * ```projector_fn``` (function) - The function to call when a projection matrix is needed for the camera. The function will receive the id, near_z and far_z values of the camera.
 
-### camera.window_resized(width, height)
-Call this function when the window has been resized. This can be detected by setting up a window listener using the [window.set_listener(callback) function](https://www.defold.com/ref/window/#window.set_listener:callback).
-
-**PARAMETERS**
-* ```width``` (number)
-* ```height``` (number)
-
 ### shake
 Message equivalent to ```camera.shake()```. Supports ```intensity```, ```duration``` and ```direction```.
 
