@@ -22,7 +22,7 @@ Select the script component attached to the ```camera.go``` to modify the proper
 This is the near and far z-values used in the projection matrix, ie the near and far clipping plane. Anything with a z-value inside this range will be drawn by the render script.
 
 #### projection (hash)
-The camera can be configured to support different kinds of orthographic projections. By default there's only a single option ```DEFAULT```, and that is the same orthographic projection that is used in the default render script (ie aspect ratio isn't maintained and content is stretched). Additional custom projections can be added. See ```camera.add_projector()``` below. Refer to the render script of the example project to see an example of a projector that maintains aspect ratio.
+The camera can be configured to support different kinds of orthographic projections. The default projection (aptly named ```DEFAULT```) uses the same orthographic projection matrix as in the default render script (ie aspect ratio isn't maintained and content is stretched). Additional custom projections can be added, see ```camera.add_projector()``` below. [Refer to the render script of the example project](https://github.com/britzl/defold-orthographic/blob/master/example/render/orthographic.render_script#L9-L17) to see an example of a projector that maintains aspect ratio.
 
 #### enabled (boolean)
 This controls if the camera is enabled by default or not. Send ```enable``` and ```disable``` messages to the script or use ```go.set(id, "enable", true|false)``` to toggle this value.
