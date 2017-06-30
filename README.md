@@ -56,40 +56,78 @@ An alternative approach is to ignore the set_view_projection message and directl
 		-- draw using the view and projection
 
 ## The Orthographic Camera API
+The camera API can be used in two ways:
 
-#### camera.sceen_to_world(camera_id, x, y, [z])
-Convert screen coordinates to world coordinates, based on the projection of the camera.
+1. Calling functions on the camera.lua module
+2. Sending messages to the camera.script
 
-#### camera.shake(camera_id, intensity, duration, direction)
-Shake the camera
+#### camera.shake(camera_id, intensity, duration, direction, cb)
+Shake the camera.
 
+**PARAMETERS**
+* ```camera_id``` (hash|url)
 * ```intensity``` (number) - Intensity of the shake, in percent of screen. Defaults to 0.05
 * ```duration``` (number) - Duration of the shake, in seconds. Defaults to 0.5
 * ```direction``` (hash) - Direction of the shake. Possible values: ```both```, ```horizontal```, ```vertical```. Defaults to ```both```.
+* ```cb``` (function) - Function to call when the shake has finished. Optional.
 
 #### camera.follow(camera_id, target, lerp)
-Follow a game object
+Follow a game object.
 
+**PARAMETERS**
+* ```camera_id``` (hash|url)
 * ```target``` (hash|url) - Game object to follow
 * ```lerp``` (number) - Lerp from current position to target position with ```lerp``` as t. Optional.
 
 #### camera.unfollow(camera_id)
-Stop following a game object
+Stop following a game object.
+
+**PARAMETERS**
+* ```camera_id``` (hash|url)
 
 #### camera.deadzone(camera_id, left, right, bottom, top)
 If following a game object this will add a deadzone around the camera position where the camera position will not update. If the target moves to the edge of the deadzone the camera will start to follow until the target returns within the bounds of the deadzone.
 
+**PARAMETERS**
+* ```camera_id``` (hash|url)
 * ```left``` (number) - Number of pixels to the left of the camera
 * ```right``` (number) - Number of pixels to the right of the camera
 * ```bottom``` (number) - Number of pixels below the camera
 * ```top``` (number) - Number of pixels above the camera
 
-#### camera.add_projector(projector_id, projector_fn)
-Add a custom projector that can be used by camera.
+#### camera.sceen_to_world(camera_id, x, y, [z])
+Convert screen coordinates to world coordinates, based on the projection of the camera. Only available on the camera module.
 
+**PARAMETERS**
+* ```camera_id``` (hash|url)
+* ```x``` (number) Screen x
+* ```y``` (number) Screen y
+* ```z``` (number) Optional z-value to assign to the world coordinates
+
+**RETURN**
+* ```world_coords``` (vector3)
+
+#### camera.add_projector(projector_id, projector_fn)
+Add a custom projector that can be used by camera. Only available on the camera module.
+
+**PARAMETERS**
 * ```projector_id``` (hash) - Id of the projector. Used as a value in the ```projection``` field of the camera script.
 * ```projector_fn``` (function) - The function to call when a projection matrix is needed for the camera. The function will receive the id, near_z and far_z values of the camera.
 
+#### shake
+Message equivalent to ```camera.shake()```. Supports ```intensity```, ```duration``` and ```direction```.
+
+#### shake_complete
+Message sent back to the sender of a ```shake``` message when the shake has completed.
+
+#### follow
+Message equivalent to ```camera.follow()```. Supports ```target``` and ```lerp```.
+
+#### unfollow
+Message equivalent to ```camera.unfollow()```.
+
+#### deadzone
+Message equivalent to ```camera.deadzone()```. Supports ```left```, ```right```, ```bottom```, ```top```.
 
 ## License
 This library is released under the same [Terms and Conditions as Defold](http://www.defold.com/about-terms/).

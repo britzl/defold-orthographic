@@ -2,6 +2,12 @@
 
 local M = {}
 
+
+M.SHAKE_BOTH = hash("both")
+M.SHAKE_HORIZONTAL = hash("horizontal")
+M.SHAKE_VERTICAL = hash("vertical")
+
+
 local DISPLAY_WIDTH = tonumber(sys.get_config("display.width"))
 local DISPLAY_HEIGHT = tonumber(sys.get_config("display.height"))
 local window_width = DISPLAY_WIDTH
@@ -187,8 +193,8 @@ function M.shake(camera_id, intensity, duration, direction, cb)
 	cameras[camera_id].shake = {
 		intensity = intensity or 0.05,
 		duration = duration or 0.5,
-		horizontal = direction ~= hash("vertical") or false,
-		vertical = direction ~= hash("horizontal") or false,
+		horizontal = direction ~= M.SHAKE_VERTICAL or false,
+		vertical = direction ~= M.SHAKE_HORIZONTAL or false,
 		offset = vmath.vector3(0),
 		cb = cb,
 	}

@@ -16,6 +16,7 @@ local SHAKE = hash("shake")
 local DEADZONE = hash("deadzone")
 local UPDATE_VIEW_PROJECTION = hash("update_view_projection")
 
+
 function init(self)
 	camera.init(go.get_id())
 end
@@ -35,6 +36,7 @@ function update(self, dt)
 		msg.post("#", UPDATE_VIEW_PROJECTION)
 	end
 end
+
 
 function on_message(self, message_id, message, sender)
 	if message_id == UPDATE_VIEW_PROJECTION then
