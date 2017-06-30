@@ -3,8 +3,8 @@ instances {
   id: "camera"
   prototype: "/orthographic/camera.go"
   position {
-    x: -640.0
-    y: -360.0
+    x: 0.0
+    y: 0.0
     z: 0.0
   }
   rotation {
@@ -24,7 +24,7 @@ embedded_instances {
   id: "map"
   data: "components {\n"
   "  id: \"tilemap\"\n"
-  "  component: \"/examples/top_down_camera/top_down_map.tilemap\"\n"
+  "  component: \"/example/top_down.tilemap\"\n"
   "  position {\n"
   "    x: 0.0\n"
   "    y: 0.0\n"
@@ -57,10 +57,9 @@ embedded_instances {
 }
 embedded_instances {
   id: "player"
-  children: "camera"
   data: "components {\n"
   "  id: \"script\"\n"
-  "  component: \"/examples/top_down_camera/top_down_player.script\"\n"
+  "  component: \"/example/player.script\"\n"
   "  position {\n"
   "    x: 0.0\n"
   "    y: 0.0\n"
@@ -76,7 +75,7 @@ embedded_instances {
   "embedded_components {\n"
   "  id: \"sprite\"\n"
   "  type: \"sprite\"\n"
-  "  data: \"tile_set: \\\"/examples/assets/examples.atlas\\\"\\n"
+  "  data: \"tile_set: \\\"/example/assets/examples.atlas\\\"\\n"
   "default_animation: \\\"hitman1_gun\\\"\\n"
   "material: \\\"/builtins/materials/sprite.material\\\"\\n"
   "blend_mode: BLEND_MODE_ALPHA\\n"
@@ -113,14 +112,64 @@ embedded_instances {
 }
 embedded_instances {
   id: "crosshair"
-  data: "embedded_components {\n"
+  data: "components {\n"
+  "  id: \"script\"\n"
+  "  component: \"/example/crosshair.script\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  "embedded_components {\n"
   "  id: \"sprite\"\n"
   "  type: \"sprite\"\n"
-  "  data: \"tile_set: \\\"/examples/assets/examples.atlas\\\"\\n"
+  "  data: \"tile_set: \\\"/example/assets/examples.atlas\\\"\\n"
   "default_animation: \\\"crosshair_outline_large\\\"\\n"
   "material: \\\"/builtins/materials/sprite.material\\\"\\n"
   "blend_mode: BLEND_MODE_ALPHA\\n"
   "\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  ""
+  position {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  }
+  rotation {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+  scale3 {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+}
+embedded_instances {
+  id: "controls"
+  data: "components {\n"
+  "  id: \"camera_controls\"\n"
+  "  component: \"/example/camera_controls.gui\"\n"
   "  position {\n"
   "    x: 0.0\n"
   "    y: 0.0\n"

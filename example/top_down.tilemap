@@ -1,4 +1,4 @@
-tile_set: "/examples/assets/topdown.tilesource"
+tile_set: "/example/assets/topdown.tilesource"
 layers {
   id: "floor"
   z: 0.0

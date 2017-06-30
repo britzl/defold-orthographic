@@ -1,0 +1,4 @@
+font: "/example/assets/fonts/slkscre.ttf"
+material: "/example/assets/fonts/pixelfont.material"
+size: 8
+antialias: 0

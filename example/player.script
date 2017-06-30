@@ -1,11 +1,9 @@
 local input = require "ludobits.m.input"
-local camera = require "orthographic.camera"
 
 local SPEED = 400
 
 function init(self)
 	input.acquire()
-	self.action = vmath.vector3()
 end
 
 function update(self, dt)
@@ -21,19 +19,8 @@ function update(self, dt)
 		pos.x = pos.x + SPEED * dt
 	end
 	go.set_position(pos)
-
-	-- update crosshair based on mouse and camera position
-	local cursor_pos = camera.screen_to_world(go.get_id("camera"), self.action.x, self.action.y, 1)
-	go.set_position(vmath.lerp(0.5, go.get_position("crosshair"), cursor_pos), "crosshair")
 end
 
 function on_input(self, action_id, action)
 	input.on_input(action_id, action)
-	self.action.x = action.x
-	self.action.y = action.y
-end
-
-function on_reload(self)
-	-- Add reload-handling code here
-	-- Remove this function if not needed
 end

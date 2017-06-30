@@ -60,12 +60,35 @@ An alternative approach is to ignore the set_view_projection message and directl
 #### camera.sceen_to_world(camera_id, x, y, [z])
 Convert screen coordinates to world coordinates, based on the projection of the camera.
 
+#### camera.shake(camera_id, intensity, duration, direction)
+Shake the camera
+
+* ```intensity``` (number) - Intensity of the shake, in percent of screen. Defaults to 0.05
+* ```duration``` (number) - Duration of the shake, in seconds. Defaults to 0.5
+* ```direction``` (hash) - Direction of the shake. Possible values: ```both```, ```horizontal```, ```vertical```. Defaults to ```both```.
+
+#### camera.follow(camera_id, target, lerp)
+Follow a game object
+
+* ```target``` (hash|url) - Game object to follow
+* ```lerp``` (number) - Lerp from current position to target position with ```lerp``` as t. Optional.
+
+#### camera.unfollow(camera_id)
+Stop following a game object
+
+#### camera.deadzone(camera_id, left, right, bottom, top)
+If following a game object this will add a deadzone around the camera position where the camera position will not update. If the target moves to the edge of the deadzone the camera will start to follow until the target returns within the bounds of the deadzone.
+
+* ```left``` (number) - Number of pixels to the left of the camera
+* ```right``` (number) - Number of pixels to the right of the camera
+* ```bottom``` (number) - Number of pixels below the camera
+* ```top``` (number) - Number of pixels above the camera
+
 #### camera.add_projector(projector_id, projector_fn)
 Add a custom projector that can be used by camera.
 
-projector_id (hash) - Id of the projector. Used as a value in the ```projection``` field of the camera script.
-
-projector_fn - The function to call when a projection matrix is needed for the camera. The function will receive the id, near_z and far_z values of the camera.
+* ```projector_id``` (hash) - Id of the projector. Used as a value in the ```projection``` field of the camera script.
+* ```projector_fn``` (function) - The function to call when a projection matrix is needed for the camera. The function will receive the id, near_z and far_z values of the camera.
 
 
 ## License

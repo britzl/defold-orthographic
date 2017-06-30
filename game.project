@@ -4,7 +4,7 @@ version = 0.9
 dependencies = https://github.com/britzl/ludobits/archive/master.zip
 
 [bootstrap]
-main_collection = /examples/top_down_camera/top_down_camera.collectionc
+main_collection = /example/example.collectionc
 render = /render/improved.renderc
 
 [input]

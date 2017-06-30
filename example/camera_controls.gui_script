@@ -1,0 +1,43 @@
+function init(self)
+	msg.post(".", "acquire_input_focus")
+end
+
+function final(self)
+	-- Add finalization code here
+	-- Remove this function if not needed
+end
+
+function update(self, dt)
+	-- Add update code here
+	-- Remove this function if not needed
+end
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+	-- Remove this function if not needed
+end
+
+function on_input(self, action_id, action)
+	if action_id == hash("touch") and action.released then
+		if gui.pick_node(gui.get_node("unfollow/button"), action.x, action.y) then
+			msg.post("camera", "unfollow")
+		elseif gui.pick_node(gui.get_node("follow_basic/button"), action.x, action.y) then
+			msg.post("camera", "follow", { target = "player" })
+		elseif gui.pick_node(gui.get_node("follow_lerp/button"), action.x, action.y) then
+			msg.post("camera", "follow", { target = "player", lerp = 0.1 })
+		elseif gui.pick_node(gui.get_node("shake_both/button"), action.x, action.y) then
+			msg.post("camera", "shake", { intensity = 0.05, duration = 0.5, direction = hash("both") })
+		elseif gui.pick_node(gui.get_node("shake_horizontal/button"), action.x, action.y) then
+			msg.post("camera", "shake", { intensity = 0.05, duration = 0.5, direction = hash("horizontal") })
+		elseif gui.pick_node(gui.get_node("shake_vertical/button"), action.x, action.y) then
+			msg.post("camera", "shake", { intensity = 0.05, duration = 0.5, direction = hash("vertical") })
+		elseif gui.pick_node(gui.get_node("deadzone/button"), action.x, action.y) then
+			msg.post("camera", "deadzone", { left = 200, right = 200, bottom = 200, top = 200 })
+		end
+	end
+end
+
+function on_reload(self)
+	-- Add input-handling code here
+	-- Remove this function if not needed
+end
