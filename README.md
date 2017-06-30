@@ -102,7 +102,7 @@ If following a game object this will add a deadzone around the camera position w
 * ```bottom``` (number) - Number of pixels below the camera
 * ```top``` (number) - Number of pixels above the camera
 
-### camera.sceen_to_world(camera_id, x, y, [z])
+### camera.screen_to_world(camera_id, x, y, [z])
 Convert screen coordinates to world coordinates, based on the projection of the camera.
 
 **PARAMETERS**
