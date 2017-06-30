@@ -9,7 +9,7 @@ https://github.com/britzl/defold-orthographic/archive/master.zip
 Or point to the ZIP file of a [specific release](https://github.com/britzl/defold-orthographic/releases).
 
 ## Basic usage
-Add the ```camera.go``` to a collection. Depending on your use case you can either add the camera as a child of a game object to have the camera always follow that object or you could add the camera as a root game object and move or animate it manually using code or using the Camera API (see below).
+Add the ```camera.go``` to a collection. Depending on your use case you can either add the camera as a child of a game object to have the camera always follow that object or you could add the camera as a root game object and move or animate it manually using code or using the Orthographic Camera API (see below).
 
 The camera will send view projection messages to the render script while it is enabled. Make sure your render script handles this message! See below for details.
 
@@ -31,7 +31,15 @@ Additional custom projections can be added. See ```camera.add_projector()``` bel
 This controls if the camera is enabled by default or not. Send ```enable``` and ```disable``` messages to the script or use ```go.set(id, "enable", true|false)``` to toggle this value.
 
 ## Render script integration
-While the camera is enabled it will send ```set_view_projection``` messages once per frame to the render script. The message is the same as that of the camera component, meaning that it contains ```id```, ```view``` and ```projection``` values. Make sure that these values are handled and used properly:
+While the camera is enabled it will send ```set_view_projection``` messages once per frame to the render script. The message is the same as that of the camera component, meaning that it contains ```id```, ```view``` and ```projection``` values. Make sure that these values are handled and used properly in the render script:
+
+	function update(self)
+		...
+		render.set_view(self.view)
+		render.set_projection(self.projection)
+		-- draw using the view and projection
+		...
+	end
 
 	function on_message(self, message_id, message, sender)
 		if message_id == hash("set_view_projection") then
@@ -39,26 +47,23 @@ While the camera is enabled it will send ```set_view_projection``` messages once
 			self.view = message.view
 			self.projection = message.projection
 		end
+	end
 
-And in your update() function:
-
-	function update(self)
-		render.set_view(self.view)
-		render.set_projection(self.projection)
-		-- draw using the view and projection
-
-An alternative approach is to ignore the set_view_projection message and directly read the view and projection from the camera in the render script:
+An alternative approach is to ignore the ```set_view_projection``` message and directly read the view and projection from the camera in the render script:
 
 	local camera = require "orthographic.camera"
 
 	function update(self)
+		...
 		local camera_id = id of your camera
 		render.set_view(camera.get_view(camera_id))
 		render.set_projection(camera.get_projection(camera_id))
 		-- draw using the view and projection
+		...
+	end
 
 ## The Orthographic Camera API
-The camera API can be used in two ways:
+The API can be used in two ways:
 
 1. Calling functions on the camera.lua module
 2. Sending messages to the camera.script
@@ -98,7 +103,7 @@ If following a game object this will add a deadzone around the camera position w
 * ```top``` (number) - Number of pixels above the camera
 
 #### camera.sceen_to_world(camera_id, x, y, [z])
-Convert screen coordinates to world coordinates, based on the projection of the camera. Only available on the camera module.
+Convert screen coordinates to world coordinates, based on the projection of the camera.
 
 **PARAMETERS**
 * ```camera_id``` (hash|url)
@@ -110,7 +115,7 @@ Convert screen coordinates to world coordinates, based on the projection of the 
 * ```world_coords``` (vector3)
 
 #### camera.add_projector(projector_id, projector_fn)
-Add a custom projector that can be used by camera. Only available on the camera module.
+Add a custom projector that can be used by cameras in your project (see configuration above).
 
 **PARAMETERS**
 * ```projector_id``` (hash) - Id of the projector. Used as a value in the ```projection``` field of the camera script.
@@ -130,6 +135,12 @@ Message equivalent to ```camera.unfollow()```.
 
 #### deadzone
 Message equivalent to ```camera.deadzone()```. Supports ```left```, ```right```, ```bottom```, ```top```.
+
+#### enable
+Enable the camera. While the camera is enabled it will update it's view and projection and send these to the render script.
+
+#### disable
+Disable the camera.
 
 ## License
 This library is released under the same [Terms and Conditions as Defold](http://www.defold.com/about-terms/).
