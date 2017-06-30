@@ -65,7 +65,7 @@ The API can be used in two ways:
 1. Calling functions on the camera.lua module
 2. Sending messages to the camera.script
 
-### camera.shake(camera_id, intensity, duration, direction, cb)
+### camera.shake(camera_id, [intensity], [duration], [direction], [cb])
 Shake the camera.
 
 **PARAMETERS**
@@ -75,7 +75,7 @@ Shake the camera.
 * ```direction``` (hash) - Direction of the shake. Possible values: ```both```, ```horizontal```, ```vertical```. Defaults to ```both```.
 * ```cb``` (function) - Function to call when the shake has finished. Optional.
 
-### camera.follow(camera_id, target, lerp)
+### camera.follow(camera_id, target, [lerp])
 Follow a game object.
 
 **PARAMETERS**
