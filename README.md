@@ -1,5 +1,5 @@
 # defold-orthographic
-Orthographic camera functionality for the Defold game engine
+Orthographic camera functionality for the Defold game engine. This project is inspired by the camera component of the Phaser engine.
 
 ## Installation
 You can use the orthograpic camera in your own project by adding this project as a [Defold library dependency](http://www.defold.com/manuals/libraries/). Open your game.project file and in the dependencies field under project add:
@@ -9,7 +9,9 @@ https://github.com/britzl/defold-orthographic/archive/master.zip
 Or point to the ZIP file of a [specific release](https://github.com/britzl/defold-orthographic/releases).
 
 ## Basic usage
-Add the ```camera.go``` to a collection. Depending on your use case you can either add the camera as a child of a game object to have the camera follow that object or you could add the camera as a root game object and move or animate it manually using code. The camera will send view projection messages to the render script while it is enabled. Make sure your render script handles this message! See below for details.
+Add the ```camera.go``` to a collection. Depending on your use case you can either add the camera as a child of a game object to have the camera always follow that object or you could add the camera as a root game object and move or animate it manually using code or using the Camera API (see below).
+
+The camera will send view projection messages to the render script while it is enabled. Make sure your render script handles this message! See below for details.
 
 ## Configuration
 Select the script component attached to the ```camera.go``` to modify the properties. The camera has the following configurable properties:
