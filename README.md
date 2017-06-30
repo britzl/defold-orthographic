@@ -8,6 +8,9 @@ https://github.com/britzl/defold-orthographic/archive/master.zip
 
 Or point to the ZIP file of a [specific release](https://github.com/britzl/defold-orthographic/releases).
 
+## Try it!
+This project is shipped with an example that shows all the features of the orthographic camera. [Test the example app in your browser](http://britzl.github.io/publicexamples/orthographic/index.html).
+
 ## Basic usage
 Add the ```camera.go``` to a collection. Depending on your use case you can either add the camera as a child of a game object to have the camera always follow that object or you could add the camera as a root game object and move or animate it manually using code or using the Orthographic Camera API (see below).
 
