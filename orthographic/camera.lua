@@ -75,6 +75,7 @@ end
 --- Update a camera
 -- When calling this function a number of things happen:
 -- * Follow target game object (if any)
+-- * Limit camera to camera bounds (if any)
 -- * Shake the camera (if enabled)
 -- * Recalculate the view and projection matrix
 --
@@ -87,9 +88,9 @@ function M.update(camera_id, dt)
 		return
 	end
 	
+	local camera_pos = go.get_position(camera_id)
 	if camera.follow then
 		local target_pos = go.get_position(camera.follow.target)
-		local camera_pos = go.get_position(camera_id)
 		local new_pos
 		if camera.deadzone then
 			new_pos = vmath.vector3(camera_pos)
@@ -110,12 +111,24 @@ function M.update(camera_id, dt)
 		else
 			new_pos = target_pos
 		end
+		new_pos.z = camera_pos.z
 		if camera.follow.lerp then
-			go.set_position(vmath.lerp(camera.follow.lerp or 0.1, camera_pos, new_pos), camera_id)
+			camera_pos = vmath.lerp(camera.follow.lerp or 0.1, camera_pos, new_pos)
+			camera_pos.z = new_pos.z
 		else
-			go.set_position(new_pos, camera_id)
+			camera_pos = new_pos
 		end
 	end
+
+	if camera.bounds then
+		local bounds = camera.bounds
+		camera_pos.x = math.max(camera_pos.x, bounds.left)
+		camera_pos.x = math.min(camera_pos.x, bounds.right)
+		camera_pos.y = math.max(camera_pos.y, bounds.bottom)
+		camera_pos.y = math.min(camera_pos.y, bounds.top)
+	end
+
+	go.set_position(camera_pos, camera_id)
 	
 	if camera.shake then
 		camera.shake.duration = camera.shake.duration - dt
@@ -171,6 +184,24 @@ function M.deadzone(camera_id, left, top, right, bottom)
 	end
 end
 
+
+--- Set the camera bounds
+-- @param camera_id
+-- @param left Left edge of camera bounds. Pass nil to remove deadzone.
+-- @param top
+-- @param right
+-- @param bottom
+function M.bounds(camera_id, left, top, right, bottom)
+	if left and top and right and bottom then
+		cameras[camera_id].bounds = {
+			left = left,
+			right = right,
+			bottom = bottom,
+			top = top,
+		}
+	else
+		cameras[camera_id].bounds = nil
+	end
 end
 
 --- Shake a camera

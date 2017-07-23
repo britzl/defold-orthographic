@@ -99,6 +99,16 @@ If following a game object this will add a deadzone around the camera position w
 * ```right``` (number) - Number of pixels to the right of the camera
 * ```bottom``` (number) - Number of pixels below the camera
 
+### camera.bounds(camera_id, left, top, right, bottom)
+Limits the camera position to within the specified rectangle.
+
+**PARAMETERS**
+* ```camera_id``` (hash|url)
+* ```left``` (number) - Left edge of the camera bounds
+* ```top``` (number) - Top edge of camera bounds
+* ```right``` (number) - Right edge of camera bounds
+* ```bottom``` (number) - Bottom edge of camera bounds
+
 ### camera.screen_to_world(camera_id, x, y, [z])
 Convert screen coordinates to world coordinates, based on the projection of the camera.
 
@@ -132,6 +142,9 @@ Message equivalent to ```camera.unfollow()```.
 
 ### deadzone
 Message equivalent to ```camera.deadzone()```. Supports ```left```, ```right```, ```bottom```, ```top```.
+
+### bounds
+Message equivalent to ```camera.bounds()```. Supports ```left```, ```right```, ```bottom```, ```top```.
 
 ### enable
 Enable the camera. While the camera is enabled it will update it's view and projection and send these to the render script.

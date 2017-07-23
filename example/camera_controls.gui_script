@@ -1,6 +1,7 @@
 function init(self)
 	msg.post(".", "acquire_input_focus")
 	gui.set_enabled(gui.get_node("deadzone_visualizer"), false)
+	self.bounds_enabled = false
 end
 
 function on_input(self, action_id, action)
@@ -17,6 +18,13 @@ function on_input(self, action_id, action)
 			msg.post("camera", "shake", { intensity = 0.05, duration = 0.5, direction = hash("horizontal") })
 		elseif gui.pick_node(gui.get_node("shake_vertical/button"), action.x, action.y) then
 			msg.post("camera", "shake", { intensity = 0.05, duration = 0.5, direction = hash("vertical") })
+		elseif gui.pick_node(gui.get_node("bounds/button"), action.x, action.y) then
+			self.bounds_enabled = not self.bounds_enabled
+			if self.bounds_enabled then
+				msg.post("camera", "bounds", { left = 640, right = 1088, bottom = 360, top = 920 })
+			else
+				msg.post("camera", "bounds", {})
+			end
 		elseif gui.pick_node(gui.get_node("deadzone/button"), action.x, action.y) then
 			local dz = gui.get_node("deadzone_visualizer")
 			gui.set_enabled(dz, true)
