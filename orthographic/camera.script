@@ -40,22 +40,16 @@ function on_message(self, message_id, message, sender)
 	if message_id == UPDATE_VIEW_PROJECTION then
 		camera.send_view_projection(go.get_id())
 	elseif message_id == ENABLE then
-		print("enable")
 		self.enabled = true
 	elseif message_id == DISABLE then
-		print("disable")
 		self.enabled = false
 	elseif message_id == UNFOLLOW then
-		print("unfollow")
 		camera.unfollow(go.get_id())
 	elseif message_id == FOLLOW then
-		print("follow", message.lerp and "lerp" or "basic")
 		camera.follow(go.get_id(), message.target, message.lerp)
 	elseif message_id == DEADZONE then
-		print("deadzone")
 		camera.deadzone(go.get_id(), message.left, message.right, message.bottom, message.top)
 	elseif message_id == SHAKE then
-		print("shake")
 		camera.shake(go.get_id(), message.intensity, message.duration, message.direction, function()
 			msg.post(sender, "shake_completed")
 		end)
