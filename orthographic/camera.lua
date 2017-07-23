@@ -10,7 +10,12 @@ M.SHAKE_VERTICAL = hash("vertical")
 local DISPLAY_WIDTH = tonumber(sys.get_config("display.width"))
 local DISPLAY_HEIGHT = tonumber(sys.get_config("display.height"))
 
+-- center camera to middle of screen
 local OFFSET = vmath.vector3(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, 0)
+
+local MATRIX4 = vmath.matrix4()
+
+local v4_tmp = vmath.vector4()
 
 local cameras = {}
 
@@ -204,6 +209,7 @@ function M.bounds(camera_id, left, top, right, bottom)
 	end
 end
 
+
 --- Shake a camera
 -- @param camera_id
 -- @param intensity Intensity of the shake in percent of screen width. Optional, default: 0.05.
@@ -262,17 +268,40 @@ end
 -- @param x
 -- @param y
 -- @param z
+-- @return World coordinates as a vector3
 -- http://webglfactory.blogspot.se/2011/05/how-to-convert-world-to-screen.html
 function M.screen_to_world(camera_id, x, y, z)
-	local v3 = vmath.vector3(x, y, 0)
-	local view = cameras[camera_id].view or vmath.matrix4()
-	local projection = cameras[camera_id].projection or vmath.matrix4()
+	local view = cameras[camera_id].view or MATRIX4
+	local projection = cameras[camera_id].projection or MATRIX4
 
-	x = 2 * x / DISPLAY_WIDTH - 1
-	y = 2 * y / DISPLAY_HEIGHT - 1
+	x = (2 * x / DISPLAY_WIDTH) - 1
+	y = (2 * y / DISPLAY_HEIGHT) - 1
+	v4_tmp.x, v4_tmp.y, v4_tmp.z, v4_tmp.w = x, y, 0, 1
 	local inv = vmath.inv(projection * view)
-	local v4 = inv * vmath.vector4(x, y, 0, 1)
+	local v4 = inv * v4_tmp
 	return vmath.vector3(v4.x, v4.y, z)
+end
+
+
+--- Convert world coordinates to screen coordinates based
+-- on a specific camera's view and projection
+-- Note: You need to have called update() at least once (this is done automatically
+-- by the camera.script)
+-- @param camera_id
+-- @param x
+-- @param y
+-- @return screen_x
+-- @return screen_y
+-- http://webglfactory.blogspot.se/2011/05/how-to-convert-world-to-screen.html
+function M.world_to_screen(camera_id, x, y)
+	local view = cameras[camera_id].view or MATRIX4
+	local projection = cameras[camera_id].projection or MATRIX4
+
+	v4_tmp.x, v4_tmp.y, v4_tmp.z, v4_tmp.w = x, y, 0, 1
+	local v4 = projection * view * v4_tmp
+	local screen_x = math.floor(((v4.x + 1) / 2) * DISPLAY_WIDTH)
+	local screen_y = math.floor(((v4.y + 1) / 2) * DISPLAY_HEIGHT)
+	return screen_x, screen_y
 end
 
 
