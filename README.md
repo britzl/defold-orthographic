@@ -89,15 +89,15 @@ Stop following a game object.
 **PARAMETERS**
 * ```camera_id``` (hash|url)
 
-### camera.deadzone(camera_id, left, right, bottom, top)
+### camera.deadzone(camera_id, left, top, right, bottom)
 If following a game object this will add a deadzone around the camera position where the camera position will not update. If the target moves to the edge of the deadzone the camera will start to follow until the target returns within the bounds of the deadzone.
 
 **PARAMETERS**
 * ```camera_id``` (hash|url)
 * ```left``` (number) - Number of pixels to the left of the camera
+* ```top``` (number) - Number of pixels above the camera
 * ```right``` (number) - Number of pixels to the right of the camera
 * ```bottom``` (number) - Number of pixels below the camera
-* ```top``` (number) - Number of pixels above the camera
 
 ### camera.screen_to_world(camera_id, x, y, [z])
 Convert screen coordinates to world coordinates, based on the projection of the camera.

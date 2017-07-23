@@ -152,14 +152,25 @@ function M.unfollow(camera_id)
 	cameras[camera_id].follow = nil
 end
 
+--- Set the camera deadzone
+-- @param camera_id
+-- @param left Left edge of deadzone. Pass nil to remove deadzone.
+-- @param top
+-- @param right
+-- @param bottom
+function M.deadzone(camera_id, left, top, right, bottom)
+	if left and right and top and bottom then
+		cameras[camera_id].deadzone = {
+			left = left,
+			right = right,
+			bottom = bottom,
+			top = top,
+		}
+	else
+		cameras[camera_id].deadzone = nil
+	end
+end
 
-function M.deadzone(camera_id, left, right, bottom, top)
-	cameras[camera_id].deadzone = {
-		left = left,
-		right = right,
-		bottom = bottom,
-		top = top,
-	}
 end
 
 --- Shake a camera

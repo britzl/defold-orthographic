@@ -48,7 +48,7 @@ function on_message(self, message_id, message, sender)
 	elseif message_id == FOLLOW then
 		camera.follow(go.get_id(), message.target, message.lerp)
 	elseif message_id == DEADZONE then
-		camera.deadzone(go.get_id(), message.left, message.right, message.bottom, message.top)
+		camera.deadzone(go.get_id(), message.left, message.top, message.right, message.bottom)
 	elseif message_id == SHAKE then
 		camera.shake(go.get_id(), message.intensity, message.duration, message.direction, function()
 			msg.post(sender, "shake_completed")
