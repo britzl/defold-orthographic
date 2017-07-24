@@ -110,16 +110,50 @@ Limits the camera position to within the specified rectangle.
 * ```bottom``` (number) - Bottom edge of camera bounds
 
 ### camera.screen_to_world(camera_id, x, y, [z])
-Convert screen coordinates to world coordinates, based on the projection of the camera.
+Translate screen coordinates to world coordinates, based on the view and projection of the camera.
 
 **PARAMETERS**
 * ```camera_id``` (hash|url)
-* ```x``` (number) Screen x
-* ```y``` (number) Screen y
-* ```z``` (number) Optional z-value to assign to the world coordinates
+* ```screen``` (vector3) Screen coordinates to convert
 
 **RETURN**
-* ```world_coords``` (vector3)
+* ```world_coords``` (vector3) Note: Same v3 object as passed in as argument
+
+
+### camera.world_to_screen(camera_id, x, y)
+Translate world coordinates to screen coordinates, based on the view and projection of the camera. This is useful when manually culling game objects and you need to determine if a world coordinate will be visible or not.
+
+**PARAMETER**
+* ```camera_id``` (hash|url)
+* ```world``` (vector3) World coordinates to convert
+
+**RETURN**
+* ```screen_coords``` (vector3) Note: Same v3 object as passed in as argument
+
+
+### camera.unproject(view, projection, screen)
+Translate screen coordinates to world coordinates using the specified view and projection.
+
+**PARAMETERS**
+* ```view``` (matrix4)
+* ```projection``` (matrix4)
+* ```screen``` (vector3) Screen coordinates to convert
+
+**RETURN**
+* ```world_coords``` (vector3) Note: Same v3 object as passed in as argument
+
+
+### camera.project(view, projection, world)
+Translate world coordinates to screen coordinates using the specified view and projection.
+
+**PARAMETERS**
+* ```view``` (matrix4)
+* ```projection``` (matrix4)
+* ```world``` (vector3) World coordinates to convert
+
+**RETURN**
+* ```screen_coords``` (vector3) Note: Same v3 object as passed in as argument
+
 
 ### camera.add_projector(projector_id, projector_fn)
 Add a custom projector that can be used by cameras in your project (see configuration above).

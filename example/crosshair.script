@@ -7,7 +7,7 @@ end
 
 function update(self, dt)
 	-- update crosshair based on mouse and camera position
-	local cursor_pos = camera.screen_to_world(go.get_id("camera"), self.action.x, self.action.y, 1)
+	local cursor_pos = camera.screen_to_world(go.get_id("camera"), vmath.vector3(self.action))
 	go.set_position(vmath.lerp(0.5, go.get_position("crosshair"), cursor_pos), "crosshair")
 end
 

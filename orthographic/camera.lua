@@ -151,7 +151,7 @@ function M.update(camera_id, dt)
 	end
 	
 	camera.view = calculate_view(camera_id, camera.shake and camera.shake.offset)	
-	camera.projection = calculate_projection(camera_id)	
+	camera.projection = calculate_projection(camera_id)
 end
 
 
@@ -254,8 +254,8 @@ end
 -- by the camera.script)
 -- @param camera_id
 function M.send_view_projection(camera_id)
-	local view = cameras[camera_id].view or vmath.matrix4()
-	local projection = cameras[camera_id].projection or vmath.matrix4()
+	local view = cameras[camera_id].view or MATRIX4
+	local projection = cameras[camera_id].projection or MATRIX4
 	msg.post("@render:", "set_view_projection", { id = camera_id, view = view, projection = projection })
 end
 
@@ -265,21 +265,13 @@ end
 -- Note: You need to have called update() at least once (this is done automatically
 -- by the camera.script)
 -- @param camera_id
--- @param x
--- @param y
--- @param z
--- @return World coordinates as a vector3
+-- @param screen Screen coordinates as a vector3
+-- @return Mutated screen coordinates as world coordinates
 -- http://webglfactory.blogspot.se/2011/05/how-to-convert-world-to-screen.html
-function M.screen_to_world(camera_id, x, y, z)
+function M.screen_to_world(camera_id, screen)
 	local view = cameras[camera_id].view or MATRIX4
 	local projection = cameras[camera_id].projection or MATRIX4
-
-	x = (2 * x / DISPLAY_WIDTH) - 1
-	y = (2 * y / DISPLAY_HEIGHT) - 1
-	v4_tmp.x, v4_tmp.y, v4_tmp.z, v4_tmp.w = x, y, 0, 1
-	local inv = vmath.inv(projection * view)
-	local v4 = inv * v4_tmp
-	return vmath.vector3(v4.x, v4.y, z)
+	return M.unproject(view, projection, screen)
 end
 
 
@@ -288,21 +280,50 @@ end
 -- Note: You need to have called update() at least once (this is done automatically
 -- by the camera.script)
 -- @param camera_id
--- @param x
--- @param y
--- @return screen_x
--- @return screen_y
+-- @param world World coordinates as a vector3
+-- @return Mutated world coordinates as screen coordinates
 -- http://webglfactory.blogspot.se/2011/05/how-to-convert-world-to-screen.html
-function M.world_to_screen(camera_id, x, y)
+function M.world_to_screen(camera_id, world)
 	local view = cameras[camera_id].view or MATRIX4
 	local projection = cameras[camera_id].projection or MATRIX4
-
-	v4_tmp.x, v4_tmp.y, v4_tmp.z, v4_tmp.w = x, y, 0, 1
-	local v4 = projection * view * v4_tmp
-	local screen_x = math.floor(((v4.x + 1) / 2) * DISPLAY_WIDTH)
-	local screen_y = math.floor(((v4.y + 1) / 2) * DISPLAY_HEIGHT)
-	return screen_x, screen_y
+	return M.project(view, projection, world)
 end
 
+
+--- Translate world coordinates to screen coordinates given a
+-- view and projection matrix
+-- @param view View matrix
+-- @param projection Projection matrix
+-- @param world World coordinates as a vector3
+-- @return The mutated world coordinates (ie the same v3 object)
+-- translated to screen coordinates
+function M.project(view, projection, world)
+	v4_tmp.x, v4_tmp.y, v4_tmp.z, v4_tmp.w = world.x, world.y, world.z, 1
+	local v4 = projection * view * v4_tmp
+	world.x = ((v4.x + 1) / 2) * DISPLAY_WIDTH
+	world.y = ((v4.y + 1) / 2) * DISPLAY_HEIGHT
+	world.z = ((v4.z + 1) / 2)
+	return world
+end
+
+
+--- Translate screen coordinates to world coordinates given a
+-- view and projection matrix 
+-- @param view View matrix
+-- @param projection Projection matrix
+-- @param screen Screen coordinates as a vector3
+-- @return The mutated screen coordinates (ie the same v3 object)
+-- translated to world coordinates
+function M.unproject(view, projection, screen)
+	local x = (2 * screen.x / DISPLAY_WIDTH) - 1
+	local y = (2 * screen.y / DISPLAY_HEIGHT) - 1
+	local z = (2 * screen.z) - 1
+	v4_tmp.x, v4_tmp.y, v4_tmp.z, v4_tmp.w = x, y, z, 1
+	local v4 = vmath.inv(projection * view) * v4_tmp
+	screen.x = v4.x
+	screen.y = v4.y
+	screen.z = v4.z
+	return screen
+end
 
 return M
