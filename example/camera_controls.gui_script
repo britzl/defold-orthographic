@@ -22,7 +22,7 @@ function on_input(self, action_id, action)
 		elseif gui.pick_node(gui.get_node("bounds/button"), action.x, action.y) then
 			self.bounds_enabled = not self.bounds_enabled
 			if self.bounds_enabled then
-				msg.post("camera", "bounds", { left = 640, right = 1088, bottom = 360, top = 920 })
+				msg.post("camera", "bounds", { left = 0, right = 1728, bottom = 0, top = 1280 })
 			else
 				msg.post("camera", "bounds", {})
 			end

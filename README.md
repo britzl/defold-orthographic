@@ -117,7 +117,7 @@ Translate screen coordinates to world coordinates, based on the view and project
 * ```screen``` (vector3) Screen coordinates to convert
 
 **RETURN**
-* ```world_coords``` (vector3) Note: Same v3 object as passed in as argument
+* ```world_coords``` (vector3) World coordinates
 
 
 ### camera.world_to_screen(camera_id, x, y)
@@ -128,7 +128,7 @@ Translate world coordinates to screen coordinates, based on the view and project
 * ```world``` (vector3) World coordinates to convert
 
 **RETURN**
-* ```screen_coords``` (vector3) Note: Same v3 object as passed in as argument
+* ```screen_coords``` (vector3) Screen coordinates
 
 
 ### camera.unproject(view, projection, screen)
@@ -161,6 +161,7 @@ Add a custom projector that can be used by cameras in your project (see configur
 **PARAMETERS**
 * ```projector_id``` (hash) - Id of the projector. Used as a value in the ```projection``` field of the camera script.
 * ```projector_fn``` (function) - The function to call when a projection matrix is needed for the camera. The function will receive the id, near_z and far_z values of the camera.
+
 
 ### shake
 Message equivalent to ```camera.shake()```. Supports ```intensity```, ```duration``` and ```direction```.

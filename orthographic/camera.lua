@@ -16,6 +16,7 @@ local OFFSET = vmath.vector3(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, 0)
 local MATRIX4 = vmath.matrix4()
 
 local v4_tmp = vmath.vector4()
+local v3_tmp = vmath.vector3()
 
 local cameras = {}
 
@@ -127,10 +128,16 @@ function M.update(camera_id, dt)
 
 	if camera.bounds then
 		local bounds = camera.bounds
-		camera_pos.x = math.max(camera_pos.x, bounds.left)
-		camera_pos.x = math.min(camera_pos.x, bounds.right)
-		camera_pos.y = math.max(camera_pos.y, bounds.bottom)
-		camera_pos.y = math.min(camera_pos.y, bounds.top)
+		local cp = M.world_to_screen(camera_id, vmath.vector3(camera_pos))
+		local tr = M.world_to_screen(camera_id, bounds.top_right) - OFFSET
+		local bl = M.world_to_screen(camera_id, bounds.bottom_left) + OFFSET
+		
+		cp.x = math.max(cp.x, bl.x)
+		cp.x = math.min(cp.x, tr.x)
+		cp.y = math.max(cp.y, bl.y)
+		cp.y = math.min(cp.y, tr.y)
+		
+		camera_pos = M.screen_to_world(camera_id, cp)
 	end
 
 	go.set_position(camera_pos, camera_id)
@@ -203,6 +210,8 @@ function M.bounds(camera_id, left, top, right, bottom)
 			right = right,
 			bottom = bottom,
 			top = top,
+			bottom_left = vmath.vector3(left, bottom, 0),
+			top_right = vmath.vector3(right, top, 0),
 		}
 	else
 		cameras[camera_id].bounds = nil
@@ -266,12 +275,12 @@ end
 -- by the camera.script)
 -- @param camera_id
 -- @param screen Screen coordinates as a vector3
--- @return Mutated screen coordinates as world coordinates
+-- @return World coordinates
 -- http://webglfactory.blogspot.se/2011/05/how-to-convert-world-to-screen.html
 function M.screen_to_world(camera_id, screen)
 	local view = cameras[camera_id].view or MATRIX4
 	local projection = cameras[camera_id].projection or MATRIX4
-	return M.unproject(view, projection, screen)
+	return M.unproject(view, projection, vmath.vector3(screen))
 end
 
 
@@ -281,12 +290,12 @@ end
 -- by the camera.script)
 -- @param camera_id
 -- @param world World coordinates as a vector3
--- @return Mutated world coordinates as screen coordinates
+-- @return Screen coordinates
 -- http://webglfactory.blogspot.se/2011/05/how-to-convert-world-to-screen.html
 function M.world_to_screen(camera_id, world)
 	local view = cameras[camera_id].view or MATRIX4
 	local projection = cameras[camera_id].projection or MATRIX4
-	return M.project(view, projection, world)
+	return M.project(view, projection, vmath.vector3(world))
 end
 
 
