@@ -6,7 +6,8 @@ local window_width = DISPLAY_WIDTH
 local window_height = DISPLAY_HEIGHT
 
 
--- setup a fixed aspect ratio projection that is used by the camera in this example
+-- setup a fixed aspect ratio projection that zooms in/out to fit the original viewport contents
+-- regardless of window size
 camera.add_projector(hash("FIXED"), function(camera_id, near_z, far_z)
 	local zoom_factor = math.min(window_width / DISPLAY_WIDTH, window_height / DISPLAY_HEIGHT)
 	local projected_width = window_width / zoom_factor
@@ -15,6 +16,26 @@ camera.add_projector(hash("FIXED"), function(camera_id, near_z, far_z)
 	local yoffset = -(projected_height - DISPLAY_HEIGHT) / 2
 	return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
 end)
+
+-- setup a fixed aspect ratio projection without any zoom
+camera.add_projector(hash("FIXED_NOZOOM"), function(camera_id, near_z, far_z)
+	local projected_width = window_width
+	local projected_height = window_height
+	local xoffset = -(projected_width - DISPLAY_WIDTH) / 2
+	local yoffset = -(projected_height - DISPLAY_HEIGHT) / 2
+	return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
+end)
+
+-- setup multiple fixed aspect ratio projections zoomed 2x, 4x, 6x, 8x and 10x times
+for zoom_factor=2,10,2 do
+	camera.add_projector(hash("FIXED_ZOOM_"..zoom_factor), function(camera_id, near_z, far_z)
+		local projected_width = window_width / zoom_factor
+		local projected_height = window_height / zoom_factor
+		local xoffset = -(projected_width - DISPLAY_WIDTH) / 2
+		local yoffset = -(projected_height - DISPLAY_HEIGHT) / 2
+		return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
+	end)
+end
 
 
 function init(self)
