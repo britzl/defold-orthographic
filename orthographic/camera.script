@@ -13,7 +13,7 @@ local FOLLOW = hash("follow")
 local SHAKE = hash("shake")
 local DEADZONE = hash("deadzone")
 local BOUNDS = hash("bounds")
-local UPDATE_VIEW_PROJECTION = hash("update_view_projection")
+local UPDATE_CAMERA = hash("update_camera")
 
 
 function init(self)
@@ -28,17 +28,17 @@ end
 
 function update(self, dt)
 	if self.enabled then
-		camera.update(go.get_id(), dt)
 		
-		-- update view projection after all game objects have been updated
+		-- update camera and view projection after all game objects have been updated
 		-- will jitter otherwise
-		msg.post("#", UPDATE_VIEW_PROJECTION)
+		msg.post("#", UPDATE_CAMERA, { dt = dt })
 	end
 end
 
 
 function on_message(self, message_id, message, sender)
-	if message_id == UPDATE_VIEW_PROJECTION then
+	if message_id == UPDATE_CAMERA then
+		camera.update(go.get_id(), message.dt)
 		camera.send_view_projection(go.get_id())
 	elseif message_id == ENABLE then
 		self.enabled = true
