@@ -48,9 +48,9 @@ local function calculate_projection(camera_id)
 	return projector_fn(camera_id, near_z, far_z)
 end
 
-local function calculate_view(camera_id, offset)
+local function calculate_view(camera_id, camera_world_pos, offset)
 	local rot = go.get_world_rotation(camera_id)
-	local pos = go.get_world_position(camera_id) - vmath.rotate(rot, OFFSET)
+	local pos = camera_world_pos - vmath.rotate(rot, OFFSET)
 	if offset then
 		pos = pos + offset
 	end
@@ -94,41 +94,43 @@ function M.update(camera_id, dt)
 		return
 	end
 	
-	local camera_pos = go.get_position(camera_id)
+	local camera_world_pos = go.get_world_position(camera_id)
+	local camera_world_to_local_diff = camera_world_pos - go.get_position(camera_id)
 	if camera.follow then
 		local target_pos = go.get_position(camera.follow.target)
+		local target_world_pos = go.get_world_position(camera.follow.target)
 		local new_pos
 		if camera.deadzone then
-			new_pos = vmath.vector3(camera_pos)
-			local left_edge = camera_pos.x - camera.deadzone.left
-			local right_edge = camera_pos.x + camera.deadzone.right
-			local top_edge = camera_pos.y + camera.deadzone.top
-			local bottom_edge = camera_pos.y - camera.deadzone.bottom
-			if target_pos.x < left_edge then
-				new_pos.x = new_pos.x - (left_edge - target_pos.x)
-			elseif target_pos.x > right_edge then
-				new_pos.x = new_pos.x + (target_pos.x - right_edge)
+			new_pos = vmath.vector3(camera_world_pos)
+			local left_edge = camera_world_pos.x - camera.deadzone.left
+			local right_edge = camera_world_pos.x + camera.deadzone.right
+			local top_edge = camera_world_pos.y + camera.deadzone.top
+			local bottom_edge = camera_world_pos.y - camera.deadzone.bottom
+			if target_world_pos.x < left_edge then
+				new_pos.x = new_pos.x - (left_edge - target_world_pos.x)
+			elseif target_world_pos.x > right_edge then
+				new_pos.x = new_pos.x + (target_world_pos.x - right_edge)
 			end
-			if target_pos.y > top_edge then
-				new_pos.y = new_pos.y + (target_pos.y - top_edge)
-			elseif target_pos.y < bottom_edge then
-				new_pos.y = new_pos.y - (bottom_edge - target_pos.y)
+			if target_world_pos.y > top_edge then
+				new_pos.y = new_pos.y + (target_world_pos.y - top_edge)
+			elseif target_world_pos.y < bottom_edge then
+				new_pos.y = new_pos.y - (bottom_edge - target_world_pos.y)
 			end
 		else
-			new_pos = target_pos
+			new_pos = target_world_pos
 		end
-		new_pos.z = camera_pos.z
+		new_pos.z = camera_world_pos.z
 		if camera.follow.lerp then
-			camera_pos = vmath.lerp(camera.follow.lerp or 0.1, camera_pos, new_pos)
-			camera_pos.z = new_pos.z
+			camera_world_pos = vmath.lerp(camera.follow.lerp or 0.1, camera_world_pos, new_pos)
+			camera_world_pos.z = new_pos.z
 		else
-			camera_pos = new_pos
+			camera_world_pos = new_pos
 		end
 	end
 
 	if camera.bounds then
 		local bounds = camera.bounds
-		local cp = M.world_to_screen(camera_id, vmath.vector3(camera_pos))
+		local cp = M.world_to_screen(camera_id, vmath.vector3(camera_world_pos))
 		local tr = M.world_to_screen(camera_id, bounds.top_right) - OFFSET
 		local bl = M.world_to_screen(camera_id, bounds.bottom_left) + OFFSET
 		
@@ -137,10 +139,10 @@ function M.update(camera_id, dt)
 		cp.y = math.max(cp.y, bl.y)
 		cp.y = math.min(cp.y, tr.y)
 		
-		camera_pos = M.screen_to_world(camera_id, cp)
+		camera_world_pos = M.screen_to_world(camera_id, cp)
 	end
 
-	go.set_position(camera_pos, camera_id)
+	go.set_position(camera_world_pos + camera_world_to_local_diff, camera_id)
 	
 	if camera.shake then
 		camera.shake.duration = camera.shake.duration - dt
@@ -157,7 +159,7 @@ function M.update(camera_id, dt)
 		end
 	end
 	
-	camera.view = calculate_view(camera_id, camera.shake and camera.shake.offset)	
+	camera.view = calculate_view(camera_id, camera_world_pos, camera.shake and camera.shake.offset)	
 	camera.projection = calculate_projection(camera_id)
 end
 
