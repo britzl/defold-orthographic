@@ -1,11 +1,11 @@
 [project]
 title = Orthographic
 version = 0.9
-dependencies = 
+dependencies =
 
 [bootstrap]
 main_collection = /example/example.collectionc
-render = /example/render/orthographic.renderc
+render = /orthographic/render/orthographic.renderc
 
 [input]
 game_binding = /input/game.input_bindingc
@@ -27,4 +27,3 @@ include_dirs = orthographic
 
 [graphics]
 max_debug_vertices = 50000
-
