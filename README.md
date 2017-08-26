@@ -59,6 +59,8 @@ An alternative approach is to ignore the ```set_view_projection``` message and d
 		...
 	end
 
+The project includes a render script that does the above mentioned integration of the Orthographic Camera API. Use it as it is or copy it into your project and make whatever modifications that you need.
+
 ## The Orthographic Camera API
 The API can be used in two ways:
 
