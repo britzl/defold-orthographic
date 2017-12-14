@@ -17,7 +17,7 @@ instances {
     id: "script"
     properties {
       id: "projection"
-      value: "FIXED"
+      value: "FIXED_NOZOOM"
       type: PROPERTY_TYPE_HASH
     }
   }

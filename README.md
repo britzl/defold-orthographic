@@ -22,7 +22,23 @@ Select the script component attached to the ```camera.go``` to modify the proper
 This is the near and far z-values used in the projection matrix, ie the near and far clipping plane. Anything with a z-value inside this range will be drawn by the render script.
 
 #### projection (hash)
-The camera can be configured to support different kinds of orthographic projections. The default projection (aptly named ```DEFAULT```) uses the same orthographic projection matrix as in the default render script (ie aspect ratio isn't maintained and content is stretched). Additional custom projections can be added, see ```camera.add_projector()``` below. [Refer to the render script of the example project](https://github.com/britzl/defold-orthographic/blob/master/example/render/orthographic.render_script#L9-L17) to see an example of a projector that maintains aspect ratio.
+The camera can be configured to support different kinds of orthographic projections. The default projection (aptly named ```DEFAULT```) uses the same orthographic projection matrix as in the default render script (ie aspect ratio isn't maintained and content is stretched). Other projections are available out-of-the box:
+
+* ```FIXED``` - A fixed aspect ratio projection that zooms in/out to fit the original viewport contents regardless of window size.
+* ```FIXED_NOZOOM``` - A fixed aspect ratio projection without any zoom.
+* ```FIXED_ZOOM_2``` - A fixed aspect ratio projection zoomed 2x
+* ```FIXED_ZOOM_3``` - A fixed aspect ratio projection zoomed 3x
+* ```FIXED_ZOOM_4``` - A fixed aspect ratio projection zoomed 4x
+* ```FIXED_ZOOM_5``` - A fixed aspect ratio projection zoomed 5x
+* ```FIXED_ZOOM_6``` - A fixed aspect ratio projection zoomed 6x
+* ```FIXED_ZOOM_7``` - A fixed aspect ratio projection zoomed 7x
+* ```FIXED_ZOOM_8``` - A fixed aspect ratio projection zoomed 8x
+* ```FIXED_ZOOM_9``` - A fixed aspect ratio projection zoomed 9x
+* ```FIXED_ZOOM_10``` - A fixed aspect ratio projection zoomed 10x
+
+Note: For the above projections to work you need to pass the window dimensions from your render script to the camera. See [the section on render script integration](#render_script_integration).
+
+Additional custom projections can be added, see ```camera.add_projector()``` below.
 
 #### enabled (boolean)
 This controls if the camera is enabled by default or not. Send ```enable``` and ```disable``` messages to the script or use ```go.set(id, "enable", true|false)``` to toggle this value.
@@ -59,7 +75,21 @@ An alternative approach is to ignore the ```set_view_projection``` message and d
 		...
 	end
 
-The project includes a render script that does the above mentioned integration of the Orthographic Camera API. Use it as it is or copy it into your project and make whatever modifications that you need.
+### Feeding window size to the camera
+It is recommended to send the window width and height from the render script to the camera module. This is required if any of the projectors provided in ```camera.lua``` is used. It also allows custom projectors to get the current window size by calling ```camera.get_window_size()```. Set the window size like this:
+
+	local camera = require "orthographic.camera"
+
+	function update(self)
+		...
+		local window_width = render.get_window_width()
+		local window_height = render.get_window_height()
+		camera.set_window_size(window_width, window_height)
+		...
+	end
+
+### Example render script
+The orthographic/render folder contains a render script that does the above mentioned integration of the Orthographic Camera API. Use it as it is or copy it into your project and make whatever modifications that you need.
 
 ## The Orthographic Camera API
 The API can be used in two ways:
@@ -163,6 +193,38 @@ Add a custom projector that can be used by cameras in your project (see configur
 **PARAMETERS**
 * ```projector_id``` (hash) - Id of the projector. Used as a value in the ```projection``` field of the camera script.
 * ```projector_fn``` (function) - The function to call when a projection matrix is needed for the camera. The function will receive the id, near_z and far_z values of the camera.
+
+
+### camera.use_projector(camera_id, projector_id)
+Set a specific projector for a camera. This must be either one of the predefined projectors (see above) or a custom projector added using ```camera.add_projector()```.
+
+**PARAMETERS**
+* ```camera_id``` (hash) - Id of the camera to set projector for.
+* ```projector_id``` (hash) - Id of the projector.
+
+
+### camera.set_window_size(width, height)
+Set the current window size so that it is available to projectors via ```camera.get_window_size()```. Set this via your render script.
+
+**PARAMETERS**
+* ```width``` (number) - Current window width.
+* ```height``` (number) - Current window height.
+
+
+### camera.get_window_size()
+Get the current window size, as it was provided by ```camera.set_window_size()```. The default values will be the ones specified in game.project.
+
+**RETURN**
+* ```width``` (number) - Current window width.
+* ```height``` (number) - Current window height.
+
+
+### camera.get_display_size()
+Get the display size, as specified in game.project.
+
+**RETURN**
+* ```width``` (number) - Display width.
+* ```height``` (number) - Display height.
 
 
 ### shake

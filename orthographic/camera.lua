@@ -7,8 +7,26 @@ M.SHAKE_BOTH = hash("both")
 M.SHAKE_HORIZONTAL = hash("horizontal")
 M.SHAKE_VERTICAL = hash("vertical")
 
+M.PROJECTOR = {}
+M.PROJECTOR.DEFAULT = hash("DEFAULT")
+M.PROJECTOR.FIXED = hash("FIXED")
+M.PROJECTOR.FIXED_NOZOOM = hash("FIXED_NOZOOM")
+M.PROJECTOR.FIXED_ZOOM_2 = hash("FIXED_ZOOM_2")
+M.PROJECTOR.FIXED_ZOOM_3 = hash("FIXED_ZOOM_3")
+M.PROJECTOR.FIXED_ZOOM_4 = hash("FIXED_ZOOM_4")
+M.PROJECTOR.FIXED_ZOOM_5 = hash("FIXED_ZOOM_5")
+M.PROJECTOR.FIXED_ZOOM_6 = hash("FIXED_ZOOM_6")
+M.PROJECTOR.FIXED_ZOOM_7 = hash("FIXED_ZOOM_7")
+M.PROJECTOR.FIXED_ZOOM_8 = hash("FIXED_ZOOM_8")
+M.PROJECTOR.FIXED_ZOOM_9 = hash("FIXED_ZOOM_9")
+M.PROJECTOR.FIXED_ZOOM_10 = hash("FIXED_ZOOM_10")
+
 local DISPLAY_WIDTH = tonumber(sys.get_config("display.width"))
 local DISPLAY_HEIGHT = tonumber(sys.get_config("display.height"))
+
+local WINDOW_WIDTH = DISPLAY_WIDTH
+local WINDOW_HEIGHT = DISPLAY_HEIGHT
+
 
 -- center camera to middle of screen
 local OFFSET = vmath.vector3(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, 0)
@@ -26,9 +44,50 @@ local projectors = {}
 
 -- the default projector from the default render script
 -- will stretch content
-projectors[hash("DEFAULT")] = function(camera_id, near_z, far_z)
+projectors[M.PROJECTORS.DEFAULT] = function(camera_id, near_z, far_z)
 	return vmath.matrix4_orthographic(0, DISPLAY_WIDTH, 0, DISPLAY_HEIGHT, near_z, far_z)
 end
+
+-- setup a fixed aspect ratio projection that zooms in/out to fit the original viewport contents
+-- regardless of window size
+projectors[M.PROJECTORS.FIXED] = function(camera_id, near_z, far_z)
+	local zoom_factor = math.min(WINDOW_WIDTH / DISPLAY_WIDTH, WINDOW_HEIGHT / DISPLAY_HEIGHT)
+	local projected_width = WINDOW_WIDTH / zoom_factor
+	local projected_height = WINDOW_HEIGHT / zoom_factor
+	local xoffset = -(projected_width - DISPLAY_WIDTH) / 2
+	local yoffset = -(projected_height - DISPLAY_HEIGHT) / 2
+	return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
+end
+
+-- setup a fixed aspect ratio projection without any zoom
+projectors[M.PROJECTORS.FIXED_NOZOOM] = function(camera_id, near_z, far_z)
+	local projected_width = WINDOW_WIDTH
+	local projected_height = WINDOW_HEIGHT
+	local xoffset = -(projected_width - DISPLAY_WIDTH) / 2
+	local yoffset = -(projected_height - DISPLAY_HEIGHT) / 2
+	return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
+end
+
+local function create_fixed_zoom_projector(zoom_factor)
+	return function(camera_id, near_z, far_z)
+		local projected_width = WINDOW_WIDTH / zoom_factor
+		local projected_height = WINDOW_HEIGHT / zoom_factor
+		local xoffset = -(projected_width - DISPLAY_WIDTH) / 2
+		local yoffset = -(projected_height - DISPLAY_HEIGHT) / 2
+		return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
+	end
+end
+
+projectors[M.PROJECTORS.FIXED_ZOOM_2] = create_fixed_zoom_projector(2)
+projectors[M.PROJECTORS.FIXED_ZOOM_3] = create_fixed_zoom_projector(3)
+projectors[M.PROJECTORS.FIXED_ZOOM_4] = create_fixed_zoom_projector(4)
+projectors[M.PROJECTORS.FIXED_ZOOM_5] = create_fixed_zoom_projector(5)
+projectors[M.PROJECTORS.FIXED_ZOOM_6] = create_fixed_zoom_projector(6)
+projectors[M.PROJECTORS.FIXED_ZOOM_7] = create_fixed_zoom_projector(7)
+projectors[M.PROJECTORS.FIXED_ZOOM_8] = create_fixed_zoom_projector(8)
+projectors[M.PROJECTORS.FIXED_ZOOM_9] = create_fixed_zoom_projector(9)
+projectors[M.PROJECTORS.FIXED_ZOOM_10] = create_fixed_zoom_projector(10)
+
 
 --- Add a custom projector
 -- @param projector_id Unique id of the projector (hash)
@@ -38,14 +97,48 @@ function M.add_projector(projector_id, projector_fn)
 	projectors[projector_id] = projector_fn
 end
 
+--- Set the projector used by a camera
+-- @param camera_id
+-- @param projector_id The projector to use
+function M.use_projector(camera_id, projector_id)
+	assert(camera_id, "You must provide a camera id")
+	assert(projector_id, "You must provide a projector id")
+	local camera = cameras[camera_id]
+	if camera then
+		camera.projector_id = projector_id
+	end
+end
+
+
+--- Set the window size
+-- Call this from your render script to update the current window size
+-- The width and height can later be retrieved through the M.get_window_size()
+-- function. This is a convenience for use by custom projector functions
+-- @param width Current window width
+-- @param height Current window height
+function M.set_window_size(width, height)
+	WINDOW_WIDTH = width
+	WINDOW_HEIGHT = height
+end
+
+--- Get the window size
+-- @return width Current window width
+-- @return height Current window height
+function M.get_window_size()
+	return WINDOW_WIDTH, WINDOW_HEIGHT
+end
+
+--- Get the display size (ie from game.project)
+-- @return width Display width from game.project
+-- @return height Display height from game.project
+function M.get_display_size()
+	return DISPLAY_WIDTH, DISPLAY_HEIGHT
+end
 
 local function calculate_projection(camera_id)
-	local url = msg.url(nil, camera_id, "script")
-	local projector_id = go.get(url, "projection")
-	local near_z = go.get(url, "near_z")
-	local far_z = go.get(url, "far_z")
-	local projector_fn = projectors[projector_id] or projectors[hash("DEFAULT")]
-	return projector_fn(camera_id, near_z, far_z)
+	local camera = cameras[camera_id]
+	local projector_fn = projectors[camera.projector_id] or projectors[hash("DEFAULT")]
+	return projector_fn(camera_id, camera.near_z, camera.far_z)
 end
 
 local function calculate_view(camera_id, camera_world_pos, offset)
@@ -65,8 +158,16 @@ end
 --- Initialize a camera
 -- Note: This is called automatically from the init() function of the camera.script
 -- @param camera_id
-function M.init(camera_id)
-	cameras[camera_id] = {}
+-- @param settings Camera settings. Accepted values:
+--		* near_z (number)
+--		* far_z (number)
+--		* projector_id (hash)
+function M.init(camera_id, settings)
+	assert(camera_id, "You must provide a camera id")
+	assert(settings.near_z, "You must provide a near z-value")
+	assert(settings.far_z, "You must provide a far z-value")
+	assert(settings.projector_id, "You must provide a projector id")
+	cameras[camera_id] = settings
 end
 
 

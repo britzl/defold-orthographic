@@ -17,7 +17,11 @@ local UPDATE_CAMERA = hash("update_camera")
 
 
 function init(self)
-	camera.init(go.get_id())
+	camera.init(go.get_id(), {
+		near_z = self.near_z,
+		far_z = self.far_z,
+		projector_id = self.projection,
+	})
 end
 
 
