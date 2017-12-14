@@ -44,13 +44,13 @@ local projectors = {}
 
 -- the default projector from the default render script
 -- will stretch content
-projectors[M.PROJECTORS.DEFAULT] = function(camera_id, near_z, far_z)
+projectors[M.PROJECTOR.DEFAULT] = function(camera_id, near_z, far_z)
 	return vmath.matrix4_orthographic(0, DISPLAY_WIDTH, 0, DISPLAY_HEIGHT, near_z, far_z)
 end
 
 -- setup a fixed aspect ratio projection that zooms in/out to fit the original viewport contents
 -- regardless of window size
-projectors[M.PROJECTORS.FIXED] = function(camera_id, near_z, far_z)
+projectors[M.PROJECTOR.FIXED] = function(camera_id, near_z, far_z)
 	local zoom_factor = math.min(WINDOW_WIDTH / DISPLAY_WIDTH, WINDOW_HEIGHT / DISPLAY_HEIGHT)
 	local projected_width = WINDOW_WIDTH / zoom_factor
 	local projected_height = WINDOW_HEIGHT / zoom_factor
@@ -60,7 +60,7 @@ projectors[M.PROJECTORS.FIXED] = function(camera_id, near_z, far_z)
 end
 
 -- setup a fixed aspect ratio projection without any zoom
-projectors[M.PROJECTORS.FIXED_NOZOOM] = function(camera_id, near_z, far_z)
+projectors[M.PROJECTOR.FIXED_NOZOOM] = function(camera_id, near_z, far_z)
 	local projected_width = WINDOW_WIDTH
 	local projected_height = WINDOW_HEIGHT
 	local xoffset = -(projected_width - DISPLAY_WIDTH) / 2
@@ -78,15 +78,15 @@ local function create_fixed_zoom_projector(zoom_factor)
 	end
 end
 
-projectors[M.PROJECTORS.FIXED_ZOOM_2] = create_fixed_zoom_projector(2)
-projectors[M.PROJECTORS.FIXED_ZOOM_3] = create_fixed_zoom_projector(3)
-projectors[M.PROJECTORS.FIXED_ZOOM_4] = create_fixed_zoom_projector(4)
-projectors[M.PROJECTORS.FIXED_ZOOM_5] = create_fixed_zoom_projector(5)
-projectors[M.PROJECTORS.FIXED_ZOOM_6] = create_fixed_zoom_projector(6)
-projectors[M.PROJECTORS.FIXED_ZOOM_7] = create_fixed_zoom_projector(7)
-projectors[M.PROJECTORS.FIXED_ZOOM_8] = create_fixed_zoom_projector(8)
-projectors[M.PROJECTORS.FIXED_ZOOM_9] = create_fixed_zoom_projector(9)
-projectors[M.PROJECTORS.FIXED_ZOOM_10] = create_fixed_zoom_projector(10)
+projectors[M.PROJECTOR.FIXED_ZOOM_2] = create_fixed_zoom_projector(2)
+projectors[M.PROJECTOR.FIXED_ZOOM_3] = create_fixed_zoom_projector(3)
+projectors[M.PROJECTOR.FIXED_ZOOM_4] = create_fixed_zoom_projector(4)
+projectors[M.PROJECTOR.FIXED_ZOOM_5] = create_fixed_zoom_projector(5)
+projectors[M.PROJECTOR.FIXED_ZOOM_6] = create_fixed_zoom_projector(6)
+projectors[M.PROJECTOR.FIXED_ZOOM_7] = create_fixed_zoom_projector(7)
+projectors[M.PROJECTOR.FIXED_ZOOM_8] = create_fixed_zoom_projector(8)
+projectors[M.PROJECTOR.FIXED_ZOOM_9] = create_fixed_zoom_projector(9)
+projectors[M.PROJECTOR.FIXED_ZOOM_10] = create_fixed_zoom_projector(10)
 
 
 --- Add a custom projector
