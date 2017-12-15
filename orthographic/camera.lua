@@ -419,6 +419,17 @@ function M.project(view, projection, world)
 end
 
 
+local function unproject_xyz(inverse_view_projection, x, y, z)
+	x = (2 * x / DISPLAY_WIDTH) - 1
+	y = (2 * y / DISPLAY_HEIGHT) - 1
+	z = (2 * z) - 1
+	local inv = inverse_view_projection
+	local x1 = x * inv.m00 + y * inv.m01 + z * inv.m02 + inv.m03
+	local y1 = x * inv.m10 + y * inv.m11 + z * inv.m12 + inv.m13
+	local z1 = x * inv.m20 + y * inv.m21 + z * inv.m22 + inv.m23
+	return x1, y1, z1
+end
+
 --- Translate screen coordinates to world coordinates given a
 -- view and projection matrix 
 -- @param view View matrix
@@ -427,15 +438,25 @@ end
 -- @return The mutated screen coordinates (ie the same v3 object)
 -- translated to world coordinates
 function M.unproject(view, projection, screen)
-	local x = (2 * screen.x / DISPLAY_WIDTH) - 1
-	local y = (2 * screen.y / DISPLAY_HEIGHT) - 1
-	local z = (2 * screen.z) - 1
-	v4_tmp.x, v4_tmp.y, v4_tmp.z, v4_tmp.w = x, y, z, 1
-	local v4 = vmath.inv(projection * view) * v4_tmp
-	screen.x = v4.x
-	screen.y = v4.y
-	screen.z = v4.z
+	local inv = vmath.inv(projection * view)
+	screen.x, screen.y, screen.z = unproject_xyz(inv, screen.x, screen.y, screen.z)
 	return screen
+end
+
+--- Get the screen bounds as world coordinates, ie where in world space the
+-- screen corners are
+-- Note: You need to have called update() at least once (this is done automatically
+-- by the camera.script)
+-- @param camera_id
+-- @return bounds Vector4 where x is left, y is bottom, z is right and w is top
+function M.screen_to_world_bounds(camera_id)
+	local view = cameras[camera_id].view or MATRIX4
+	local projection = cameras[camera_id].projection or MATRIX4
+	local inv = vmath.inv(projection * view)
+	local bl_x, bl_y = unproject_xyz(inv, 0, 0, 0)
+	local br_x, br_y = unproject_xyz(inv, DISPLAY_WIDTH, 0, 0)
+	local tl_x, tl_y = unproject_xyz(inv, 0, DISPLAY_HEIGHT, 0)
+	return vmath.vector4(bl_x, bl_y, br_x, tl_y)
 end
 
 return M
