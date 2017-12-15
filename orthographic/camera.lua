@@ -168,6 +168,8 @@ function M.init(camera_id, settings)
 	assert(settings.far_z, "You must provide a far z-value")
 	assert(settings.projector_id, "You must provide a projector id")
 	cameras[camera_id] = settings
+	cameras[camera_id].view = calculate_view(camera_id, go.get_world_position(camera_id))	
+	cameras[camera_id].projection = calculate_projection(camera_id)
 end
 
 
