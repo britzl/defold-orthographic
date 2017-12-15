@@ -24,10 +24,10 @@ end
 
 function update(self, dt)
 	local bounds = camera.screen_to_world_bounds(CAMERA_ID)
-	gui.set_text(gui.get_node("bottom_left"), ("%d,%d"):format(bounds.x, bounds.y))
-	gui.set_text(gui.get_node("bottom_right"), ("%d,%d"):format(bounds.z, bounds.y))
-	gui.set_text(gui.get_node("top_left"), ("%d,%d"):format(bounds.x, bounds.w))
-	gui.set_text(gui.get_node("top_right"), ("%d,%d"):format(bounds.z, bounds.w))
+	gui.set_text(gui.get_node("bottom_left"), ("%d,%d"):format(bounds.x, bounds.w))
+	gui.set_text(gui.get_node("bottom_right"), ("%d,%d"):format(bounds.z, bounds.w))
+	gui.set_text(gui.get_node("top_left"), ("%d,%d"):format(bounds.x, bounds.y))
+	gui.set_text(gui.get_node("top_right"), ("%d,%d"):format(bounds.z, bounds.y))
 end
 
 

@@ -94,8 +94,8 @@ The orthographic/render folder contains a render script that does the above ment
 ## The Orthographic Camera API
 The API can be used in two ways:
 
-1. Calling functions on the camera.lua module
-2. Sending messages to the camera.script
+1. Calling functions on the ```camera.lua``` module
+2. Sending messages to the ```camera.script```
 
 ### camera.shake(camera_id, [intensity], [duration], [direction], [cb])
 Shake the camera.
@@ -141,7 +141,8 @@ Limits the camera position to within the specified rectangle.
 * ```right``` (number) - Right edge of camera bounds
 * ```bottom``` (number) - Bottom edge of camera bounds
 
-### camera.screen_to_world(camera_id, x, y, [z])
+
+### camera.screen_to_world(camera_id, screen)
 Translate screen coordinates to world coordinates, based on the view and projection of the camera.
 
 **PARAMETERS**
@@ -152,7 +153,17 @@ Translate screen coordinates to world coordinates, based on the view and project
 * ```world_coords``` (vector3) World coordinates
 
 
-### camera.world_to_screen(camera_id, x, y)
+### camera.screen_to_world_bounds(camera_id)
+Translate screen boundaries (corners) to world coordinates, based on the view and projection of the camera.
+
+**PARAMETERS**
+* ```camera_id``` (hash|url)
+
+**RETURN**
+* ```bounds``` (vector4) Screen bounds (x = left, y = top, z = right, w = bottom)
+
+
+### camera.world_to_screen(camera_id, world)
 Translate world coordinates to screen coordinates, based on the view and projection of the camera. This is useful when manually culling game objects and you need to determine if a world coordinate will be visible or not.
 
 **PARAMETER**
@@ -250,6 +261,3 @@ Enable the camera. While the camera is enabled it will update it's view and proj
 
 ### disable
 Disable the camera.
-
-## License
-This library is released under the same [Terms and Conditions as Defold](http://www.defold.com/about-terms/).

@@ -448,7 +448,7 @@ end
 -- Note: You need to have called update() at least once (this is done automatically
 -- by the camera.script)
 -- @param camera_id
--- @return bounds Vector4 where x is left, y is bottom, z is right and w is top
+-- @return bounds Vector4 where x is left, y is top, z is right and w is bottom
 function M.screen_to_world_bounds(camera_id)
 	local view = cameras[camera_id].view or MATRIX4
 	local projection = cameras[camera_id].projection or MATRIX4
@@ -456,7 +456,7 @@ function M.screen_to_world_bounds(camera_id)
 	local bl_x, bl_y = unproject_xyz(inv, 0, 0, 0)
 	local br_x, br_y = unproject_xyz(inv, DISPLAY_WIDTH, 0, 0)
 	local tl_x, tl_y = unproject_xyz(inv, 0, DISPLAY_HEIGHT, 0)
-	return vmath.vector4(bl_x, bl_y, br_x, tl_y)
+	return vmath.vector4(bl_x, tl_y, br_x, bl_y)
 end
 
 return M
