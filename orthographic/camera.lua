@@ -188,7 +188,7 @@ end
 -- * Shake the camera (if enabled)
 -- * Recalculate the view and projection matrix
 --
--- Note: This is called automatically from the final() function of the camera.script
+-- Note: This is called automatically from the camera.script
 -- @param camera_id
 -- @param dt
 function M.update(camera_id, dt)
@@ -304,7 +304,7 @@ end
 
 --- Set the camera bounds
 -- @param camera_id
--- @param left Left edge of camera bounds. Pass nil to remove deadzone.
+-- @param left Left edge of camera bounds. Pass nil to remove bounds.
 -- @param top
 -- @param right
 -- @param bottom
@@ -343,8 +343,6 @@ end
 
 
 --- Get the projection matrix for a camera
--- Note: You need to have called update() at least once (this is done automatically
--- by the camera.script)
 -- @param camera_id
 -- @return Projection matrix
 function M.get_projection(camera_id)
@@ -354,8 +352,6 @@ end
 
 --- Get the view matrix for a specific camera, based on the camera position
 -- and rotation
--- Note: You need to have called update() at least once (this is done automatically
--- by the camera.script)
 -- @param camera_id
 -- @return View matrix
 function M.get_view(camera_id)
@@ -364,8 +360,6 @@ end
 
 
 --- Send the view and projection matrix for a camera to the render script
--- Note: You need to have called update() at least once (this is done automatically
--- by the camera.script)
 -- @param camera_id
 function M.send_view_projection(camera_id)
 	local view = cameras[camera_id].view or MATRIX4
@@ -376,8 +370,6 @@ end
 
 --- Convert screen coordinates to world coordinates based
 -- on a specific camera's view and projection
--- Note: You need to have called update() at least once (this is done automatically
--- by the camera.script)
 -- @param camera_id
 -- @param screen Screen coordinates as a vector3
 -- @return World coordinates
@@ -391,8 +383,6 @@ end
 
 --- Convert world coordinates to screen coordinates based
 -- on a specific camera's view and projection
--- Note: You need to have called update() at least once (this is done automatically
--- by the camera.script)
 -- @param camera_id
 -- @param world World coordinates as a vector3
 -- @return Screen coordinates
@@ -447,8 +437,6 @@ end
 
 --- Get the screen bounds as world coordinates, ie where in world space the
 -- screen corners are
--- Note: You need to have called update() at least once (this is done automatically
--- by the camera.script)
 -- @param camera_id
 -- @return bounds Vector4 where x is left, y is top, z is right and w is bottom
 function M.screen_to_world_bounds(camera_id)
