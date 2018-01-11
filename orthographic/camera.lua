@@ -94,6 +94,8 @@ projectors[M.PROJECTOR.FIXED_ZOOM_10] = create_fixed_zoom_projector(10)
 -- @param projector_fn The function to call when the projection matrix needs to be calculated
 -- The function will receive near_z and far_z as arguments
 function M.add_projector(projector_id, projector_fn)
+	assert(projector_id, "You must provide a projector id")
+	assert(projector_fn, "You must provide a projector function")
 	projectors[projector_id] = projector_fn
 end
 
@@ -117,6 +119,8 @@ end
 -- @param width Current window width
 -- @param height Current window height
 function M.set_window_size(width, height)
+	assert(width, "You must provide window width")
+	assert(height, "You must provide window height")
 	WINDOW_WIDTH = width
 	WINDOW_HEIGHT = height
 end
@@ -177,6 +181,7 @@ end
 -- Note: This is called automatically from the final() function of the camera.script
 -- @param camera_id
 function M.final(camera_id)
+	assert(camera_id, "You must provide a camera id")
 	cameras[camera_id] = nil
 end
 
@@ -192,6 +197,7 @@ end
 -- @param camera_id
 -- @param dt
 function M.update(camera_id, dt)
+	assert(camera_id, "You must provide a camera id")
 	local camera = cameras[camera_id]
 	if not camera then
 		return
@@ -272,6 +278,8 @@ end
 -- @param target The game object to follow
 -- @param lerp Optional lerp to smoothly move the camera towards the target
 function M.follow(camera_id, target, lerp)
+	assert(camera_id, "You must provide a camera id")
+	assert(target, "You must provide a target")
 	cameras[camera_id].follow = { target = target, lerp = lerp }
 end
 
@@ -289,6 +297,7 @@ end
 -- @param right
 -- @param bottom
 function M.deadzone(camera_id, left, top, right, bottom)
+	assert(camera_id, "You must provide a camera id")
 	if left and right and top and bottom then
 		cameras[camera_id].deadzone = {
 			left = left,
@@ -309,6 +318,7 @@ end
 -- @param right
 -- @param bottom
 function M.bounds(camera_id, left, top, right, bottom)
+	assert(camera_id, "You must provide a camera id")
 	if left and top and right and bottom then
 		cameras[camera_id].bounds = {
 			left = left,
@@ -331,6 +341,7 @@ end
 -- @param direction both|horizontal|vertical. Optional, default: both
 -- @param cb Function to call when shake has completed. Optional
 function M.shake(camera_id, intensity, duration, direction, cb)
+	assert(camera_id, "You must provide a camera id")
 	cameras[camera_id].shake = {
 		intensity = intensity or 0.05,
 		duration = duration or 0.5,
@@ -346,6 +357,7 @@ end
 -- @param camera_id
 -- @return Projection matrix
 function M.get_projection(camera_id)
+	assert(camera_id, "You must provide a camera id")
 	return cameras[camera_id].projection
 end
 
@@ -355,6 +367,7 @@ end
 -- @param camera_id
 -- @return View matrix
 function M.get_view(camera_id)
+	assert(camera_id, "You must provide a camera id")
 	return cameras[camera_id].view
 end
 
@@ -362,6 +375,7 @@ end
 --- Send the view and projection matrix for a camera to the render script
 -- @param camera_id
 function M.send_view_projection(camera_id)
+	assert(camera_id, "You must provide a camera id")
 	local view = cameras[camera_id].view or MATRIX4
 	local projection = cameras[camera_id].projection or MATRIX4
 	msg.post("@render:", "set_view_projection", { id = camera_id, view = view, projection = projection })
@@ -375,6 +389,8 @@ end
 -- @return World coordinates
 -- http://webglfactory.blogspot.se/2011/05/how-to-convert-world-to-screen.html
 function M.screen_to_world(camera_id, screen)
+	assert(camera_id, "You must provide a camera id")
+	assert(screen, "You must provide screen coordinates to convert")
 	local view = cameras[camera_id].view or MATRIX4
 	local projection = cameras[camera_id].projection or MATRIX4
 	return M.unproject(view, projection, vmath.vector3(screen))
@@ -388,6 +404,8 @@ end
 -- @return Screen coordinates
 -- http://webglfactory.blogspot.se/2011/05/how-to-convert-world-to-screen.html
 function M.world_to_screen(camera_id, world)
+	assert(camera_id, "You must provide a camera id")
+	assert(world, "You must provide world coordinates to convert")
 	local view = cameras[camera_id].view or MATRIX4
 	local projection = cameras[camera_id].projection or MATRIX4
 	return M.project(view, projection, vmath.vector3(world))
@@ -402,6 +420,9 @@ end
 -- @return The mutated world coordinates (ie the same v3 object)
 -- translated to screen coordinates
 function M.project(view, projection, world)
+	assert(view, "You must provide a view")
+	assert(projection, "You must provide a projection")
+	assert(world, "You must provide world coordinates to translate")
 	v4_tmp.x, v4_tmp.y, v4_tmp.z, v4_tmp.w = world.x, world.y, world.z, 1
 	local v4 = projection * view * v4_tmp
 	world.x = ((v4.x + 1) / 2) * DISPLAY_WIDTH
@@ -430,6 +451,9 @@ end
 -- @return The mutated screen coordinates (ie the same v3 object)
 -- translated to world coordinates
 function M.unproject(view, projection, screen)
+	assert(view, "You must provide a view")
+	assert(projection, "You must provide a projection")
+	assert(screen, "You must provide screen coordinates to translate")
 	local inv = vmath.inv(projection * view)
 	screen.x, screen.y, screen.z = unproject_xyz(inv, screen.x, screen.y, screen.z)
 	return screen
@@ -440,6 +464,7 @@ end
 -- @param camera_id
 -- @return bounds Vector4 where x is left, y is top, z is right and w is bottom
 function M.screen_to_world_bounds(camera_id)
+	assert(camera_id, "You must provide a camera id")
 	local view = cameras[camera_id].view or MATRIX4
 	local projection = cameras[camera_id].projection or MATRIX4
 	local inv = vmath.inv(projection * view)
