@@ -353,6 +353,15 @@ function M.shake(camera_id, intensity, duration, direction, cb)
 end
 
 
+
+--- Stop shaking a camera
+-- @param camera_id
+function M.stop_shaking(camera_id)
+	assert(camera_id, "You must provide a camera id")
+	cameras[camera_id].shake = nil
+end
+
+
 --- Get the projection matrix for a camera
 -- @param camera_id
 -- @return Projection matrix

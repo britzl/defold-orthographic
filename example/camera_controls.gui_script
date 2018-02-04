@@ -45,6 +45,8 @@ function on_input(self, action_id, action)
 			msg.post("camera", "shake", { intensity = 0.05, duration = 0.5, direction = hash("horizontal") })
 		elseif gui.pick_node(gui.get_node("shake_vertical/button"), action.x, action.y) then
 			msg.post("camera", "shake", { intensity = 0.05, duration = 0.5, direction = hash("vertical") })
+		elseif gui.pick_node(gui.get_node("stop_shaking/button"), action.x, action.y) then
+			msg.post("camera", "stop_shaking")
 		elseif gui.pick_node(gui.get_node("bounds/button"), action.x, action.y) then
 			self.bounds_enabled = not self.bounds_enabled
 			if self.bounds_enabled then
