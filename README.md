@@ -119,7 +119,7 @@ Get the current zoom level of the camera.
 
 
 ### camera.zoom_to(camera_id, zoom)
-Change the zoom level of the camera, with optional animation.
+Change the zoom level of the camera.
 
 **PARAMETERS**
 * ```camera_id``` (hash|url)
