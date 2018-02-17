@@ -7,8 +7,6 @@ function init(self)
 	gui.set_enabled(gui.get_node("deadzone_visualizer"), false)
 	self.bounds_enabled = false
 	self.deadzone_enabled = false
-	self.zoomlevel = 1.0
-	msg.post("#", "get_zoomlevel")
 end
 
 
@@ -18,14 +16,7 @@ function update(self, dt)
 	gui.set_text(gui.get_node("bottom_right"), ("%d,%d"):format(bounds.z, bounds.w))
 	gui.set_text(gui.get_node("top_left"), ("%d,%d"):format(bounds.x, bounds.y))
 	gui.set_text(gui.get_node("top_right"), ("%d,%d"):format(bounds.z, bounds.y))
-end
-
-
-function on_message(self, message_id, message, sender)
-	if message_id == hash("get_zoomlevel") then
-		self.zoomlevel = camera.get_zoom(CAMERA_ID)
-		gui.set_text(gui.get_node("zoomlevel"), tostring(self.zoomlevel))
-	end
+	gui.set_text(gui.get_node("zoomlevel"), ("%.2f"):format(tostring(camera.get_zoom(CAMERA_ID))))
 end
 
 function on_input(self, action_id, action)
@@ -71,14 +62,12 @@ function on_input(self, action_id, action)
 			end
 			return true
 		elseif gui.pick_node(gui.get_node("zoomin/button"), action.x, action.y) then
-			self.zoomlevel = self.zoomlevel + 0.25
-			msg.post("camera", "zoom_to", { zoom = self.zoomlevel } )
-			gui.set_text(gui.get_node("zoomlevel"), tostring(self.zoomlevel))
+			local zoomlevel = camera.get_zoom(CAMERA_ID) + 0.25
+			msg.post("camera", "zoom_to", { zoom = zoomlevel } )
 			return true
 		elseif gui.pick_node(gui.get_node("zoomout/button"), action.x, action.y) then
-			self.zoomlevel = math.max(0.25, self.zoomlevel - 0.25)
-			msg.post("camera", "zoom_to", { zoom = self.zoomlevel } )
-			gui.set_text(gui.get_node("zoomlevel"), tostring(self.zoomlevel))
+			local zoomlevel = math.max(0.25, camera.get_zoom(CAMERA_ID) - 0.25)
+			msg.post("camera", "zoom_to", { zoom = zoomlevel } )
 			return true
 		end
 	end
