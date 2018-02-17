@@ -1,7 +1,7 @@
 # defold-orthographic
 Orthographic camera API for the [Defold game engine](https://www.defold.com). The API makes it super easy to convert screen to world coordinates, smoothly follow a game object and create a screen shake effect. This project is inspired by the camera component of the Phaser engine.
 
-The project is shipped with an example that shows all the features of the orthographic camera. [Test the example app in your browser](http://britzl.github.io/publicexamples/orthographic/index.html).
+The project is shipped with an example that shows all the features of the orthographic camera. [Test the example app in your browser](http://britzl.github.io/Orthographic/index.html).
 
 ## Installation
 You can use the orthograpic camera in your own project by adding this project as a [Defold library dependency](http://www.defold.com/manuals/libraries/). Open your game.project file and in the dependencies field under project add:
