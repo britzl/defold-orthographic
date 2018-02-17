@@ -22,6 +22,8 @@ local WINDOW_HEIGHT = DISPLAY_HEIGHT
 -- center camera to middle of screen
 local OFFSET = vmath.vector3(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, 0)
 
+local VECTOR3_ZERO = vmath.vector3(0)
+
 local MATRIX4 = vmath.matrix4()
 
 local v4_tmp = vmath.vector4()
@@ -230,17 +232,38 @@ function M.update(camera_id, dt)
 		if camera.shake.duration < 0 then
 			camera.shake.cb()
 			camera.shake = nil
-			return
-		end
-		if camera.shake.horizontal then
-			camera.shake.offset.x = (DISPLAY_WIDTH * camera.shake.intensity) * (math.random() - 0.5)
-		end
-		if camera.shake.vertical then
-			camera.shake.offset.y = (DISPLAY_WIDTH * camera.shake.intensity) * (math.random() - 0.5)
+		else
+			if camera.shake.horizontal then
+				camera.shake.offset.x = (DISPLAY_WIDTH * camera.shake.intensity) * (math.random() - 0.5)
+			end
+			if camera.shake.vertical then
+				camera.shake.offset.y = (DISPLAY_WIDTH * camera.shake.intensity) * (math.random() - 0.5)
+			end
 		end
 	end
-	
-	camera.view = calculate_view(camera_id, camera_world_pos, camera.shake and camera.shake.offset)	
+
+	if camera.recoil then
+		camera.recoil.time_left = camera.recoil.time_left - dt
+		if camera.recoil.time_left < 0 then
+			camera.recoil = nil
+		else
+			local t = camera.recoil.time_left / camera.recoil.duration
+			camera.recoil.offset.x = vmath.lerp(t, 0, camera.recoil.offset.x)
+			camera.recoil.offset.y = vmath.lerp(t, 0, camera.recoil.offset.y)
+		end
+	end
+
+	local offset
+	if camera.shake or camera.recoil then
+		offset = VECTOR3_ZERO
+		if camera.shake then
+			offset = offset + camera.shake.offset
+		end
+		if camera.recoil then
+			offset = offset + camera.recoil.offset
+		end
+	end
+	camera.view = calculate_view(camera_id, camera_world_pos, offset)	
 	camera.projection = calculate_projection(camera_id)
 end
 
@@ -324,13 +347,27 @@ function M.shake(camera_id, intensity, duration, direction, cb)
 	}
 end
 
-
-
 --- Stop shaking a camera
 -- @param camera_id
 function M.stop_shaking(camera_id)
 	assert(camera_id, "You must provide a camera id")
 	cameras[camera_id].shake = nil
+end
+
+
+
+--- Simulate a recoil effect
+-- @param camera_id
+-- @param offset Amount to offset the camera with
+-- @param duration Duration of the recoil. Optional, default: 0.5s.
+function M.recoil(camera_id, offset, duration)
+	assert(camera_id, "You must provide a strength id")
+	print("recoil", offset, duration)
+	cameras[camera_id].recoil = {
+		offset = offset,
+		duration = duration or 0.5,
+		time_left = duration or 0.5,
+	}
 end
 
 

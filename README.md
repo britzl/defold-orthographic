@@ -101,11 +101,21 @@ Shake the camera.
 * ```direction``` (hash) - Direction of the shake. Possible values: ```both```, ```horizontal```, ```vertical```. Defaults to ```both```.
 * ```cb``` (function) - Function to call when the shake has finished. Optional.
 
-### camera.stop_shaing(camera_id)
+
+### camera.stop_shaking(camera_id)
 Stop shaking the camera.
 
 **PARAMETERS**
 * ```camera_id``` (hash|url)
+
+
+### camera.recoil(camera_id, offset, [duration])
+Apply a recoil effect to the camera. The recoil will decay using linear interpolation.
+
+**PARAMETERS**
+* ```camera_id``` (hash|url)
+* ```offset``` (vector3) - Offset to apply to the camera. Defaults to 0.05
+* ```duration``` (number) - Duration of the recoil, in seconds. Defaults to 0.5
 
 
 ### camera.get_zoom(camera_id)
@@ -268,6 +278,11 @@ Message equivalent to ```camera.shake()```. Accepted message keys: ```intensity`
 Message equivalent to ```camera.stop_shaking()```.
 
 	msg.post("camera", "stop_shaking")
+
+### recoil
+Message equivalent to ```camera.recoil()```. Accepted message keys: ```offset``` and ```duration```.
+
+	msg.post("camera", "recoil", { offset = vmath.vector3(100, 100, 0), duration = 0.75 })
 
 ### shake_complete
 Message sent back to the sender of a ```shake``` message when the shake has completed.

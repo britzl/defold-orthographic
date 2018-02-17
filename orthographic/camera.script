@@ -11,6 +11,7 @@ local ENABLE = hash("enable")
 local DISABLE = hash("disable")
 local UNFOLLOW = hash("unfollow")
 local FOLLOW = hash("follow")
+local RECOIL = hash("recoil")
 local SHAKE = hash("shake")
 local STOP_SHAKING = hash("stop_shaking")
 local DEADZONE = hash("deadzone")
@@ -63,6 +64,8 @@ function on_message(self, message_id, message, sender)
 		camera.shake(go.get_id(), message.intensity, message.duration, message.direction, function()
 			msg.post(sender, "shake_completed")
 		end)
+	elseif message_id == RECOIL then
+		camera.recoil(go.get_id(), message.offset, message.duration)
 	elseif message_id == STOP_SHAKING then
 		camera.stop_shaking(go.get_id())
 	elseif message_id == ZOOM_TO then

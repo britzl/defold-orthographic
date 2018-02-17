@@ -1,11 +1,19 @@
+local camera = require "orthographic.camera"
+
 local SPEED = 400
 
 function init(self)
 	msg.post(".", "acquire_input_focus")
 	self.input = {}
+	self.crosshair = vmath.vector3()
 end
 
 function update(self, dt)
+	-- update crosshair based on mouse and camera position
+	local cursor_pos = camera.screen_to_world(go.get_id("camera"), self.crosshair)
+	go.set_position(vmath.lerp(0.5, go.get_position("crosshair"), cursor_pos), "crosshair")
+
+	-- update player position
 	local pos = go.get_position()
 	if self.input[hash("up")] then
 		pos.y = pos.y + SPEED * dt
@@ -21,11 +29,22 @@ function update(self, dt)
 end
 
 function on_input(self, action_id, action)
+	self.crosshair.x = action.x
+	self.crosshair.y = action.y
+	
 	if action_id then
 		if action.pressed then
 			self.input[action_id] = true
 		elseif action.released then
 			self.input[action_id] = false
+		end
+
+		-- shoot and apply recoil
+		if action_id == hash("touch") and action.pressed then
+			local crosshair_pos = go.get_position("crosshair")
+			local player_pos = go.get_position()
+			local offset = (crosshair_pos - player_pos) * 0.1
+			camera.recoil(go.get_id("camera"), offset, 0.5)
 		end
 	end
 end
