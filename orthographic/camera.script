@@ -4,6 +4,20 @@ go.property("zoom", 1)
 go.property("projection", hash("DEFAULT"))
 go.property("enabled", true)
 
+go.property("follow", false)
+go.property("follow_target", hash(""))
+go.property("follow_lerp", 0.5)
+
+go.property("bounds_left", 0)
+go.property("bounds_bottom", 0)
+go.property("bounds_right", 0)
+go.property("bounds_top", 0)
+go.property("deadzone_left", 0)
+go.property("deadzone_bottom", 0)
+go.property("deadzone_right", 0)
+go.property("deadzone_top", 0)
+
+
 local camera = require "orthographic.camera"
 
 
@@ -20,12 +34,7 @@ local UPDATE_CAMERA = hash("update_camera")
 local ZOOM_TO = hash("zoom_to")
 
 function init(self)
-	camera.init(go.get_id(), {
-		near_z = self.near_z,
-		far_z = self.far_z,
-		projector_id = self.projection,
-		zoom = self.zoom,
-	})
+	camera.init(go.get_id(), msg.url(), { zoom = self.zoom })
 end
 
 
@@ -36,7 +45,6 @@ end
 
 function update(self, dt)
 	if self.enabled then
-		
 		-- update camera and view projection after all game objects have been updated
 		-- will jitter otherwise
 		msg.post("#", UPDATE_CAMERA, { dt = dt })
@@ -53,13 +61,25 @@ function on_message(self, message_id, message, sender)
 	elseif message_id == DISABLE then
 		self.enabled = false
 	elseif message_id == UNFOLLOW then
-		camera.unfollow(go.get_id())
+		self.follow = false
+	elseif message_id == USE_PROJECTION then
+		assert(message.projection, "You must provide a projection")
+		self.projection = message.projection
 	elseif message_id == FOLLOW then
-		camera.follow(go.get_id(), message.target, message.lerp)
+		assert(message.target, "You must provide a target")
+		self.follow = true
+		self.follow_target = type(message.target) == "string" and hash(message.target) or message.target
+		self.follow_lerp = message.lerp or 1
 	elseif message_id == DEADZONE then
-		camera.deadzone(go.get_id(), message.left, message.top, message.right, message.bottom)
+		self.deadzone_right = message.right or 0
+		self.deadzone_top = message.top or 0
+		self.deadzone_left = message.left or 0
+		self.deadzone_bottom = message.bottom or 0
 	elseif message_id == BOUNDS then
-		camera.bounds(go.get_id(), message.left, message.top, message.right, message.bottom)
+		self.bounds_right = message.right or 0
+		self.bounds_top = message.top or 0
+		self.bounds_left = message.left or 0
+		self.bounds_bottom = message.bottom or 0
 	elseif message_id == SHAKE then
 		camera.shake(go.get_id(), message.intensity, message.duration, message.direction, function()
 			msg.post(sender, "shake_completed")
@@ -69,7 +89,7 @@ function on_message(self, message_id, message, sender)
 	elseif message_id == STOP_SHAKING then
 		camera.stop_shaking(go.get_id())
 	elseif message_id == ZOOM_TO then
+		assert(message.zoom, "You must provide a zoom level")
 		self.zoom = message.zoom
-		camera.set_zoom(go.get_id(), message.zoom)
 	end
 end

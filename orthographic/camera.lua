@@ -79,9 +79,7 @@ function M.use_projector(camera_id, projector_id)
 	assert(camera_id, "You must provide a camera id")
 	assert(projector_id, "You must provide a projector id")
 	local camera = cameras[camera_id]
-	if camera then
-		camera.projector_id = projector_id
-	end
+	msg.post(camera.url, "use_projection", { projection = projector_id })
 end
 
 
@@ -114,8 +112,13 @@ end
 
 local function calculate_projection(camera_id)
 	local camera = cameras[camera_id]
-	local projector_fn = projectors[camera.projector_id] or projectors[hash("DEFAULT")]
-	return projector_fn(camera_id, camera.near_z, camera.far_z, camera.zoom)
+	local projector_id = go.get(camera.url, "projection")
+	local near_z = go.get(camera.url, "near_z")
+	local far_z = go.get(camera.url, "far_z")
+	local zoom = go.get(camera.url, "zoom")
+	camera.zoom = zoom
+	local projector_fn = projectors[projector_id] or projectors[hash("DEFAULT")]
+	return projector_fn(camera_id, near_z, far_z, zoom)
 end
 
 local function calculate_view(camera_id, camera_world_pos, offset)
@@ -135,17 +138,12 @@ end
 --- Initialize a camera
 -- Note: This is called automatically from the init() function of the camera.script
 -- @param camera_id
--- @param settings Camera settings. Accepted values:
---		* near_z (number)
---		* far_z (number)
---		* projector_id (hash)
-function M.init(camera_id, settings)
+-- @param camera_script_url
+function M.init(camera_id, camera_script_url, settings)
 	assert(camera_id, "You must provide a camera id")
-	assert(settings.near_z, "You must provide a near z-value")
-	assert(settings.far_z, "You must provide a far z-value")
-	assert(settings.projector_id, "You must provide a projector id")
-	settings.zoom = settings.zoom or 1
+	assert(camera_script_url, "You must provide a camera script url")
 	cameras[camera_id] = settings
+	cameras[camera_id].url = camera_script_url
 	cameras[camera_id].view = calculate_view(camera_id, go.get_world_position(camera_id))	
 	cameras[camera_id].projection = calculate_projection(camera_id)
 end
@@ -179,16 +177,22 @@ function M.update(camera_id, dt)
 	
 	local camera_world_pos = go.get_world_position(camera_id)
 	local camera_world_to_local_diff = camera_world_pos - go.get_position(camera_id)
-	if camera.follow then
-		local target_pos = go.get_position(camera.follow.target)
-		local target_world_pos = go.get_world_position(camera.follow.target)
+	local follow_enabled = go.get(camera.url, "follow")
+	if follow_enabled then
+		local follow = go.get(camera.url, "follow_target")
+		local target_pos = go.get_position(follow)
+		local target_world_pos = go.get_world_position(follow)
 		local new_pos
-		if camera.deadzone then
+		local deadzone_top = go.get(camera.url, "deadzone_top")
+		local deadzone_left = go.get(camera.url, "deadzone_left")
+		local deadzone_right = go.get(camera.url, "deadzone_right")
+		local deadzone_bottom = go.get(camera.url, "deadzone_bottom")
+		if deadzone_top ~= 0 or deadzone_left ~= 0 or deadzone_right ~= 0 or deadzone_bottom ~= 0 then
 			new_pos = vmath.vector3(camera_world_pos)
-			local left_edge = camera_world_pos.x - camera.deadzone.left
-			local right_edge = camera_world_pos.x + camera.deadzone.right
-			local top_edge = camera_world_pos.y + camera.deadzone.top
-			local bottom_edge = camera_world_pos.y - camera.deadzone.bottom
+			local left_edge = camera_world_pos.x - deadzone_left
+			local right_edge = camera_world_pos.x + deadzone_right
+			local top_edge = camera_world_pos.y + deadzone_top
+			local bottom_edge = camera_world_pos.y - deadzone_bottom
 			if target_world_pos.x < left_edge then
 				new_pos.x = new_pos.x - (left_edge - target_world_pos.x)
 			elseif target_world_pos.x > right_edge then
@@ -203,19 +207,19 @@ function M.update(camera_id, dt)
 			new_pos = target_world_pos
 		end
 		new_pos.z = camera_world_pos.z
-		if camera.follow.lerp then
-			camera_world_pos = vmath.lerp(camera.follow.lerp or 0.1, camera_world_pos, new_pos)
-			camera_world_pos.z = new_pos.z
-		else
-			camera_world_pos = new_pos
-		end
+		local follow_lerp = go.get(camera.url, "follow_lerp")
+		camera_world_pos = vmath.lerp(follow_lerp, camera_world_pos, new_pos)
+		camera_world_pos.z = new_pos.z
 	end
 
-	if camera.bounds then
-		local bounds = camera.bounds
+	local bounds_top = go.get(camera.url, "bounds_top")
+	local bounds_left = go.get(camera.url, "bounds_left")
+	local bounds_bottom = go.get(camera.url, "bounds_bottom")
+	local bounds_right = go.get(camera.url, "bounds_right")
+	if bounds_top ~= 0 or bounds_left ~= 0 or bounds_bottom ~= 0 or bounds_right ~= 0 then
 		local cp = M.world_to_screen(camera_id, vmath.vector3(camera_world_pos))
-		local tr = M.world_to_screen(camera_id, bounds.top_right) - OFFSET
-		local bl = M.world_to_screen(camera_id, bounds.bottom_left) + OFFSET
+		local tr = M.world_to_screen(camera_id, vmath.vector3(bounds_right, bounds_top, 0)) - OFFSET
+		local bl = M.world_to_screen(camera_id, vmath.vector3(bounds_left, bounds_bottom, 0)) + OFFSET
 		
 		cp.x = math.max(cp.x, bl.x)
 		cp.x = math.min(cp.x, tr.x)
@@ -226,6 +230,7 @@ function M.update(camera_id, dt)
 	end
 
 	go.set_position(camera_world_pos + camera_world_to_local_diff, camera_id)
+
 	
 	if camera.shake then
 		camera.shake.duration = camera.shake.duration - dt
@@ -275,14 +280,15 @@ end
 function M.follow(camera_id, target, lerp)
 	assert(camera_id, "You must provide a camera id")
 	assert(target, "You must provide a target")
-	cameras[camera_id].follow = { target = target, lerp = lerp }
+	msg.post(cameras[camera_id].url, "follow", { target = target, lerp = lerp })
 end
 
 
 --- Unfollow a game object
 -- @param camera_id
 function M.unfollow(camera_id)
-	cameras[camera_id].follow = nil
+	assert(camera_id, "You must provide a camera id")
+	msg.post(cameras[camera_id].url, "unfollow")
 end
 
 --- Set the camera deadzone
@@ -293,15 +299,11 @@ end
 -- @param bottom
 function M.deadzone(camera_id, left, top, right, bottom)
 	assert(camera_id, "You must provide a camera id")
+	local camera = cameras[camera_id]
 	if left and right and top and bottom then
-		cameras[camera_id].deadzone = {
-			left = left,
-			right = right,
-			bottom = bottom,
-			top = top,
-		}
+		msg.post(camera.url, "deadzone", { left = left, top = top, right = right, bottom = bottom })
 	else
-		cameras[camera_id].deadzone = nil
+		msg.post(camera.url, "deadzone")
 	end
 end
 
@@ -314,17 +316,11 @@ end
 -- @param bottom
 function M.bounds(camera_id, left, top, right, bottom)
 	assert(camera_id, "You must provide a camera id")
+	local camera = cameras[camera_id]
 	if left and top and right and bottom then
-		cameras[camera_id].bounds = {
-			left = left,
-			right = right,
-			bottom = bottom,
-			top = top,
-			bottom_left = vmath.vector3(left, bottom, 0),
-			top_right = vmath.vector3(right, top, 0),
-		}
+		msg.post(camera.url, "bounds", { left = left, top = top, right = right, bottom = bottom })
 	else
-		cameras[camera_id].bounds = nil
+		msg.post(camera.url, "bounds")
 	end
 end
 
@@ -347,6 +343,7 @@ function M.shake(camera_id, intensity, duration, direction, cb)
 	}
 end
 
+
 --- Stop shaking a camera
 -- @param camera_id
 function M.stop_shaking(camera_id)
@@ -355,14 +352,12 @@ function M.stop_shaking(camera_id)
 end
 
 
-
 --- Simulate a recoil effect
 -- @param camera_id
 -- @param offset Amount to offset the camera with
 -- @param duration Duration of the recoil. Optional, default: 0.5s.
 function M.recoil(camera_id, offset, duration)
 	assert(camera_id, "You must provide a strength id")
-	print("recoil", offset, duration)
 	cameras[camera_id].recoil = {
 		offset = offset,
 		duration = duration or 0.5,
@@ -377,9 +372,7 @@ end
 function M.set_zoom(camera_id, zoom)
 	assert(camera_id, "You must provide a camera id")
 	assert(zoom, "You must provide a zoom level")
-	cameras[camera_id].zoom = zoom
-	cameras[camera_id].view = calculate_view(camera_id, go.get_world_position(camera_id))	
-	cameras[camera_id].projection = calculate_projection(camera_id)
+	msg.post(cameras[camera_id], "zoom_to", { zoom = zoom })
 end
 
 
@@ -390,7 +383,6 @@ function M.get_zoom(camera_id)
 	assert(camera_id, "You must provide a camera id")
 	return cameras[camera_id].zoom
 end
-
 
 
 --- Get the projection matrix for a camera

@@ -22,7 +22,7 @@ Select the script component attached to the ```camera.go``` to modify the proper
 This is the near and far z-values used in the projection matrix, ie the near and far clipping plane. Anything with a z-value inside this range will be drawn by the render script.
 
 #### zoom (number)
-This is the zoom level of the camera. Modify it by calling ```camera.zoom_to()```. Read it using ```camera.get_zoom()``` or using ```go.get(camera_id, "zoom")```.
+This is the zoom level of the camera. Modify it by calling ```camera.zoom_to()```, ```go.set(camera, "zoom")``` or ```go.animate(camera, "zoom", ...)```. Read it using ```camera.get_zoom()``` or ```go.get(camera_id, "zoom")```.
 
 #### projection (hash)
 The camera can be configured to support different kinds of orthographic projections. The default projection (aptly named ```DEFAULT```) uses the same orthographic projection matrix as in the default render script (ie aspect ratio isn't maintained and content is stretched). Other projections are available out-of-the box:
@@ -36,6 +36,22 @@ Additional custom projections can be added, see ```camera.add_projector()``` bel
 
 #### enabled (boolean)
 This controls if the camera is enabled by default or not. Send ```enable``` and ```disable``` messages to the script or use ```go.set(id, "enable", true|false)``` to toggle this value.
+
+#### follow (boolean)
+This controls if the camera should follow a target or not. See ```camera.follow()``` for details.
+
+#### follow_target (hash)
+Id of the game object to follow. See ```camera.follow()``` for details.
+
+#### follow_lerp (number)
+Amount of lerp when following a target. See ```camera.follow()``` for details.
+
+#### bounds_left (number), bounds_right (number), bounds_top (number), bounds_bottom (number)
+The camera bounds. See ```camera.bounds()``` for details.
+
+#### deadzone_left (number), deadzone_right (number), deadzone_top (number), deadzone_bottom (number)
+The camera deadzone. See ```camera.deadzone()``` for details.
+
 
 ## Render script integration
 While the camera is enabled it will send ```set_view_projection``` messages once per frame to the render script. The message is the same as that of the camera component, meaning that it contains ```id```, ```view``` and ```projection``` values. Make sure that these values are handled and used properly in the render script:
