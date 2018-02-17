@@ -1,5 +1,6 @@
 go.property("near_z", -1)
 go.property("far_z", 1)
+go.property("zoom", 1)
 go.property("projection", hash("DEFAULT"))
 go.property("enabled", true)
 
@@ -15,13 +16,14 @@ local STOP_SHAKING = hash("stop_shaking")
 local DEADZONE = hash("deadzone")
 local BOUNDS = hash("bounds")
 local UPDATE_CAMERA = hash("update_camera")
-
+local ZOOM_TO = hash("zoom_to")
 
 function init(self)
 	camera.init(go.get_id(), {
 		near_z = self.near_z,
 		far_z = self.far_z,
 		projector_id = self.projection,
+		zoom = self.zoom,
 	})
 end
 
@@ -63,5 +65,8 @@ function on_message(self, message_id, message, sender)
 		end)
 	elseif message_id == STOP_SHAKING then
 		camera.stop_shaking(go.get_id())
+	elseif message_id == ZOOM_TO then
+		self.zoom = message.zoom
+		camera.set_zoom(go.get_id(), message.zoom)
 	end
 end

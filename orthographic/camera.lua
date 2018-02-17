@@ -9,17 +9,8 @@ M.SHAKE_VERTICAL = hash("vertical")
 
 M.PROJECTOR = {}
 M.PROJECTOR.DEFAULT = hash("DEFAULT")
-M.PROJECTOR.FIXED = hash("FIXED")
-M.PROJECTOR.FIXED_NOZOOM = hash("FIXED_NOZOOM")
-M.PROJECTOR.FIXED_ZOOM_2 = hash("FIXED_ZOOM_2")
-M.PROJECTOR.FIXED_ZOOM_3 = hash("FIXED_ZOOM_3")
-M.PROJECTOR.FIXED_ZOOM_4 = hash("FIXED_ZOOM_4")
-M.PROJECTOR.FIXED_ZOOM_5 = hash("FIXED_ZOOM_5")
-M.PROJECTOR.FIXED_ZOOM_6 = hash("FIXED_ZOOM_6")
-M.PROJECTOR.FIXED_ZOOM_7 = hash("FIXED_ZOOM_7")
-M.PROJECTOR.FIXED_ZOOM_8 = hash("FIXED_ZOOM_8")
-M.PROJECTOR.FIXED_ZOOM_9 = hash("FIXED_ZOOM_9")
-M.PROJECTOR.FIXED_ZOOM_10 = hash("FIXED_ZOOM_10")
+M.PROJECTOR.FIXED_AUTO = hash("FIXED_AUTO")
+M.PROJECTOR.FIXED_ZOOM = hash("FIXED_ZOOM")
 
 local DISPLAY_WIDTH = tonumber(sys.get_config("display.width"))
 local DISPLAY_HEIGHT = tonumber(sys.get_config("display.height"))
@@ -44,14 +35,14 @@ local projectors = {}
 
 -- the default projector from the default render script
 -- will stretch content
-projectors[M.PROJECTOR.DEFAULT] = function(camera_id, near_z, far_z)
+projectors[M.PROJECTOR.DEFAULT] = function(camera_id, near_z, far_z, zoom)
 	return vmath.matrix4_orthographic(0, DISPLAY_WIDTH, 0, DISPLAY_HEIGHT, near_z, far_z)
 end
 
 -- setup a fixed aspect ratio projection that zooms in/out to fit the original viewport contents
 -- regardless of window size
-projectors[M.PROJECTOR.FIXED] = function(camera_id, near_z, far_z)
-	local zoom_factor = math.min(WINDOW_WIDTH / DISPLAY_WIDTH, WINDOW_HEIGHT / DISPLAY_HEIGHT)
+projectors[M.PROJECTOR.FIXED_AUTO] = function(camera_id, near_z, far_z, zoom)
+	local zoom_factor = math.min(WINDOW_WIDTH / DISPLAY_WIDTH, WINDOW_HEIGHT / DISPLAY_HEIGHT) * zoom
 	local projected_width = WINDOW_WIDTH / zoom_factor
 	local projected_height = WINDOW_HEIGHT / zoom_factor
 	local xoffset = -(projected_width - DISPLAY_WIDTH) / 2
@@ -59,34 +50,14 @@ projectors[M.PROJECTOR.FIXED] = function(camera_id, near_z, far_z)
 	return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
 end
 
--- setup a fixed aspect ratio projection without any zoom
-projectors[M.PROJECTOR.FIXED_NOZOOM] = function(camera_id, near_z, far_z)
-	local projected_width = WINDOW_WIDTH
-	local projected_height = WINDOW_HEIGHT
+-- setup a fixed aspect ratio projection with a fixed zoom
+projectors[M.PROJECTOR.FIXED_ZOOM] = function(camera_id, near_z, far_z, zoom)
+	local projected_width = WINDOW_WIDTH / zoom
+	local projected_height = WINDOW_HEIGHT / zoom
 	local xoffset = -(projected_width - DISPLAY_WIDTH) / 2
 	local yoffset = -(projected_height - DISPLAY_HEIGHT) / 2
 	return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
 end
-
-local function create_fixed_zoom_projector(zoom_factor)
-	return function(camera_id, near_z, far_z)
-		local projected_width = WINDOW_WIDTH / zoom_factor
-		local projected_height = WINDOW_HEIGHT / zoom_factor
-		local xoffset = -(projected_width - DISPLAY_WIDTH) / 2
-		local yoffset = -(projected_height - DISPLAY_HEIGHT) / 2
-		return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
-	end
-end
-
-projectors[M.PROJECTOR.FIXED_ZOOM_2] = create_fixed_zoom_projector(2)
-projectors[M.PROJECTOR.FIXED_ZOOM_3] = create_fixed_zoom_projector(3)
-projectors[M.PROJECTOR.FIXED_ZOOM_4] = create_fixed_zoom_projector(4)
-projectors[M.PROJECTOR.FIXED_ZOOM_5] = create_fixed_zoom_projector(5)
-projectors[M.PROJECTOR.FIXED_ZOOM_6] = create_fixed_zoom_projector(6)
-projectors[M.PROJECTOR.FIXED_ZOOM_7] = create_fixed_zoom_projector(7)
-projectors[M.PROJECTOR.FIXED_ZOOM_8] = create_fixed_zoom_projector(8)
-projectors[M.PROJECTOR.FIXED_ZOOM_9] = create_fixed_zoom_projector(9)
-projectors[M.PROJECTOR.FIXED_ZOOM_10] = create_fixed_zoom_projector(10)
 
 
 --- Add a custom projector
@@ -142,7 +113,7 @@ end
 local function calculate_projection(camera_id)
 	local camera = cameras[camera_id]
 	local projector_fn = projectors[camera.projector_id] or projectors[hash("DEFAULT")]
-	return projector_fn(camera_id, camera.near_z, camera.far_z)
+	return projector_fn(camera_id, camera.near_z, camera.far_z, camera.zoom)
 end
 
 local function calculate_view(camera_id, camera_world_pos, offset)
@@ -171,6 +142,7 @@ function M.init(camera_id, settings)
 	assert(settings.near_z, "You must provide a near z-value")
 	assert(settings.far_z, "You must provide a far z-value")
 	assert(settings.projector_id, "You must provide a projector id")
+	settings.zoom = settings.zoom or 1
 	cameras[camera_id] = settings
 	cameras[camera_id].view = calculate_view(camera_id, go.get_world_position(camera_id))	
 	cameras[camera_id].projection = calculate_projection(camera_id)
@@ -360,6 +332,28 @@ function M.stop_shaking(camera_id)
 	assert(camera_id, "You must provide a camera id")
 	cameras[camera_id].shake = nil
 end
+
+
+--- Set the zoom level of a camera
+-- @param camera_id
+-- @param zoom The zoom level of the camera
+function M.set_zoom(camera_id, zoom)
+	assert(camera_id, "You must provide a camera id")
+	assert(zoom, "You must provide a zoom level")
+	cameras[camera_id].zoom = zoom
+	cameras[camera_id].view = calculate_view(camera_id, go.get_world_position(camera_id))	
+	cameras[camera_id].projection = calculate_projection(camera_id)
+end
+
+
+--- Get the zoom level of a camera
+-- @param camera_id
+-- @return Current zoom level of the camera
+function M.get_zoom(camera_id)
+	assert(camera_id, "You must provide a camera id")
+	return cameras[camera_id].zoom
+end
+
 
 
 --- Get the projection matrix for a camera

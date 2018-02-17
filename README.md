@@ -21,20 +21,14 @@ Select the script component attached to the ```camera.go``` to modify the proper
 #### near_z (number) and far_z (number)
 This is the near and far z-values used in the projection matrix, ie the near and far clipping plane. Anything with a z-value inside this range will be drawn by the render script.
 
+#### zoom (number)
+This is the zoom level of the camera. Modify it by calling ```camera.zoom_to()```. Read it using ```camera.get_zoom()``` or using ```go.get(camera_id, "zoom")```.
+
 #### projection (hash)
 The camera can be configured to support different kinds of orthographic projections. The default projection (aptly named ```DEFAULT```) uses the same orthographic projection matrix as in the default render script (ie aspect ratio isn't maintained and content is stretched). Other projections are available out-of-the box:
 
-* ```FIXED``` - A fixed aspect ratio projection that zooms in/out to fit the original viewport contents regardless of window size.
-* ```FIXED_NOZOOM``` - A fixed aspect ratio projection without any zoom.
-* ```FIXED_ZOOM_2``` - A fixed aspect ratio projection zoomed 2x
-* ```FIXED_ZOOM_3``` - A fixed aspect ratio projection zoomed 3x
-* ```FIXED_ZOOM_4``` - A fixed aspect ratio projection zoomed 4x
-* ```FIXED_ZOOM_5``` - A fixed aspect ratio projection zoomed 5x
-* ```FIXED_ZOOM_6``` - A fixed aspect ratio projection zoomed 6x
-* ```FIXED_ZOOM_7``` - A fixed aspect ratio projection zoomed 7x
-* ```FIXED_ZOOM_8``` - A fixed aspect ratio projection zoomed 8x
-* ```FIXED_ZOOM_9``` - A fixed aspect ratio projection zoomed 9x
-* ```FIXED_ZOOM_10``` - A fixed aspect ratio projection zoomed 10x
+* ```FIXED_AUTO``` - A fixed aspect ratio projection that automatically zooms in/out to fit the original viewport contents regardless of window size.
+* ```FIXED_ZOOM``` - A fixed aspect ratio projection with zoom.
 
 Note: For the above projections to work you need to pass the window dimensions from your render script to the camera. See [the section on render script integration](#render_script_integration).
 
@@ -91,7 +85,7 @@ It is recommended to send the window width and height from the render script to 
 ### Example render script
 The orthographic/render folder contains a render script that does the above mentioned integration of the Orthographic Camera API. Use it as it is or copy it into your project and make whatever modifications that you need.
 
-## The Orthographic Camera API
+## The Orthographic Camera API - functions
 The API can be used in two ways:
 
 1. Calling functions on the ```camera.lua``` module
@@ -112,6 +106,25 @@ Stop shaking the camera.
 
 **PARAMETERS**
 * ```camera_id``` (hash|url)
+
+
+### camera.get_zoom(camera_id)
+Get the current zoom level of the camera.
+
+**PARAMETERS**
+* ```camera_id``` (hash|url)
+
+**RETURN**
+* ```zoom``` (number) The current zoom of the camera
+
+
+### camera.zoom_to(camera_id, zoom)
+Change the zoom level of the camera, with optional animation.
+
+**PARAMETERS**
+* ```camera_id``` (hash|url)
+* ```zoom``` (number) The new zoom level of the camera
+
 
 ### camera.follow(camera_id, target, [lerp])
 Follow a game object.
@@ -243,30 +256,53 @@ Get the display size, as specified in game.project.
 * ```width``` (number) - Display width.
 * ```height``` (number) - Display height.
 
+## The Orthographic Camera API - messages
+Most of the functions of the API have message equivalents that can be sent to the camera component.
 
 ### shake
-Message equivalent to ```camera.shake()```. Supports ```intensity```, ```duration``` and ```direction```.
+Message equivalent to ```camera.shake()```. Accepted message keys: ```intensity```, ```duration``` and ```direction```.
+
+	msg.post("camera", "shake", { intensity = 0.05, duration = 2.5, direction = "both" })
 
 ### stop_shaking
 Message equivalent to ```camera.stop_shaking()```.
+
+	msg.post("camera", "stop_shaking")
 
 ### shake_complete
 Message sent back to the sender of a ```shake``` message when the shake has completed.
 
 ### follow
-Message equivalent to ```camera.follow()```. Supports ```target``` and ```lerp```.
+Message equivalent to ```camera.follow()```. Accepted message keys: ```target``` and ```lerp```.
+
+	msg.post("camera", "follow", { target = hash("player"), lerp = 0.7 })
 
 ### unfollow
 Message equivalent to ```camera.unfollow()```.
 
+	msg.post("camera", "unfollow")
+
 ### deadzone
-Message equivalent to ```camera.deadzone()```. Supports ```left```, ```right```, ```bottom```, ```top```.
+Message equivalent to ```camera.deadzone()```. Accepted message keys: ```left```, ```right```, ```bottom``` and ```top```.
+
+	msg.post("camera", "deadzone", { left = 10, right = 200, bottom = 10, top = 100 })
 
 ### bounds
-Message equivalent to ```camera.bounds()```. Supports ```left```, ```right```, ```bottom```, ```top```.
+Message equivalent to ```camera.bounds()```. Accepted message keys: ```left```, ```right```, ```bottom``` and ```top```.
+
+	msg.post("camera", "bounds", { left = 10, right = 200, bottom = 10, top = 100 })
+
+### zoom_to
+Message equivalent to ```camera.zoom_to()```. Accepted message keys: ```zoom```.
+
+	msg.post("camera", "zoom_to", { zoom = 2.5 })
 
 ### enable
 Enable the camera. While the camera is enabled it will update it's view and projection and send these to the render script.
 
+	msg.post("camera", "enable")
+
 ### disable
 Disable the camera.
+
+	msg.post("camera", "disable")

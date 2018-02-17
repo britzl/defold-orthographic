@@ -8,17 +8,7 @@ function init(self)
 	self.bounds_enabled = false
 	self.deadzone_enabled = false
 	self.zoomlevel = 1.0
-
-	camera.add_projector(hash("FREEZOOM"), function(camera_id, near_z, far_z)
-		local window_width, window_height = camera.get_window_size()
-		local display_width, display_height = camera.get_display_size()
-		local projected_width = window_width / self.zoomlevel
-		local projected_height = window_height / self.zoomlevel
-		local xoffset = -(projected_width - display_width) / 2
-		local yoffset = -(projected_height - display_height) / 2
-		return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
-	end)
-	camera.use_projector(CAMERA_ID, hash("FREEZOOM"))
+	msg.post("#", "get_zoomlevel")
 end
 
 
@@ -30,6 +20,13 @@ function update(self, dt)
 	gui.set_text(gui.get_node("top_right"), ("%d,%d"):format(bounds.z, bounds.y))
 end
 
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("get_zoomlevel") then
+		self.zoomlevel = camera.get_zoom(CAMERA_ID)
+		gui.set_text(gui.get_node("zoomlevel"), tostring(self.zoomlevel))
+	end
+end
 
 function on_input(self, action_id, action)
 	if action_id == hash("touch") and action.released then
@@ -66,9 +63,11 @@ function on_input(self, action_id, action)
 			end
 		elseif gui.pick_node(gui.get_node("zoomin/button"), action.x, action.y) then
 			self.zoomlevel = self.zoomlevel + 0.25
+			msg.post("camera", "zoom_to", { zoom = self.zoomlevel } )
 			gui.set_text(gui.get_node("zoomlevel"), tostring(self.zoomlevel))
 		elseif gui.pick_node(gui.get_node("zoomout/button"), action.x, action.y) then
 			self.zoomlevel = math.max(0.25, self.zoomlevel - 0.25)
+			msg.post("camera", "zoom_to", { zoom = self.zoomlevel } )
 			gui.set_text(gui.get_node("zoomlevel"), tostring(self.zoomlevel))
 		end
 	end
