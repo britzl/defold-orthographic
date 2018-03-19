@@ -2,12 +2,6 @@
 
 local M = {}
 
--- Check if 'shared_state' setting is on
--- From https://github.com/rgrams/rendercam/blob/master/rendercam/rendercam.lua#L4-L7
-if sys.get_config("script.shared_state") ~= "1" then
-	error("ERROR - camera - 'shared_state' setting in game.project must be enabled for camera to work.")
-end
-
 M.SHAKE_BOTH = hash("both")
 M.SHAKE_HORIZONTAL = hash("horizontal")
 M.SHAKE_VERTICAL = hash("vertical")

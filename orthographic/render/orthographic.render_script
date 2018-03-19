@@ -1,8 +1,14 @@
 local camera = require "orthographic.camera"
 
+-- Check if 'shared_state' setting is on
+-- From https://github.com/rgrams/rendercam/blob/master/rendercam/rendercam.lua#L4-L7
+if sys.get_config("script.shared_state") ~= "1" then
+	error("ERROR - camera - 'shared_state' setting in game.project must be enabled for camera to work.")
+end
+
+
 local DISPLAY_WIDTH = tonumber(sys.get_config("display.width"))
 local DISPLAY_HEIGHT = tonumber(sys.get_config("display.height"))
-
 
 
 function init(self)

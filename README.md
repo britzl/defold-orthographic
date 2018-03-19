@@ -85,6 +85,9 @@ An alternative approach is to ignore the ```set_view_projection``` message and d
 		...
 	end
 
+NOTE: In order for this to work you need to make sure that the `Shared State` setting in the `Script` section of `game.project` is checked (defaults to checked)
+
+
 ### Feeding window size to the camera
 It is recommended to send the window width and height from the render script to the camera module. This is required if any of the projectors provided in ```camera.lua``` is used. It also allows custom projectors to get the current window size by calling ```camera.get_window_size()```. Set the window size like this:
 
@@ -98,8 +101,12 @@ It is recommended to send the window width and height from the render script to 
 		...
 	end
 
+NOTE: In order for this to work you need to make sure that the `Shared State` setting in the `Script` section of `game.project` is checked (defaults to checked)
+
+
 ### Example render script
 The orthographic/render folder contains a render script that does the above mentioned integration of the Orthographic Camera API. Use it as it is or copy it into your project and make whatever modifications that you need.
+
 
 ## The Orthographic Camera API - functions
 The API can be used in two ways:
