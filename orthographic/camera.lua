@@ -371,7 +371,7 @@ end
 function M.set_zoom(camera_id, zoom)
 	assert(camera_id, "You must provide a camera id")
 	assert(zoom, "You must provide a zoom level")
-	msg.post(cameras[camera_id], "zoom_to", { zoom = zoom })
+	msg.post(cameras[camera_id].url, "zoom_to", { zoom = zoom })
 end
 
 
