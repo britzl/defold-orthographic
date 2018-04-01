@@ -32,6 +32,7 @@ local DEADZONE = hash("deadzone")
 local BOUNDS = hash("bounds")
 local UPDATE_CAMERA = hash("update_camera")
 local ZOOM_TO = hash("zoom_to")
+local USE_PROJECTION = hash("use_projection")
 
 function init(self)
 	camera.init(go.get_id(), msg.url(), { zoom = self.zoom })
