@@ -3,7 +3,6 @@ local camera = require "orthographic.camera"
 local SPEED = 400
 
 function init(self)
-	msg.post(".", "acquire_input_focus")
 	self.input = {}
 	self.crosshair = vmath.vector3()
 end
@@ -40,7 +39,7 @@ function on_input(self, action_id, action)
 		end
 
 		-- shoot and apply recoil
-		if action_id == hash("touch") and action.pressed then
+		if action_id == hash("touch") and action.released then
 			local crosshair_pos = go.get_position("crosshair")
 			local player_pos = go.get_position()
 			local offset = (crosshair_pos - player_pos) * 0.1

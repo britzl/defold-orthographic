@@ -3,6 +3,7 @@ local camera = require "orthographic.camera"
 local CAMERA_ID = hash("/camera")
 
 function init(self)
+	msg.post("player", "acquire_input_focus")
 	msg.post(".", "acquire_input_focus")
 	gui.set_enabled(gui.get_node("deadzone_visualizer"), false)
 	self.bounds_enabled = false
