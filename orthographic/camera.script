@@ -36,6 +36,10 @@ local USE_PROJECTION = hash("use_projection")
 
 function init(self)
 	camera.init(go.get_id(), msg.url(), { zoom = self.zoom })
+	if self.enabled then
+		camera.update(go.get_id(), 0)
+		camera.send_view_projection(go.get_id())
+	end
 end
 
 
