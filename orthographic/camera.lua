@@ -11,8 +11,8 @@ M.PROJECTOR.DEFAULT = hash("DEFAULT")
 M.PROJECTOR.FIXED_AUTO = hash("FIXED_AUTO")
 M.PROJECTOR.FIXED_ZOOM = hash("FIXED_ZOOM")
 
-local DISPLAY_WIDTH = tonumber(sys.get_config("display.width"))
-local DISPLAY_HEIGHT = tonumber(sys.get_config("display.height"))
+local DISPLAY_WIDTH = tonumber(sys.get_config("display.width")) or 960
+local DISPLAY_HEIGHT = tonumber(sys.get_config("display.height")) or 640
 
 local WINDOW_WIDTH = DISPLAY_WIDTH
 local WINDOW_HEIGHT = DISPLAY_HEIGHT
