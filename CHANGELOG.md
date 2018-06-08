@@ -14,17 +14,17 @@ FIX: camera.set_zoom() crash
 FIX: Added check on script shared state in the provided render script. Also added a note on this in the readme
 
 ## Orthographic Camera API 2.2 [britzl released 2018-02-17]
-NEW: Camera script properties to control bounds, deadzone, follow
+NEW: Camera script properties to control bounds, deadzone, follow</br>
 CHANGE: Camera script properties can now be manipulated using go.animate(), go.set() and go.get()
 
 ## Orthographic Camera API 2.1 [britzl released 2018-02-17]
 NEW: camera.recoil()
 
 ## Orthographic Camera API 2.0 [britzl released 2018-02-17]
-NEW: Camera zoom property. This makes it a whole lot easier to at run-time configure the zoom level of a camera
-NEW: camera.get_zoom() and camera.zoom_to()
-CHANGE: The available projections have been simplified. There's now only FIXED_AUTO and FIXED_ZOOM.
-
+NEW: Camera zoom property. This makes it a whole lot easier to at run-time configure the zoom level of a camera</br>
+NEW: camera.get_zoom() and camera.zoom_to()</br>
+CHANGE: The available projections have been simplified. There's now only FIXED_AUTO and FIXED_ZOOM.</br>
+</br>
 Refer to the example project to see the new changes in action.
 
 ## Orthographic Camera API 1.5 [britzl released 2018-02-04]
@@ -40,12 +40,12 @@ FIX: Set an initial view and projection on the camera when it is initialized
 NEW: screen_to_world_bounds()
 
 ## Orthographic Camera API 1.3 [britzl released 2017-12-14]
-NEW: camera.use_projector() to change projector at runtime
-NEW: camera.set_window_size() to feed current window size from render script to camera
-NEW: camera.get_window_size() to get current window size
-NEW: camera.get_display_size() to get display size from game.project
-NEW: camera.PROJECTORS.* constants for the provided projectors
-CHANGE: Moved projector functions from render script to camera.lua
+NEW: camera.use_projector() to change projector at runtime</br>
+NEW: camera.set_window_size() to feed current window size from render script to camera</br>
+NEW: camera.get_window_size() to get current window size</br>
+NEW: camera.get_display_size() to get display size from game.project</br>
+NEW: camera.PROJECTORS.* constants for the provided projectors</br>
+CHANGE: Moved projector functions from render script to camera.lua</br>
 
 
 ## Orthographic Camera API 1.2.2 [britzl released 2017-08-26]
@@ -58,7 +58,7 @@ FIX: Bounds still didn't work as expected
 Delayed camera update to after all game objects have been update. This is to ensure that camera bounds are respected properly.
 
 ## Orthographic Camera API 1.1 [britzl released 2017-07-26]
-* Fixed issues with the new bounds functionality
+* Fixed issues with the new bounds functionality</br>
 * Added more projections (FIXED_NOZOOM, FIXED_ZOOM_2, FIXED_ZOOM_4, FIXED_ZOOM_6, FIXED_ZOOM_8 and FIXED_ZOOM_10)
 
 ## Orthographic Camera API 1.0 [britzl released 2017-07-24]
