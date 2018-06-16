@@ -22,6 +22,8 @@ local WINDOW_HEIGHT = DISPLAY_HEIGHT
 local OFFSET = vmath.vector3(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, 0)
 
 local VECTOR3_ZERO = vmath.vector3(0)
+local VECTOR3_MINUS1_Z = vmath.vector3(0, 0, -1.0)
+local VECTOR3_UP = vmath.vector3(0, 1.0, 0)
 
 local MATRIX4 = vmath.matrix4()
 
@@ -127,8 +129,8 @@ local function calculate_view(camera_id, camera_world_pos, offset)
 		pos = pos + offset
 	end
 
-	local look_at = pos + vmath.rotate(rot, vmath.vector3(0, 0, -1.0))
-	local up = vmath.rotate(rot, vmath.vector3(0, 1.0, 0))
+	local look_at = pos + vmath.rotate(rot, VECTOR3_MINUS1_Z)
+	local up = vmath.rotate(rot, VECTOR3_UP)
 	local view = vmath.matrix4_look_at(pos, look_at, up)
 	return view
 end
@@ -407,8 +409,9 @@ end
 -- @param camera_id
 function M.send_view_projection(camera_id)
 	assert(camera_id, "You must provide a camera id")
-	local view = cameras[camera_id].view or MATRIX4
-	local projection = cameras[camera_id].projection or MATRIX4
+	local camera = cameras[camera_id]
+	local view = camera.view or MATRIX4
+	local projection = camera.projection or MATRIX4
 	msg.post("@render:", "set_view_projection", { id = camera_id, view = view, projection = projection })
 end
 
