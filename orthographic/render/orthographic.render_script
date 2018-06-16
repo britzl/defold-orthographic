@@ -6,6 +6,8 @@ if sys.get_config("script.shared_state") ~= "1" then
 	error("ERROR - camera - 'shared_state' setting in game.project must be enabled for camera to work.")
 end
 
+local CLEAR_COLOR = hash("clear_color")
+local SET_VIEW_PROJECTION = hash("set_view_projection")
 
 local DISPLAY_WIDTH = tonumber(sys.get_config("display.width"))
 local DISPLAY_HEIGHT = tonumber(sys.get_config("display.height"))
@@ -74,12 +76,11 @@ function update(self)
 	render.draw_debug2d()
 end
 
-
 function on_message(self, message_id, message)
-	if message_id == hash("clear_color") then
+	if message_id == CLEAR_COLOR then
 		self.clear_color = message.color
-	elseif message_id == hash("set_view_projection") then
-		self.view = message.view
-		self.projection = message.projection
+	elseif message_id == SET_VIEW_PROJECTION then
+		self.world_view = message.view
+		self.world_projection = message.projection
 	end
 end
