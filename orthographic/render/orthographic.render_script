@@ -25,8 +25,8 @@ function init(self)
 	self.clear_color.z = sys.get_config("render.clear_color_blue", 0)
 	self.clear_color.w = sys.get_config("render.clear_color_alpha", 0)
 
-	self.view = vmath.matrix4()
-	self.projection = vmath.matrix4()
+	self.world_view = vmath.matrix4()
+	self.world_projection = vmath.matrix4()
 end
 
 
@@ -48,8 +48,8 @@ function update(self)
 
 
 	-- draw world space using projection received from the camera in on_message
-	render.set_view(self.view)
-	render.set_projection(self.projection)
+	render.set_view(self.world_view)
+	render.set_projection(self.world_projection)
 
 	render.set_depth_mask(false)
 	render.disable_state(render.STATE_DEPTH_TEST)
