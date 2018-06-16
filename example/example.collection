@@ -25,6 +25,11 @@ instances {
       value: "FIXED_ZOOM"
       type: PROPERTY_TYPE_HASH
     }
+    properties {
+      id: "offset_gui"
+      value: "true"
+      type: PROPERTY_TYPE_BOOLEAN
+    }
   }
   scale3 {
     x: 1.0

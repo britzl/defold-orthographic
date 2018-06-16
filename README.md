@@ -37,6 +37,9 @@ Additional custom projections can be added, see ```camera.add_projector()``` bel
 #### enabled (boolean)
 This controls if the camera is enabled by default or not. Send ```enable``` and ```disable``` messages to the script or use ```go.set(id, "enable", true|false)``` to toggle this value.
 
+#### offset_gui (boolean)
+This controls if the gui should be offset during a screen shake or a camera recoil. This will send the camera offset to the render script using the ```send_camera_offset``` message.
+
 #### follow (boolean)
 This controls if the camera should follow a target or not. See ```camera.follow()``` for details.
 

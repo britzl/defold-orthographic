@@ -8,6 +8,8 @@ end
 
 local CLEAR_COLOR = hash("clear_color")
 local SET_VIEW_PROJECTION = hash("set_view_projection")
+local SET_CAMERA_OFFSET = hash("set_camera_offset")
+
 
 local DISPLAY_WIDTH = tonumber(sys.get_config("display.width"))
 local DISPLAY_HEIGHT = tonumber(sys.get_config("display.height"))
@@ -27,6 +29,8 @@ function init(self)
 
 	self.world_view = vmath.matrix4()
 	self.world_projection = vmath.matrix4()
+
+	self.screen_view = vmath.matrix4()
 end
 
 
@@ -64,9 +68,17 @@ function update(self)
 
 
 	-- draw gui in screen space using an orthographic projection
-	render.set_view(vmath.matrix4())
-	render.set_projection(vmath.matrix4_orthographic(0, window_width, 0, window_height, -1, 1))
-
+	render.set_view(self.screen_view)
+	if self.camera_offset then
+		local m4 = vmath.matrix4_orthographic(
+			self.camera_offset.x, window_width + self.camera_offset.x,
+			self.camera_offset.y, window_height + self.camera_offset.y,
+			-1, 1)
+		render.set_projection(m4)
+	else
+		local m4 = vmath.matrix4_orthographic(0, window_width, 0, window_height, -1, 1 )
+		render.set_projection(m4)
+	end
 	render.enable_state(render.STATE_STENCIL_TEST)
 	render.draw(self.gui_pred)
 	render.draw(self.text_pred)
@@ -82,5 +94,7 @@ function on_message(self, message_id, message)
 	elseif message_id == SET_VIEW_PROJECTION then
 		self.world_view = message.view
 		self.world_projection = message.projection
+	elseif message_id == SET_CAMERA_OFFSET then
+		self.camera_offset = message.offset
 	end
 end

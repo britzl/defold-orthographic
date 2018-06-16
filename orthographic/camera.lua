@@ -122,6 +122,8 @@ local function calculate_projection(camera_id)
 	return projector_fn(camera_id, near_z, far_z, zoom)
 end
 
+
+
 local function calculate_view(camera_id, camera_world_pos, offset)
 	local rot = go.get_world_rotation(camera_id)
 	local pos = camera_world_pos - vmath.rotate(rot, OFFSET)
@@ -269,6 +271,7 @@ function M.update(camera_id, dt)
 			offset = offset + camera.recoil.offset
 		end
 	end
+	camera.offset = offset
 	camera.view = calculate_view(camera_id, camera_world_pos, offset)	
 	camera.projection = calculate_projection(camera_id)
 end
@@ -413,6 +416,15 @@ function M.send_view_projection(camera_id)
 	local view = camera.view or MATRIX4
 	local projection = camera.projection or MATRIX4
 	msg.post("@render:", "set_view_projection", { id = camera_id, view = view, projection = projection })
+end
+
+
+--- Send the camera offset tp the render script
+-- @param camera_id
+function M.send_camera_offset(camera_id)
+	assert(camera_id, "You must provide a camera id")
+	local camera = cameras[camera_id]
+	msg.post("@render:", "set_camera_offset", { id = camera_id, offset = camera.offset })
 end
 
 

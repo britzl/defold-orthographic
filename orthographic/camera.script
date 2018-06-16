@@ -4,6 +4,8 @@ go.property("zoom", 1)
 go.property("projection", hash("DEFAULT"))
 go.property("enabled", true)
 
+go.property("offset_gui", false)
+
 go.property("follow", false)
 go.property("follow_target", hash(""))
 go.property("follow_lerp", 0.5)
@@ -16,6 +18,7 @@ go.property("deadzone_left", 0)
 go.property("deadzone_bottom", 0)
 go.property("deadzone_right", 0)
 go.property("deadzone_top", 0)
+
 
 
 local camera = require "orthographic.camera"
@@ -61,6 +64,9 @@ function on_message(self, message_id, message, sender)
 	if message_id == UPDATE_CAMERA then
 		camera.update(go.get_id(), message.dt)
 		camera.send_view_projection(go.get_id())
+		if self.offset_gui then
+			camera.send_camera_offset(go.get_id())
+		end
 	elseif message_id == ENABLE then
 		self.enabled = true
 	elseif message_id == DISABLE then
