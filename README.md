@@ -49,6 +49,9 @@ Id of the game object to follow. See ```camera.follow()``` for details.
 #### follow_lerp (number)
 Amount of lerp when following a target. See ```camera.follow()``` for details.
 
+#### follow_offset (vector3)
+Camera offset from the position of the followed target. See ```camera.follow()``` for details.
+
 #### bounds_left (number), bounds_right (number), bounds_top (number), bounds_bottom (number)
 The camera bounds. See ```camera.bounds()``` for details.
 
@@ -169,6 +172,7 @@ Follow a game object.
 * ```camera_id``` (hash|url)
 * ```target``` (hash|url) - Game object to follow
 * ```lerp``` (number) - Lerp from current position to target position with ```lerp``` as t. Optional.
+* ```offset``` (vector3) - Camera offset from target position. Optional.
 
 ### camera.unfollow(camera_id)
 Stop following a game object.

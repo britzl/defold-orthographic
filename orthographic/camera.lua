@@ -62,6 +62,11 @@ projectors[M.PROJECTOR.FIXED_ZOOM] = function(camera_id, near_z, far_z, zoom)
 	return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
 end
 
+-- http://www.rorydriscoll.com/2016/03/07/frame-rate-independent-damping-using-lerp/
+local function lerp_with_dt(t, dt, v1, v2)
+	return vmath.lerp(1 - math.pow(t, dt), v1, v2)
+end
+
 
 --- Add a custom projector
 -- @param projector_id Unique id of the projector (hash)
@@ -160,7 +165,6 @@ function M.final(camera_id)
 	cameras[camera_id] = nil
 end
 
-
 --- Update a camera
 -- When calling this function a number of things happen:
 -- * Follow target game object (if any)
@@ -183,8 +187,8 @@ function M.update(camera_id, dt)
 	local follow_enabled = go.get(camera.url, "follow")
 	if follow_enabled then
 		local follow = go.get(camera.url, "follow_target")
-		local target_pos = go.get_position(follow)
-		local target_world_pos = go.get_world_position(follow)
+		local follow_offset = go.get(camera.url, "follow_offset")
+		local target_world_pos = go.get_world_position(follow) + follow_offset
 		local new_pos
 		local deadzone_top = go.get(camera.url, "deadzone_top")
 		local deadzone_left = go.get(camera.url, "deadzone_left")
@@ -211,7 +215,7 @@ function M.update(camera_id, dt)
 		end
 		new_pos.z = camera_world_pos.z
 		local follow_lerp = go.get(camera.url, "follow_lerp")
-		camera_world_pos = vmath.lerp(follow_lerp, camera_world_pos, new_pos)
+		camera_world_pos = lerp_with_dt(follow_lerp, dt, camera_world_pos, new_pos)
 		camera_world_pos.z = new_pos.z
 	end
 
@@ -256,8 +260,7 @@ function M.update(camera_id, dt)
 			camera.recoil = nil
 		else
 			local t = camera.recoil.time_left / camera.recoil.duration
-			camera.recoil.offset.x = vmath.lerp(t, 0, camera.recoil.offset.x)
-			camera.recoil.offset.y = vmath.lerp(t, 0, camera.recoil.offset.y)
+			camera.recoil.offset = vmath.lerp(t, VECTOR3_ZERO, camera.recoil.offset)
 		end
 	end
 
@@ -281,10 +284,11 @@ end
 -- @param camera_id
 -- @param target The game object to follow
 -- @param lerp Optional lerp to smoothly move the camera towards the target
-function M.follow(camera_id, target, lerp)
+-- @param offset Optional offset from target position
+function M.follow(camera_id, target, lerp, offset)
 	assert(camera_id, "You must provide a camera id")
 	assert(target, "You must provide a target")
-	msg.post(cameras[camera_id].url, "follow", { target = target, lerp = lerp })
+	msg.post(cameras[camera_id].url, "follow", { target = target, lerp = lerp, offset = offset })
 end
 
 

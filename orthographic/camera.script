@@ -9,6 +9,7 @@ go.property("offset_gui", false)
 go.property("follow", false)
 go.property("follow_target", hash(""))
 go.property("follow_lerp", 0.5)
+go.property("follow_offset", vmath.vector3(0, 0, 0))
 
 go.property("bounds_left", 0)
 go.property("bounds_bottom", 0)
@@ -81,6 +82,7 @@ function on_message(self, message_id, message, sender)
 		self.follow = true
 		self.follow_target = type(message.target) == "string" and hash(message.target) or message.target
 		self.follow_lerp = message.lerp or 1
+		self.follow_offset = message.offset or vmath.vector3()
 	elseif message_id == DEADZONE then
 		self.deadzone_right = message.right or 0
 		self.deadzone_top = message.top or 0

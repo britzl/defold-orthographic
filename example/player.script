@@ -2,9 +2,14 @@ local camera = require "orthographic.camera"
 
 local SPEED = 400
 
+local function lerp(t, dt, from, to)
+	return vmath.lerp(1 - math.pow(t, dt), from, to)
+end
+
 function init(self)
 	self.input = {}
 	self.crosshair = vmath.vector3()
+	self.camera_offset = vmath.vector3()
 end
 
 function update(self, dt)
@@ -16,14 +21,19 @@ function update(self, dt)
 	local pos = go.get_position()
 	if self.input[hash("up")] then
 		pos.y = pos.y + SPEED * dt
+		self.camera_offset.y = lerp(0.25, dt, self.camera_offset.y, 300)
 	elseif self.input[hash("down")] then
 		pos.y = pos.y - SPEED * dt
+		self.camera_offset.y = lerp(0.25, dt, self.camera_offset.y, -300)
 	end
 	if self.input[hash("left")] then
 		pos.x = pos.x - SPEED * dt
+		self.camera_offset.x = lerp(0.25, dt, self.camera_offset.x, -500)
 	elseif self.input[hash("right")] then
 		pos.x = pos.x + SPEED * dt
+		self.camera_offset.x = lerp(0.25, dt, self.camera_offset.x, 500)
 	end
+	camera.follow(go.get_id("camera"), go.get_id(), 0.1, self.camera_offset)
 	go.set_position(pos)
 end
 
