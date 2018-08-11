@@ -15,9 +15,9 @@ function init(self)
 	self.bounds_enabled = false
 	self.deadzone_enabled = false
 	self.current_projection = 1
+	self.lerp = 0
 	camera.use_projector(CAMERA_ID, PROJECTIONS[self.current_projection].id)
 end
-
 
 function update(self, dt)
 	local bounds = camera.screen_to_world_bounds(CAMERA_ID)
@@ -27,18 +27,25 @@ function update(self, dt)
 	gui.set_text(gui.get_node("top_right"), ("%d,%d"):format(bounds.z, bounds.y))
 	gui.set_text(gui.get_node("zoomlevel"), ("%.2f"):format(tostring(camera.get_zoom(CAMERA_ID))))
 	gui.set_text(gui.get_node("current_projection"), PROJECTIONS[self.current_projection].name)
+
+	if self.follow then
+		msg.post(CAMERA_ID, "follow", { target = "/player", lerp = self.lerp, offset = self.camera_offset })
+	end
 end
 
 function on_input(self, action_id, action)
 	if action_id == hash("touch") and action.released then
 		if gui.pick_node(gui.get_node("unfollow/button"), action.x, action.y) then
+			self.follow = false
 			msg.post(CAMERA_ID, "unfollow")
 			return true
 		elseif gui.pick_node(gui.get_node("follow_basic/button"), action.x, action.y) then
-			msg.post(CAMERA_ID, "follow", { target = "/player" })
+			self.follow = true
+			self.lerp = 0
 			return true
 		elseif gui.pick_node(gui.get_node("follow_lerp/button"), action.x, action.y) then
-			msg.post(CAMERA_ID, "follow", { target = "/player", lerp = 0.1 })
+			self.follow = true
+			self.lerp = 0.1
 			return true
 		elseif gui.pick_node(gui.get_node("shake_both/button"), action.x, action.y) then
 			msg.post(CAMERA_ID, "shake", { intensity = 0.05, duration = 0.5, direction = hash("both") })
@@ -87,6 +94,13 @@ function on_input(self, action_id, action)
 			camera.use_projector(CAMERA_ID, PROJECTIONS[self.current_projection].id)
 			return true
 		end
+	end
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("camera_offset") then
+		self.camera_offset = message.offset
+		print(self.camera_offset)
 	end
 end
 

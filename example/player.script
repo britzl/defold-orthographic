@@ -33,7 +33,8 @@ function update(self, dt)
 		pos.x = pos.x + SPEED * dt
 		self.camera_offset.x = lerp(0.25, dt, self.camera_offset.x, 500)
 	end
-	camera.follow(go.get_id("camera"), go.get_id(), 0.1, self.camera_offset)
+
+	msg.post("controls", "camera_offset", { offset = self.camera_offset})
 	go.set_position(pos)
 end
 
