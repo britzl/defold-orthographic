@@ -41,7 +41,7 @@ function on_input(self, action_id, action)
 			return true
 		elseif gui.pick_node(gui.get_node("follow_basic/button"), action.x, action.y) then
 			self.follow = true
-			self.lerp = 0
+			self.lerp = 1
 			return true
 		elseif gui.pick_node(gui.get_node("follow_lerp/button"), action.x, action.y) then
 			self.follow = true
@@ -100,7 +100,6 @@ end
 function on_message(self, message_id, message, sender)
 	if message_id == hash("camera_offset") then
 		self.camera_offset = message.offset
-		print(self.camera_offset)
 	end
 end
 

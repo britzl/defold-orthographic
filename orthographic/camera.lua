@@ -13,6 +13,7 @@ M.PROJECTOR.FIXED_ZOOM = hash("FIXED_ZOOM")
 
 local DISPLAY_WIDTH = tonumber(sys.get_config("display.width")) or 960
 local DISPLAY_HEIGHT = tonumber(sys.get_config("display.height")) or 640
+local UPDATE_FREQUENCY = tonumber(sys.get_config("display.update_frequency")) or 60
 
 local WINDOW_WIDTH = DISPLAY_WIDTH
 local WINDOW_HEIGHT = DISPLAY_HEIGHT
@@ -62,11 +63,15 @@ projectors[M.PROJECTOR.FIXED_ZOOM] = function(camera_id, near_z, far_z, zoom)
 	return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
 end
 
--- http://www.rorydriscoll.com/2016/03/07/frame-rate-independent-damping-using-lerp/
-local function lerp_with_dt(t, dt, v1, v2)
-	return vmath.lerp(1 - math.pow(t, dt), v1, v2)
-end
 
+-- http://www.rorydriscoll.com/2016/03/07/frame-rate-independent-damping-using-lerp/
+-- return vmath.lerp(1 - math.pow(t, dt), v1, v2)
+-- https://www.gamasutra.com/blogs/ScottLembcke/20180404/316046/Improved_Lerp_Smoothing.php
+local function lerp_with_dt(t, dt, v1, v2)
+	local rate = UPDATE_FREQUENCY * math.log10(1 - t)
+	return vmath.lerp(1 - math.pow(10, rate * dt), v1, v2)
+	--return vmath.lerp(t, v1, v2)
+end
 
 --- Add a custom projector
 -- @param projector_id Unique id of the projector (hash)
