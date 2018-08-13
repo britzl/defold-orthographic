@@ -13,6 +13,12 @@ function update(self, dt)
 	local cursor_pos = camera.screen_to_world(go.get_id("camera"), self.crosshair)
 	go.set_position(vmath.lerp(0.5, go.get_position("crosshair"), cursor_pos), "crosshair")
 
+	-- rotate towards cursor
+	local player_world = go.get_world_position()
+	local angle = math.atan2(player_world.x - cursor_pos.x, cursor_pos.y - player_world.y)
+	local rotation = vmath.quat_rotation_z(angle)
+	go.set_rotation(rotation)
+	
 	-- update player position
 	local pos = go.get_position()
 	if self.input[hash("up")] then
