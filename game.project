@@ -1,7 +1,7 @@
 [project]
 title = Orthographic
 version = 0.9
-dependencies =
+dependencies = 
 
 [bootstrap]
 main_collection = /example/example.collectionc
@@ -13,6 +13,7 @@ game_binding = /input/game.input_bindingc
 [display]
 width = 1280
 height = 720
+high_dpi = 1
 
 [physics]
 scale = 0.02
@@ -27,3 +28,7 @@ include_dirs = orthographic
 
 [graphics]
 max_debug_vertices = 50000
+
+[label]
+subpixels = 0
+

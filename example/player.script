@@ -11,7 +11,9 @@ end
 function update(self, dt)
 	-- update crosshair based on mouse and camera position
 	local cursor_pos = camera.screen_to_world(go.get_id("camera"), self.crosshair)
-	go.set_position(vmath.lerp(0.5, go.get_position("crosshair"), cursor_pos), "crosshair")
+	cursor_pos = vmath.lerp(0.5, go.get_position("crosshair"), cursor_pos)
+	go.set_position(cursor_pos, "crosshair")
+	label.set_text("crosshair#position", ("%.2f x %.2f"):format(cursor_pos.x, cursor_pos.y))
 
 	-- rotate towards cursor
 	local player_world = go.get_world_position()

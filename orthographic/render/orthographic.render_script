@@ -6,6 +6,8 @@ if sys.get_config("script.shared_state") ~= "1" then
 	error("ERROR - camera - 'shared_state' setting in game.project must be enabled for camera to work.")
 end
 
+local high_dpi = sys.get_config("display.high_dpi", "0") == "1"
+
 local CLEAR_COLOR = hash("clear_color")
 local SET_VIEW_PROJECTION = hash("set_view_projection")
 local SET_CAMERA_OFFSET = hash("set_camera_offset")
@@ -31,15 +33,25 @@ function init(self)
 	self.world_projection = vmath.matrix4()
 
 	self.screen_view = vmath.matrix4()
-end
 
+	self.window_width = nil
+	self.window_height = nil
+end
 
 function update(self)
 	local window_width = render.get_window_width()
 	local window_height = render.get_window_height()
+	if self.window_width ~= window_width or self.window_height ~= window_height then
+		self.window_width = window_width
+		self.window_height = window_height
 
-	-- update window width/height for camera (used by the projections)
-	camera.set_window_size(window_width, window_height)
+		-- update window width/height for camera (used by the projections)
+		if high_dpi then
+			camera.set_window_size(window_width / 2, window_height /2)
+		else
+			camera.set_window_size(window_width, window_height)
+		end
+	end
 
 
 	-- clear color
