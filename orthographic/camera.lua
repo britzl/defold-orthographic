@@ -2,6 +2,8 @@
 
 local M = {}
 
+local dpi_ratio = (sys.get_config("display.high_dpi", "0") == "1") and 0.5 or 1.0
+
 M.SHAKE_BOTH = hash("both")
 M.SHAKE_HORIZONTAL = hash("horizontal")
 M.SHAKE_VERTICAL = hash("vertical")
@@ -439,6 +441,8 @@ end
 
 --- Convert screen coordinates to world coordinates based
 -- on a specific camera's view and projection
+-- Screen coordinates are the scaled coordinates provided by action.x and action.y
+-- in on_input()
 -- @param camera_id
 -- @param screen Screen coordinates as a vector3
 -- @return World coordinates
@@ -452,8 +456,27 @@ function M.screen_to_world(camera_id, screen)
 end
 
 
---- Convert world coordinates to screen coordinates based
+--- Convert window coordinates to world coordinates based
 -- on a specific camera's view and projection
+-- Window coordinates are the non-scaled coordinates provided by action.screen_x
+-- and action.screen_y in on_input()
+-- @param camera_id
+-- @param window Window coordinates as a vector3
+-- @return World coordinates
+function M.window_to_world(camera_id, window)
+	assert(camera_id, "You must provide a camera id")
+	assert(window, "You must provide window coordinates to convert")
+	local view = cameras[camera_id].view or MATRIX4
+	local projection = cameras[camera_id].projection or MATRIX4
+	local scale_x = window.x * dpi_ratio * DISPLAY_WIDTH / WINDOW_WIDTH
+	local scale_y = window.y * dpi_ratio * DISPLAY_HEIGHT / WINDOW_HEIGHT
+	local screen = vmath.vector3(scale_x, scale_y, 0)
+	return M.unproject(view, projection, screen)
+end
+
+
+--- Convert world coordinates to screen coordinates based
+-- on a specific camera's view and projection.
 -- @param camera_id
 -- @param world World coordinates as a vector3
 -- @return Screen coordinates

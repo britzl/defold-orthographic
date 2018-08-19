@@ -110,6 +110,16 @@ It is recommended to send the window width and height from the render script to 
 NOTE: In order for this to work you need to make sure that the `Shared State` setting in the `Script` section of `game.project` is checked (defaults to checked)
 
 
+### Window vs Screen coordinates
+The camera API allows you to convert to and from world coordinates. This is useful when positioning a game object at the position of the mouse or knowing where in a game world a mouse click was made. The API supports conversion from both window and screen coordinates.
+
+#### Screen coordinates
+This refers to the actual mouse pixel position within the window, scaled to the display size specified in game.project. These are the values from `action.x` and `action.y` in `on_input()``
+
+#### Window coordinates
+This refers to the actual mouse pixel position within the window. These are the values from `action.screen_x` and `action.screen_y` in `on_input()`. Window coordinates should be provided as is, without compensation for High DPI (this will be done automatically).
+
+
 ### Example render script
 The orthographic/render folder contains a render script that does the above mentioned integration of the Orthographic Camera API. Use it as it is or copy it into your project and make whatever modifications that you need.
 
@@ -207,6 +217,17 @@ Translate screen coordinates to world coordinates, based on the view and project
 **PARAMETERS**
 * ```camera_id``` (hash|url)
 * ```screen``` (vector3) Screen coordinates to convert
+
+**RETURN**
+* ```world_coords``` (vector3) World coordinates
+
+
+### camera.window_to_world(camera_id, window)
+Translate window coordinates to world coordinates, based on the view and projection of the camera.
+
+**PARAMETERS**
+* ```camera_id``` (hash|url)
+* ```window``` (vector3) Window coordinates to convert
 
 **RETURN**
 * ```world_coords``` (vector3) World coordinates
