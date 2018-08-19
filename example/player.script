@@ -2,6 +2,8 @@ local camera = require "orthographic.camera"
 
 local SPEED = 400
 
+local CAMERA_ID = hash("/camera")
+
 function init(self)
 	self.input = {}
 	self.crosshair = vmath.vector3()
@@ -10,7 +12,7 @@ end
 
 function update(self, dt)
 	-- update crosshair based on mouse and camera position
-	local cursor_pos = camera.screen_to_world(go.get_id("camera"), self.crosshair)
+	local cursor_pos = camera.screen_to_world(CAMERA_ID, self.crosshair)
 	cursor_pos = vmath.lerp(0.5, go.get_position("crosshair"), cursor_pos)
 	go.set_position(cursor_pos, "crosshair")
 	label.set_text("crosshair#position", ("%.2f x %.2f"):format(cursor_pos.x, cursor_pos.y))
@@ -58,7 +60,7 @@ function on_input(self, action_id, action)
 			local crosshair_pos = go.get_position("crosshair")
 			local player_pos = go.get_position()
 			local offset = (crosshair_pos - player_pos) * 0.1
-			camera.recoil(go.get_id("camera"), offset, 0.5)
+			camera.recoil(CAMERA_ID, offset, 0.5)
 		end
 	end
 end
