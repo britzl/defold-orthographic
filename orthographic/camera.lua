@@ -91,6 +91,7 @@ end
 function M.use_projector(camera_id, projector_id)
 	assert(camera_id, "You must provide a camera id")
 	assert(projector_id, "You must provide a projector id")
+	assert(projectors[projector_id], "Unknown projection id")
 	local camera = cameras[camera_id]
 	msg.post(camera.url, "use_projection", { projection = projector_id })
 end
@@ -126,6 +127,7 @@ end
 local function calculate_projection(camera_id)
 	local camera = cameras[camera_id]
 	local projector_id = go.get(camera.url, "projection")
+	assert(projectors[projector_id], "Unknown projection id")
 	local near_z = go.get(camera.url, "near_z")
 	local far_z = go.get(camera.url, "far_z")
 	local zoom = go.get(camera.url, "zoom")
