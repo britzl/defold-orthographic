@@ -132,7 +132,7 @@ local function calculate_projection(camera_id)
 	local far_z = go.get(camera.url, "far_z")
 	local zoom = go.get(camera.url, "zoom")
 	camera.zoom = zoom
-	local projector_fn = projectors[projector_id] or projectors[hash("DEFAULT")]
+	local projector_fn = projectors[projector_id] or projectors[M.PROJECTOR.DEFAULT]
 	return projector_fn(camera_id, near_z, far_z, zoom)
 end
 
