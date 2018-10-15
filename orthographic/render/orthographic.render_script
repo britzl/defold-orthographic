@@ -1,21 +1,7 @@
+local render_helper = require "orthographic.render.helper"
 local camera = require "orthographic.camera"
 
--- Check if 'shared_state' setting is on
--- From https://github.com/rgrams/rendercam/blob/master/rendercam/rendercam.lua#L4-L7
-if sys.get_config("script.shared_state") ~= "1" then
-	error("ERROR - camera - 'shared_state' setting in game.project must be enabled for camera to work.")
-end
-
-local high_dpi = sys.get_config("display.high_dpi", "0") == "1"
-
 local CLEAR_COLOR = hash("clear_color")
-local SET_VIEW_PROJECTION = hash("set_view_projection")
-local SET_CAMERA_OFFSET = hash("set_camera_offset")
-
-
-local DISPLAY_WIDTH = tonumber(sys.get_config("display.width"))
-local DISPLAY_HEIGHT = tonumber(sys.get_config("display.height"))
-
 
 function init(self)
 	self.tile_pred = render.predicate({"tile"})
@@ -29,29 +15,11 @@ function init(self)
 	self.clear_color.z = sys.get_config("render.clear_color_blue", 0)
 	self.clear_color.w = sys.get_config("render.clear_color_alpha", 0)
 
-	self.world_view = vmath.matrix4()
-	self.world_projection = vmath.matrix4()
-
-	self.screen_view = vmath.matrix4()
-
-	self.window_width = nil
-	self.window_height = nil
+	render_helper.init(self)
 end
 
 function update(self)
-	local window_width = render.get_window_width()
-	local window_height = render.get_window_height()
-	if self.window_width ~= window_width or self.window_height ~= window_height then
-		self.window_width = window_width
-		self.window_height = window_height
-
-		-- update window width/height for camera (used by the projections)
-		if high_dpi then
-			camera.set_window_size(window_width / 2, window_height /2)
-		else
-			camera.set_window_size(window_width, window_height)
-		end
-	end
+	render_helper.update(self, dt)
 
 
 	-- clear color
@@ -60,12 +28,11 @@ function update(self)
 
 
 	-- setup the viewport
-	render.set_viewport(0, 0, window_width, window_height)
+	render.set_viewport(0, 0, render.get_window_width(), render.get_window_height())
 
 
 	-- draw world space using projection received from the camera in on_message
-	render.set_view(self.world_view)
-	render.set_projection(self.world_projection)
+	render_helper.set_world_view_projection(self)
 
 	render.set_depth_mask(false)
 	render.disable_state(render.STATE_DEPTH_TEST)
@@ -80,17 +47,8 @@ function update(self)
 
 
 	-- draw gui in screen space using an orthographic projection
-	render.set_view(self.screen_view)
-	if self.camera_offset then
-		local m4 = vmath.matrix4_orthographic(
-			self.camera_offset.x, window_width + self.camera_offset.x,
-			self.camera_offset.y, window_height + self.camera_offset.y,
-			-1, 1)
-		render.set_projection(m4)
-	else
-		local m4 = vmath.matrix4_orthographic(0, window_width, 0, window_height, -1, 1 )
-		render.set_projection(m4)
-	end
+	render_helper.set_screen_view_projection(self)
+
 	render.enable_state(render.STATE_STENCIL_TEST)
 	render.draw(self.gui_pred)
 	render.draw(self.text_pred)
@@ -101,12 +59,8 @@ function update(self)
 end
 
 function on_message(self, message_id, message)
+	render_helper.on_message(self, message_id, message, sender)
 	if message_id == CLEAR_COLOR then
 		self.clear_color = message.color
-	elseif message_id == SET_VIEW_PROJECTION then
-		self.world_view = message.view
-		self.world_projection = message.projection
-	elseif message_id == SET_CAMERA_OFFSET then
-		self.camera_offset = message.offset
 	end
 end
