@@ -81,7 +81,7 @@ function M.screen_projection(self)
 end
 
 function M.set_screen_view_projection(self)
-	render.set_view(M.screen_view(self)
+	render.set_view(M.screen_view(self))
 	render.set_projection(M.screen_projection(self))
 end
 
