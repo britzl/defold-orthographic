@@ -234,14 +234,27 @@ function M.update(camera_id, dt)
 	local bounds_right = go.get(camera.url, "bounds_right")
 	if bounds_top ~= 0 or bounds_left ~= 0 or bounds_bottom ~= 0 or bounds_right ~= 0 then
 		local cp = M.world_to_screen(camera_id, vmath.vector3(camera_world_pos))
-		local tr = M.world_to_screen(camera_id, vmath.vector3(bounds_right, bounds_top, 0)) - OFFSET
-		local bl = M.world_to_screen(camera_id, vmath.vector3(bounds_left, bounds_bottom, 0)) + OFFSET
-		
-		cp.x = math.max(cp.x, bl.x)
-		cp.x = math.min(cp.x, tr.x)
-		cp.y = math.max(cp.y, bl.y)
-		cp.y = math.min(cp.y, tr.y)
-		
+		local tr = M.world_to_screen(camera_id, vmath.vector3(bounds_right, bounds_top, 0))
+		local bl = M.world_to_screen(camera_id, vmath.vector3(bounds_left, bounds_bottom, 0))
+
+		-- try to keep camera position within bounds
+		local tr_offset = tr - OFFSET
+		local bl_offset = bl + OFFSET
+		cp.x = math.max(cp.x, bl_offset.x)
+		cp.x = math.min(cp.x, tr_offset.x)
+		cp.y = math.max(cp.y, bl_offset.y)
+		cp.y = math.min(cp.y, tr_offset.y)
+
+		-- center if zoomed out so that entire bounds is less than window size
+		local bounds_width = tr.x - bl.x
+		if bounds_width < WINDOW_WIDTH then
+			cp.x = cp.x + (WINDOW_WIDTH - bounds_width) / 2
+		end
+		local bounds_height = tr.y - bl.y
+		if bounds_height < WINDOW_HEIGHT then
+			cp.y = cp.y + (WINDOW_HEIGHT - bounds_height) / 2
+		end
+
 		camera_world_pos = M.screen_to_world(camera_id, cp)
 	end
 
