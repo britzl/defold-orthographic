@@ -60,7 +60,47 @@ The camera deadzone. See ```camera.deadzone()``` for details.
 
 
 ## Render script integration
-While the camera is enabled it will send ```set_view_projection``` messages once per frame to the render script. The message is the same as that of the camera component, meaning that it contains ```id```, ```view``` and ```projection``` values. Make sure that these values are handled and used properly in the render script:
+In order for the Orthographic camera to function properly you need to integrate it in your render script. You can do this in a number of different ways:
+
+### 1. Using the provided render script
+The Orthographic API comes with a ready to use render script in `orthographic/render/orthograpic.render_script`. Open `game.project` and make sure to reference `orthographic/render/orthograpic.render` in the `Render` field in the `Bootstrap` section.
+
+### 2. Integrating in an existing render script
+While the camera is enabled it will send ```set_view_projection``` messages once per frame to the render script. The message is the same as that of the camera component, meaning that it contains ```id```, ```view``` and ```projection``` values. Make sure that these values are handled and used properly in the render script.
+
+#### 2.1. Simplified integration
+The Orthographic API provides a helper module to easily update the camera and set screen and world view and projection. Integrate it in your own render script like this:
+
+	local helper = require "orthographic.render.helper"
+
+	function init(self)
+		...
+		render_helper.init(self)
+		...
+	end
+
+	function update(self)
+		render_helper.update(self, dt)
+		...
+
+		render_helper.set_world_view_projection(self)
+		-- draw world
+		...
+
+		render_helper.set_screen_view_projection(self)
+		-- draw screen
+		...
+	end
+
+	function on_message(self, message_id, message)
+		render_helper.on_message(self, message_id, message, sender)
+		...
+	end
+
+NOTE: In order for this to work you need to make sure that the `Shared State` setting in the `Script` section of `game.project` is checked (defaults to checked)
+
+#### 2.2. Manual integration
+If you prefer to manually setup the integration you need to make sure to handle the ```set_view_projection``` message:
 
 	function update(self)
 		...
@@ -91,10 +131,6 @@ An alternative approach is to ignore the ```set_view_projection``` message and d
 		...
 	end
 
-NOTE: In order for this to work you need to make sure that the `Shared State` setting in the `Script` section of `game.project` is checked (defaults to checked)
-
-
-### Feeding window size to the camera
 It is recommended to send the window width and height from the render script to the camera module. This is required if any of the projectors provided in ```camera.lua``` is used. It also allows custom projectors to get the current window size by calling ```camera.get_window_size()```. Set the window size like this:
 
 	local camera = require "orthographic.camera"
@@ -109,19 +145,18 @@ It is recommended to send the window width and height from the render script to 
 
 NOTE: In order for this to work you need to make sure that the `Shared State` setting in the `Script` section of `game.project` is checked (defaults to checked)
 
-
-### Window vs Screen coordinates
-The camera API allows you to convert to and from world coordinates. This is useful when positioning a game object at the position of the mouse or knowing where in a game world a mouse click was made. The API supports conversion from both window and screen coordinates.
-
-#### Screen coordinates
-This refers to the actual mouse pixel position within the window, scaled to the display size specified in game.project. These are the values from `action.x` and `action.y` in `on_input()``
-
-#### Window coordinates
-This refers to the actual mouse pixel position within the window. These are the values from `action.screen_x` and `action.screen_y` in `on_input()`. Window coordinates should be provided as is, without compensation for High DPI (this will be done automatically).
-
-
 ### Example render script
 The orthographic/render folder contains a render script that does the above mentioned integration of the Orthographic Camera API. Use it as it is or copy it into your project and make whatever modifications that you need.
+
+
+## Window vs Screen coordinates
+The camera API allows you to convert to and from world coordinates. This is useful when positioning a game object at the position of the mouse or knowing where in a game world a mouse click was made. The API supports conversion from both window and screen coordinates.
+
+### Screen coordinates
+This refers to the actual mouse pixel position within the window, scaled to the display size specified in game.project. These are the values from `action.x` and `action.y` in `on_input()``
+
+### Window coordinates
+This refers to the actual mouse pixel position within the window. These are the values from `action.screen_x` and `action.screen_y` in `on_input()`. Window coordinates should be provided as is, without compensation for High DPI (this will be done automatically).
 
 
 ## The Orthographic Camera API - functions
