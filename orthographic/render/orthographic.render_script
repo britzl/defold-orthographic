@@ -1,4 +1,4 @@
-local camera_render = require "orthographic.render.render"
+local render_helper = require "orthographic.render.helper"
 local camera = require "orthographic.camera"
 
 local CLEAR_COLOR = hash("clear_color")
@@ -15,11 +15,11 @@ function init(self)
 	self.clear_color.z = sys.get_config("render.clear_color_blue", 0)
 	self.clear_color.w = sys.get_config("render.clear_color_alpha", 0)
 
-	camera_render.init(self)
+	render_helper.init(self)
 end
 
 function update(self)
-	camera_render.update(self, dt)
+	render_helper.update(self, dt)
 
 
 	-- clear color
@@ -32,7 +32,7 @@ function update(self)
 
 
 	-- draw world space using projection received from the camera in on_message
-	camera_render.set_world_view_projection(self)
+	render_helper.set_world_view_projection(self)
 
 	render.set_depth_mask(false)
 	render.disable_state(render.STATE_DEPTH_TEST)
@@ -47,7 +47,7 @@ function update(self)
 
 
 	-- draw gui in screen space using an orthographic projection
-	camera_render.set_screen_view_projection(self)
+	render_helper.set_screen_view_projection(self)
 
 	render.enable_state(render.STATE_STENCIL_TEST)
 	render.draw(self.gui_pred)
@@ -59,7 +59,7 @@ function update(self)
 end
 
 function on_message(self, message_id, message)
-	camera_render.on_message(self, message_id, message, sender)
+	render_helper.on_message(self, message_id, message, sender)
 	if message_id == CLEAR_COLOR then
 		self.clear_color = message.color
 	end

@@ -8,10 +8,7 @@ local IDENTITY = vmath.matrix4()
 local SET_VIEW_PROJECTION = hash("set_view_projection")
 local SET_CAMERA_OFFSET = hash("set_camera_offset")
 
-local DISPLAY_WIDTH = tonumber(sys.get_config("display.width"))
-local DISPLAY_HEIGHT = tonumber(sys.get_config("display.height"))
-
-local high_dpi = sys.get_config("display.high_dpi", "0") == "1"
+local HIGH_DPI = sys.get_config("display.high_dpi", "0") == "1"
 
 
 function M.init(self)
@@ -38,13 +35,14 @@ function M.update(self, dt)
 		self.window_height = window_height
 
 		-- update window width/height for camera (used by the projections)
-		if high_dpi then
+		if HIGH_DPI then
 			camera.set_window_size(window_width / 2, window_height /2)
 		else
 			camera.set_window_size(window_width, window_height)
 		end
 	end
 end
+
 
 function M.world_projection(self)
 	return self.world_projection
@@ -57,6 +55,11 @@ end
 function M.set_world_view_projection(self)
 	render.set_view(M.world_view(self))
 	render.set_projection(M.world_projection(self))
+end
+
+
+function M.screen_view(self)
+	return IDENTITY
 end
 
 function M.screen_projection(self)
@@ -78,7 +81,7 @@ function M.screen_projection(self)
 end
 
 function M.set_screen_view_projection(self)
-	render.set_view(IDENTITY)
+	render.set_view(M.screen_view(self)
 	render.set_projection(M.screen_projection(self))
 end
 
