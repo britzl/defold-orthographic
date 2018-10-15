@@ -1,3 +1,6 @@
+go.property("max_camera_offset", vmath.vector3(300, 500, 0))
+go.property("camera_offset_lerp", 0.05)
+
 local camera = require "orthographic.camera"
 
 local SPEED = 400
@@ -27,17 +30,17 @@ function update(self, dt)
 	local pos = go.get_position()
 	if self.input[hash("up")] then
 		pos.y = pos.y + SPEED * dt
-		self.camera_offset.y = vmath.lerp(0.05, self.camera_offset.y, 300)
+		self.camera_offset.y = vmath.lerp(self.camera_offset_lerp, self.camera_offset.y, self.max_camera_offset.x)
 	elseif self.input[hash("down")] then
 		pos.y = pos.y - SPEED * dt
-		self.camera_offset.y = vmath.lerp(0.05, self.camera_offset.y, -300)
+		self.camera_offset.y = vmath.lerp(self.camera_offset_lerp, self.camera_offset.y, -self.max_camera_offset.x)
 	end
 	if self.input[hash("left")] then
 		pos.x = pos.x - SPEED * dt
-		self.camera_offset.x = vmath.lerp(0.05, self.camera_offset.x, -500)
+		self.camera_offset.x = vmath.lerp(self.camera_offset_lerp, self.camera_offset.x, -self.max_camera_offset.y)
 	elseif self.input[hash("right")] then
 		pos.x = pos.x + SPEED * dt
-		self.camera_offset.x = vmath.lerp(0.05, self.camera_offset.x, 500)
+		self.camera_offset.x = vmath.lerp(self.camera_offset_lerp, self.camera_offset.x, self.max_camera_offset.y)
 	end
 
 	msg.post("controls", "camera_offset", { offset = self.camera_offset})
