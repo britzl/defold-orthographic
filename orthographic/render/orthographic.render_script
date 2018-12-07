@@ -59,7 +59,7 @@ function update(self)
 end
 
 function on_message(self, message_id, message)
-	render_helper.on_message(message_id, message, sender)
+	render_helper.on_message(nil, message_id, message)
 	if message_id == CLEAR_COLOR then
 		self.clear_color = message.color
 	end

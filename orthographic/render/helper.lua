@@ -76,7 +76,7 @@ function M.set_screen_view_projection()
 end
 
 
-function M.on_message(message_id, message)
+function M.on_message(_, message_id, message)
 	if message_id == SET_VIEW_PROJECTION then
 		world_view = message.view
 		world_projection = message.projection

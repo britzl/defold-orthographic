@@ -93,7 +93,7 @@ The Orthographic API provides a helper module to easily update the camera and se
 	end
 
 	function on_message(self, message_id, message)
-		render_helper.on_message(message_id, message)
+		render_helper.on_message(self, message_id, message)
 		...
 	end
 
