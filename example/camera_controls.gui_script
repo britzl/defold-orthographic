@@ -19,7 +19,19 @@ function init(self)
 	camera.use_projector(CAMERA_ID, PROJECTIONS[self.current_projection].id)
 end
 
+local function get_scaling_factor()
+	local displays = defos.get_displays()
+	if not displays or #displays == 0 then
+		return 1
+	end
+	local main_display = displays[1]
+	return main_display.mode and main_display.mode.scaling_factor or 1
+end
+
+
 function update(self, dt)
+	camera.set_window_scaling_factor(get_scaling_factor())
+
 	local bounds = camera.screen_to_world_bounds(CAMERA_ID)
 	gui.set_text(gui.get_node("bottom_left"), ("%d,%d"):format(bounds.x, bounds.w))
 	gui.set_text(gui.get_node("bottom_right"), ("%d,%d"):format(bounds.z, bounds.w))

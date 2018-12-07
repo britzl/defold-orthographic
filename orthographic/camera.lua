@@ -2,7 +2,8 @@
 
 local M = {}
 
-local dpi_ratio = (sys.get_config("display.high_dpi", "0") == "1") and 0.5 or 1.0
+local HIGH_DPI = (sys.get_config("display.high_dpi", "0") == "1")
+local dpi_ratio = 1
 
 M.SHAKE_BOTH = hash("both")
 M.SHAKE_HORIZONTAL = hash("horizontal")
@@ -49,9 +50,9 @@ end
 -- setup a fixed aspect ratio projection that zooms in/out to fit the original viewport contents
 -- regardless of window size
 projectors[M.PROJECTOR.FIXED_AUTO] = function(camera_id, near_z, far_z, zoom)
-	local zoom_factor = math.min(WINDOW_WIDTH / DISPLAY_WIDTH, WINDOW_HEIGHT / DISPLAY_HEIGHT) * zoom
-	local projected_width = WINDOW_WIDTH / zoom_factor
-	local projected_height = WINDOW_HEIGHT / zoom_factor
+	local zoom_factor = math.min(WINDOW_WIDTH / DISPLAY_WIDTH, WINDOW_HEIGHT / DISPLAY_HEIGHT) * zoom * dpi_ratio
+	local projected_width = WINDOW_WIDTH / (zoom_factor / dpi_ratio)
+	local projected_height = WINDOW_HEIGHT / (zoom_factor / dpi_ratio)
 	local xoffset = -(projected_width - DISPLAY_WIDTH) / 2
 	local yoffset = -(projected_height - DISPLAY_HEIGHT) / 2
 	return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
@@ -59,8 +60,8 @@ end
 
 -- setup a fixed aspect ratio projection with a fixed zoom
 projectors[M.PROJECTOR.FIXED_ZOOM] = function(camera_id, near_z, far_z, zoom)
-	local projected_width = WINDOW_WIDTH / zoom
-	local projected_height = WINDOW_HEIGHT / zoom
+	local projected_width = WINDOW_WIDTH / (zoom / dpi_ratio)
+	local projected_height = WINDOW_HEIGHT / (zoom / dpi_ratio)
 	local xoffset = -(projected_width - DISPLAY_WIDTH) / 2
 	local yoffset = -(projected_height - DISPLAY_HEIGHT) / 2
 	return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
@@ -97,6 +98,21 @@ function M.use_projector(camera_id, projector_id)
 	msg.post(camera.url, "use_projection", { projection = projector_id })
 end
 
+--- Set window scaling factor (basically retina or no retina screen)
+-- There is no built-in way to detect if Defold is running on a retina or
+-- non retina screen. This information combined with the High DPI setting
+-- in game.project can be used to ensure that the zoom behaves the same way
+-- regardless of screen type and High DPI setting.
+-- You can use an extension such as DefOS to get the window scaling factor.
+-- @param scaling_factor Scaling factor of the display (1=normal, 2=retina)
+function M.set_window_scaling_factor(scaling_factor)
+	assert(scaling_factor, "You must provide a scaling factor")
+	if HIGH_DPI then
+		dpi_ratio = 1 / scaling_factor
+	else
+		dpi_ratio = 1
+	end
+end
 
 --- Set the window size
 -- Call this from your render script to update the current window size
@@ -238,22 +254,22 @@ function M.update(camera_id, dt)
 		local tr = M.world_to_screen(camera_id, vmath.vector3(bounds_right, bounds_top, 0))
 		local bl = M.world_to_screen(camera_id, vmath.vector3(bounds_left, bounds_bottom, 0))
 
-		-- try to keep camera position within bounds
 		local tr_offset = tr - OFFSET
 		local bl_offset = bl + OFFSET
-		cp.x = math.max(cp.x, bl_offset.x)
-		cp.x = math.min(cp.x, tr_offset.x)
-		cp.y = math.max(cp.y, bl_offset.y)
-		cp.y = math.min(cp.y, tr_offset.y)
 
-		-- center if zoomed out so that entire bounds is less than window size
 		local bounds_width = tr.x - bl.x
 		if bounds_width < WINDOW_WIDTH then
-			cp.x = cp.x + (WINDOW_WIDTH - bounds_width) / 2
+			cp.x = bl.x + (tr.x - bl.x) / 2
+		else
+			cp.x = math.max(cp.x, bl_offset.x)
+			cp.x = math.min(cp.x, tr_offset.x)
 		end
 		local bounds_height = tr.y - bl.y
 		if bounds_height < WINDOW_HEIGHT then
-			cp.y = cp.y + (WINDOW_HEIGHT - bounds_height) / 2
+			cp.y = bl.y + (tr.y - bl.y) / 2
+		else
+			cp.y = math.max(cp.y, bl_offset.y)
+			cp.y = math.min(cp.y, tr_offset.y)
 		end
 
 		camera_world_pos = M.screen_to_world(camera_id, cp)

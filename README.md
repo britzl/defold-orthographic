@@ -75,25 +75,25 @@ The Orthographic API provides a helper module to easily update the camera and se
 
 	function init(self)
 		...
-		render_helper.init(self)
+		render_helper.init()
 		...
 	end
 
 	function update(self)
-		render_helper.update(self, dt)
+		render_helper.update()
 		...
 
-		render_helper.set_world_view_projection(self)
+		render_helper.set_world_view_projection()
 		-- draw world
 		...
 
-		render_helper.set_screen_view_projection(self)
+		render_helper.set_screen_view_projection()
 		-- draw screen
 		...
 	end
 
 	function on_message(self, message_id, message)
-		render_helper.on_message(self, message_id, message, sender)
+		render_helper.on_message(message_id, message)
 		...
 	end
 
@@ -335,6 +335,13 @@ Set the current window size so that it is available to projectors via ```camera.
 **PARAMETERS**
 * ```width``` (number) - Current window width.
 * ```height``` (number) - Current window height.
+
+
+### camera.set_window_scaling_factor(scaling_factor)
+Set window scaling factor (basically retina or no retina screen). There is no built-in way to detect if Defold is running on a retina or non retina screen. This information combined with the High DPI setting in game.project can be used to ensure that the zoom behaves the same way regardless of screen type and High DPI setting. You can use an extension such as [DefOS](https://github.com/subsoap/defos) to get the window scaling factor.
+
+**PARAMETERS**
+* ```scaling_factor``` (number) - Current window scaling factor
 
 
 ### camera.get_window_size()

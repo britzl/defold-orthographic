@@ -15,11 +15,11 @@ function init(self)
 	self.clear_color.z = sys.get_config("render.clear_color_blue", 0)
 	self.clear_color.w = sys.get_config("render.clear_color_alpha", 0)
 
-	render_helper.init(self)
+	render_helper.init()
 end
 
 function update(self)
-	render_helper.update(self, dt)
+	render_helper.update()
 
 
 	-- clear color
@@ -59,7 +59,7 @@ function update(self)
 end
 
 function on_message(self, message_id, message)
-	render_helper.on_message(self, message_id, message, sender)
+	render_helper.on_message(message_id, message, sender)
 	if message_id == CLEAR_COLOR then
 		self.clear_color = message.color
 	end
