@@ -258,15 +258,16 @@ function M.update(camera_id, dt)
 		local bl_offset = bl + OFFSET
 
 		local bounds_width = tr.x - bl.x
-		if bounds_width < WINDOW_WIDTH then
-			cp.x = bl.x + (tr.x - bl.x) / 2
+		if bounds_width < DISPLAY_WIDTH then
+			cp.x = bl.x + bounds_width / 2
 		else
 			cp.x = math.max(cp.x, bl_offset.x)
 			cp.x = math.min(cp.x, tr_offset.x)
 		end
+
 		local bounds_height = tr.y - bl.y
-		if bounds_height < WINDOW_HEIGHT then
-			cp.y = bl.y + (tr.y - bl.y) / 2
+		if bounds_height < DISPLAY_HEIGHT then
+			cp.y = bl.y + bounds_height / 2
 		else
 			cp.y = math.max(cp.y, bl_offset.y)
 			cp.y = math.min(cp.y, tr_offset.y)
