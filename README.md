@@ -202,7 +202,7 @@ Get the current zoom level of the camera.
 * ```zoom``` (number) The current zoom of the camera
 
 
-### camera.zoom_to(camera_id, zoom)
+### camera.set_zoom(camera_id, zoom)
 Change the zoom level of the camera.
 
 **PARAMETERS**
