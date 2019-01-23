@@ -207,11 +207,13 @@ function M.update(camera_id, dt)
 	if not camera then
 		return
 	end
-	
+
 	local camera_world_pos = go.get_world_position(camera_id)
 	local camera_world_to_local_diff = camera_world_pos - go.get_position(camera_id)
 	local follow_enabled = go.get(camera.url, "follow")
 	if follow_enabled then
+		local follow_horizontal = go.get(camera.url, "follow_horizontal")
+		local follow_vertical = go.get(camera.url, "follow_vertical")
 		local follow = go.get(camera.url, "follow_target")
 		local follow_offset = go.get(camera.url, "follow_offset")
 		local target_world_pos = go.get_world_position(follow) + follow_offset
@@ -240,6 +242,12 @@ function M.update(camera_id, dt)
 			new_pos = target_world_pos
 		end
 		new_pos.z = camera_world_pos.z
+		if not follow_vertical then
+			new_pos.y = camera_world_pos.y
+		end
+		if not follow_horizontal then
+			new_pos.x = camera_world_pos.x
+		end
 		local follow_lerp = go.get(camera.url, "follow_lerp")
 		camera_world_pos = lerp_with_dt(follow_lerp, dt, camera_world_pos, new_pos)
 		camera_world_pos.z = new_pos.z
@@ -323,12 +331,37 @@ end
 --- Follow a game object
 -- @param camera_id
 -- @param target The game object to follow
--- @param lerp Optional lerp to smoothly move the camera towards the target
--- @param offset Optional offset from target position
-function M.follow(camera_id, target, lerp, offset)
+-- @param options Table with options
+--		lerp - lerp to smoothly move the camera towards the target (default: nil)
+-- 		offset - Offset from target position (default: nil)
+--		horizontal - true if following target along horizontal axis (default: true)
+--		vertical - true if following target along vertical axis (default: true)
+function M.follow(camera_id, target, options, __offset)
 	assert(camera_id, "You must provide a camera id")
 	assert(target, "You must provide a target")
-	msg.post(cameras[camera_id].url, "follow", { target = target, lerp = lerp, offset = offset })
+
+	-- handle old function signature where 3rd argument was lerp and 4th was offset
+	local lerp = nil
+	local offset = nil
+	local vertical = true
+	local horizontal = true
+	if type(options) == "table" then
+		lerp = options.lerp
+		offset = options.lerp
+		horizontal = options.horizontal
+		vertical = options.vertical
+	else
+		lerp = options
+		offset = __offset
+	end
+	
+	msg.post(cameras[camera_id].url, "follow", {
+		target = target,
+		lerp = lerp,
+		offset = offset,
+		horizontal = horizontal,
+		vertical = vertical,
+	})
 end
 
 

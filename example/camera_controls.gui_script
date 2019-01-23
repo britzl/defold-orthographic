@@ -20,6 +20,7 @@ function init(self)
 end
 
 local function get_scaling_factor()
+	if not defos then return 1 end
 	local displays = defos.get_displays()
 	if not displays or #displays == 0 then
 		return 1
@@ -41,7 +42,13 @@ function update(self, dt)
 	gui.set_text(gui.get_node("current_projection"), PROJECTIONS[self.current_projection].name)
 
 	if self.follow then
-		msg.post(CAMERA_ID, "follow", { target = "/player", lerp = self.lerp, offset = self.camera_offset })
+		msg.post(CAMERA_ID, "follow", {
+			target = "/player",
+			lerp = self.lerp,
+			offset = self.camera_offset,
+			horizontal = self.follow_horizontal,
+			vertical = self.follow_vertical,
+		})
 	end
 end
 
@@ -49,14 +56,32 @@ function on_input(self, action_id, action)
 	if action_id == hash("touch") and action.released then
 		if gui.pick_node(gui.get_node("unfollow/button"), action.x, action.y) then
 			self.follow = false
+			self.follow_horizontal = false
+			self.follow_vertical = false
 			msg.post(CAMERA_ID, "unfollow")
 			return true
 		elseif gui.pick_node(gui.get_node("follow_basic/button"), action.x, action.y) then
 			self.follow = true
+			self.follow_horizontal = true
+			self.follow_vertical = true
 			self.lerp = 1
 			return true
 		elseif gui.pick_node(gui.get_node("follow_lerp/button"), action.x, action.y) then
 			self.follow = true
+			self.follow_horizontal = true
+			self.follow_vertical = true
+			self.lerp = 0.1
+			return true
+		elseif gui.pick_node(gui.get_node("follow_horizontal/button"), action.x, action.y) then
+			self.follow = true
+			self.follow_horizontal = true
+			self.follow_vertical = false
+			self.lerp = 0.1
+			return true
+		elseif gui.pick_node(gui.get_node("follow_vertical/button"), action.x, action.y) then
+			self.follow = true
+			self.follow_horizontal = false
+			self.follow_vertical = true
 			self.lerp = 0.1
 			return true
 		elseif gui.pick_node(gui.get_node("shake_both/button"), action.x, action.y) then

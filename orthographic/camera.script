@@ -7,6 +7,8 @@ go.property("enabled", true)
 go.property("offset_gui", false)
 
 go.property("follow", false)
+go.property("follow_horizontal", true)
+go.property("follow_vertical", true)
 go.property("follow_target", hash(""))
 go.property("follow_lerp", 0.5)
 go.property("follow_offset", vmath.vector3(0, 0, 0))
@@ -80,6 +82,10 @@ function on_message(self, message_id, message, sender)
 	elseif message_id == FOLLOW then
 		assert(message.target, "You must provide a target")
 		self.follow = true
+		if message.horizontal == nil then message.horizontal = true end
+		if message.vertical == nil then message.vertical = true end
+		self.follow_horizontal = message.horizontal
+		self.follow_vertical = message.vertical
 		self.follow_target = type(message.target) == "string" and hash(message.target) or message.target
 		self.follow_lerp = message.lerp or 1
 		self.follow_offset = message.offset or vmath.vector3()

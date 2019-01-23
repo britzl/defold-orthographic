@@ -43,6 +43,12 @@ This controls if the gui should be offset during a screen shake or a camera reco
 #### follow (boolean)
 This controls if the camera should follow a target or not. See ```camera.follow()``` for details.
 
+#### follow_horizontal (boolean)
+This controls if the camera should follow the target along the horizontal axis or not. See ```camera.follow()``` for details.
+
+#### follow_vertical (boolean)
+This controls if the camera should follow the target along the vertical axis or not. See ```camera.follow()``` for details.
+
 #### follow_target (hash)
 Id of the game object to follow. See ```camera.follow()``` for details.
 
@@ -210,14 +216,20 @@ Change the zoom level of the camera.
 * ```zoom``` (number) The new zoom level of the camera
 
 
-### camera.follow(camera_id, target, [lerp])
+### camera.follow(camera_id, target, [options])
 Follow a game object.
 
 **PARAMETERS**
 * ```camera_id``` (hash|url)
 * ```target``` (hash|url) - Game object to follow
-* ```lerp``` (number) - Lerp from current position to target position with ```lerp``` as t. Optional.
-* ```offset``` (vector3) - Camera offset from target position. Optional.
+* ```options``` (table) - Options (see below)
+
+Acceptable values for the ```options``` table:
+
+* ```lerp``` (number) - Lerp from current position to target position with ```lerp``` as t.
+* ```offset``` (vector3) - Camera offset from target position.
+* ```follow_horizontal``` (boolean) - True if following the target along the horizontal axis.
+* ```follow_vertical``` (vector3) - True if following the target along the vertical axis.
 
 ### camera.unfollow(camera_id)
 Stop following a game object.
@@ -381,9 +393,9 @@ Message equivalent to ```camera.recoil()```. Accepted message keys: ```offset```
 Message sent back to the sender of a ```shake``` message when the shake has completed.
 
 ### follow
-Message equivalent to ```camera.follow()```. Accepted message keys: ```target``` and ```lerp```.
+Message equivalent to ```camera.follow()```. Accepted message keys: ```target```, ```lerp```, ```horizontal``` and ```vertical```.
 
-	msg.post("camera", "follow", { target = hash("player"), lerp = 0.7 })
+	msg.post("camera", "follow", { target = hash("player"), lerp = 0.7, horizontal = true, vertical = false })
 
 ### unfollow
 Message equivalent to ```camera.unfollow()```.
