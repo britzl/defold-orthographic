@@ -259,7 +259,7 @@ Limits the camera position to within the specified rectangle.
 
 
 ### camera.screen_to_world(camera_id, screen)
-Translate screen coordinates to world coordinates, based on the view and projection of the camera.
+Translate [screen coordinates](#screen-coordinates) to world coordinates, based on the view and projection of the camera.
 
 **PARAMETERS**
 * ```camera_id``` (hash|url)
@@ -270,7 +270,7 @@ Translate screen coordinates to world coordinates, based on the view and project
 
 
 ### camera.window_to_world(camera_id, window)
-Translate window coordinates to world coordinates, based on the view and projection of the camera.
+Translate [window coordinates](#window-coordinates) to world coordinates, based on the view and projection of the camera.
 
 **PARAMETERS**
 * ```camera_id``` (hash|url)
@@ -281,7 +281,7 @@ Translate window coordinates to world coordinates, based on the view and project
 
 
 ### camera.screen_to_world_bounds(camera_id)
-Translate screen boundaries (corners) to world coordinates, based on the view and projection of the camera.
+Translate [screen boundaries](#screen-coordinates) (corners) to world coordinates, based on the view and projection of the camera.
 
 **PARAMETERS**
 * ```camera_id``` (hash|url)
@@ -291,7 +291,7 @@ Translate screen boundaries (corners) to world coordinates, based on the view an
 
 
 ### camera.world_to_screen(camera_id, world)
-Translate world coordinates to screen coordinates, based on the view and projection of the camera. This is useful when manually culling game objects and you need to determine if a world coordinate will be visible or not.
+Translate world coordinates to [screen coordinates](#screen-coordinates), based on the view and projection of the camera. This is useful when manually culling game objects and you need to determine if a world coordinate will be visible or not.
 
 **PARAMETER**
 * ```camera_id``` (hash|url)
