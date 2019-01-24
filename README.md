@@ -302,7 +302,7 @@ Translate world coordinates to [screen coordinates](#screen-coordinates), based 
 
 
 ### camera.unproject(view, projection, screen)
-Translate screen coordinates to world coordinates using the specified view and projection.
+Translate [screen coordinates](#screen-coordinates) to world coordinates using the specified view and projection.
 
 **PARAMETERS**
 * ```view``` (matrix4)
@@ -314,7 +314,7 @@ Translate screen coordinates to world coordinates using the specified view and p
 
 
 ### camera.project(view, projection, world)
-Translate world coordinates to screen coordinates using the specified view and projection.
+Translate world coordinates to [screen coordinates](#screen-coordinates) using the specified view and projection.
 
 **PARAMETERS**
 * ```view``` (matrix4)
