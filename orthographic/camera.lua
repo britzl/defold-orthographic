@@ -347,7 +347,7 @@ function M.follow(camera_id, target, options, __offset)
 	local horizontal = true
 	if type(options) == "table" then
 		lerp = options.lerp
-		offset = options.lerp
+		offset = options.offset
 		horizontal = options.horizontal
 		vertical = options.vertical
 	else
