@@ -22,7 +22,7 @@ Select the script component attached to the ```camera.go``` to modify the proper
 This is the near and far z-values used in the projection matrix, ie the near and far clipping plane. Anything with a z-value inside this range will be drawn by the render script.
 
 #### zoom (number)
-This is the zoom level of the camera. Modify it by calling ```camera.zoom_to()```, ```go.set(camera, "zoom")``` or ```go.animate(camera, "zoom", ...)```. Read it using ```camera.get_zoom()``` or ```go.get(camera_id, "zoom")```.
+This is the zoom level of the camera. Modify it by calling ```camera.set_zoom()```, ```go.set(camera, "zoom")``` or ```go.animate(camera, "zoom", ...)```. Read it using ```camera.get_zoom()``` or ```go.get(camera_id, "zoom")```.
 
 #### projection (hash)
 The camera can be configured to support different kinds of orthographic projections. The default projection (aptly named ```DEFAULT```) uses the same orthographic projection matrix as in the default render script (ie aspect ratio isn't maintained and content is stretched). Other projections are available out-of-the box:
