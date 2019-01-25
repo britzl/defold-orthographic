@@ -228,8 +228,8 @@ Acceptable values for the ```options``` table:
 
 * ```lerp``` (number) - Lerp from current position to target position with ```lerp``` as t.
 * ```offset``` (vector3) - Camera offset from target position.
-* ```follow_horizontal``` (boolean) - True if following the target along the horizontal axis.
-* ```follow_vertical``` (vector3) - True if following the target along the vertical axis.
+* ```horizontal``` (boolean) - True if following the target along the horizontal axis.
+* ```vertical``` (vector3) - True if following the target along the vertical axis.
 
 ### camera.unfollow(camera_id)
 Stop following a game object.
