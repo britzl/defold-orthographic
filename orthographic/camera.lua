@@ -290,7 +290,7 @@ function M.update(camera_id, dt)
 	if camera.shake then
 		camera.shake.duration = camera.shake.duration - dt
 		if camera.shake.duration < 0 then
-			camera.shake.cb()
+			if camera.shake.cb then camera.shake.cb() end
 			camera.shake = nil
 		else
 			if camera.shake.horizontal then
