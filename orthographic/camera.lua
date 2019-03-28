@@ -23,6 +23,12 @@ local WINDOW_WIDTH = DISPLAY_WIDTH
 local WINDOW_HEIGHT = DISPLAY_HEIGHT
 
 
+local GUI_ADJUST = {
+	[gui.ADJUST_FIT] = {sx=1, sy=1, ox=0, oy=0}, -- Fit
+	[gui.ADJUST_ZOOM] = {sx=1, sy=1, ox=0, oy=0}, -- Zoom
+	[gui.ADJUST_STRETCH] = {sx=1, sy=1, ox=0, oy=0}, -- Stretch
+}
+
 -- center camera to middle of screen
 local OFFSET = vmath.vector3(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, 0)
 
@@ -125,6 +131,31 @@ function M.set_window_size(width, height)
 	assert(height, "You must provide window height")
 	WINDOW_WIDTH = width
 	WINDOW_HEIGHT = height
+
+	local sx = WINDOW_WIDTH / DISPLAY_WIDTH
+	local sy = WINDOW_HEIGHT / DISPLAY_HEIGHT
+
+	-- Fit
+	local adjust = GUI_ADJUST[gui.ADJUST_FIT]
+	local scale = math.min(sx, sy)
+	adjust.sx = scale
+	adjust.sy = scale
+	adjust.ox = (WINDOW_WIDTH - DISPLAY_WIDTH * scale) * 0.5 / scale
+	adjust.oy = (WINDOW_HEIGHT - DISPLAY_HEIGHT * scale) * 0.5 / scale
+
+	-- Zoom
+	adjust = GUI_ADJUST[gui.ADJUST_ZOOM]
+	scale = math.max(sx, sy)
+	adjust.sx = scale
+	adjust.sy = scale
+	adjust.ox = (WINDOW_WIDTH - DISPLAY_WIDTH * scale) * 0.5 / scale
+	adjust.oy = (WINDOW_HEIGHT - DISPLAY_HEIGHT * scale) * 0.5 / scale
+
+	-- Stretch
+	adjust = GUI_ADJUST[gui.ADJUST_STRETCH]
+	adjust.sx = sx
+	adjust.sy = sy
+	-- distorts to fit window, offsets always zero
 end
 
 --- Get the window size
@@ -540,19 +571,23 @@ function M.window_to_world(camera_id, window)
 	return M.unproject(view, projection, screen)
 end
 
-
 --- Convert world coordinates to screen coordinates based
 -- on a specific camera's view and projection.
 -- @param camera_id
 -- @param world World coordinates as a vector3
 -- @return Screen coordinates
 -- http://webglfactory.blogspot.se/2011/05/how-to-convert-world-to-screen.html
-function M.world_to_screen(camera_id, world)
+function M.world_to_screen(camera_id, world, adjust_mode)
 	assert(camera_id, "You must provide a camera id")
 	assert(world, "You must provide world coordinates to convert")
 	local view = cameras[camera_id].view or MATRIX4
 	local projection = cameras[camera_id].projection or MATRIX4
-	return M.project(view, projection, vmath.vector3(world))
+	local screen = M.project(view, projection, vmath.vector3(world))
+	if adjust_mode then
+		screen.x = screen.x / GUI_ADJUST[adjust_mode].sx - GUI_ADJUST[adjust_mode].ox
+		screen.y = screen.y / GUI_ADJUST[adjust_mode].sy - GUI_ADJUST[adjust_mode].oy
+	end
+	return vmath.vector3(screen.x, screen.y, screen.z)
 end
 
 
@@ -569,8 +604,8 @@ function M.project(view, projection, world)
 	assert(world, "You must provide world coordinates to translate")
 	v4_tmp.x, v4_tmp.y, v4_tmp.z, v4_tmp.w = world.x, world.y, world.z, 1
 	local v4 = projection * view * v4_tmp
-	world.x = ((v4.x + 1) / 2) * DISPLAY_WIDTH
-	world.y = ((v4.y + 1) / 2) * DISPLAY_HEIGHT
+	world.x = ((v4.x + 1) / 2) * WINDOW_WIDTH
+	world.y = ((v4.y + 1) / 2) * WINDOW_HEIGHT
 	world.z = ((v4.z + 1) / 2)
 	return world
 end

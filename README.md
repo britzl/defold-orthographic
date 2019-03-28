@@ -290,12 +290,13 @@ Translate [screen boundaries](#screen-coordinates) (corners) to world coordinate
 * ```bounds``` (vector4) Screen bounds (x = left, y = top, z = right, w = bottom)
 
 
-### camera.world_to_screen(camera_id, world)
-Translate world coordinates to [screen coordinates](#screen-coordinates), based on the view and projection of the camera. This is useful when manually culling game objects and you need to determine if a world coordinate will be visible or not.
+### camera.world_to_screen(camera_id, world, [adjust_mode])
+Translate world coordinates to [screen coordinates](#screen-coordinates), based on the view and projection of the camera, optionally taking into account an adjust mode. This is useful when manually culling game objects and you need to determine if a world coordinate will be visible or not. It can also be used to position gui nodes on top of game objects.
 
 **PARAMETER**
 * ```camera_id``` (hash|url)
 * ```world``` (vector3) World coordinates to convert
+* ```adjust_mode``` (number) One of gui.ADJUST_FIT, gui.ADJUST_ZOOM and gui.ADJUST_STRETCH, or nil to not take into account the adjust mode.
 
 **RETURN**
 * ```screen_coords``` (vector3) Screen coordinates

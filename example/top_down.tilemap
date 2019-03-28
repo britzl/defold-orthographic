@@ -3786,7 +3786,7 @@ layers {
 }
 layers {
   id: "walls"
-  z: 0.0
+  z: 0.1
   is_visible: 1
   cell {
     x: 0
@@ -4002,6 +4002,13 @@ layers {
     x: 0
     y: 2
     tile: 176
+    h_flip: 0
+    v_flip: 0
+  }
+  cell {
+    x: 2
+    y: 2
+    tile: 206
     h_flip: 0
     v_flip: 0
   }

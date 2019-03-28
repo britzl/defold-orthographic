@@ -33,6 +33,17 @@ end
 function update(self, dt)
 	camera.set_window_scaling_factor(get_scaling_factor())
 
+	local w2s_fit = gui.get_node("w2s_fit")
+	local w2s_zoom = gui.get_node("w2s_zoom")
+	local w2s_stretch = gui.get_node("w2s_stretch")
+	local world_pos = vmath.vector3(160, 160, 0)
+	local screen_pos_stretch = camera.world_to_screen(CAMERA_ID, world_pos, gui.get_adjust_mode(w2s_stretch))
+	local screen_pos_fit = camera.world_to_screen(CAMERA_ID, world_pos, gui.get_adjust_mode(w2s_fit))
+	local screen_pos_zoom = camera.world_to_screen(CAMERA_ID, world_pos, gui.get_adjust_mode(w2s_zoom))
+	gui.set_position(w2s_fit, screen_pos_fit)
+	gui.set_position(w2s_zoom, screen_pos_zoom)
+	gui.set_position(w2s_stretch, screen_pos_stretch)
+	
 	local bounds = camera.screen_to_world_bounds(CAMERA_ID)
 	gui.set_text(gui.get_node("bottom_left"), ("%d,%d"):format(bounds.x, bounds.w))
 	gui.set_text(gui.get_node("bottom_right"), ("%d,%d"):format(bounds.z, bounds.w))
