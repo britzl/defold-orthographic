@@ -11,58 +11,64 @@ https://github.com/britzl/defold-orthographic/archive/master.zip
 Or point to the ZIP file of a [specific release](https://github.com/britzl/defold-orthographic/releases).
 
 ## Basic usage
-Add the ```camera.go``` to a collection. Depending on your use case you can either add the camera as a child of a game object to have the camera always follow that object or you could add the camera as a root game object and move or animate it manually using code or using the Orthographic Camera API (see below).
+Add the `camera.go` to a collection. Depending on your use case you can either add the camera as a child of a game object to have the camera always follow that object or you could add the camera as a root game object and move or animate it manually using code or using the Orthographic Camera API (see below).
 
 The camera will send view projection messages to the render script while it is enabled. Make sure your render script handles this message! See the section on render script integration below.
 
 ## Configuration
-Select the script component attached to the ```camera.go``` to modify the properties. The camera has the following configurable properties:
+Select the script component attached to the `camera.go` to modify the properties. The camera has the following configurable properties:
 
 #### near_z (number) and far_z (number)
 This is the near and far z-values used in the projection matrix, ie the near and far clipping plane. Anything with a z-value inside this range will be drawn by the render script.
 
 #### zoom (number)
-This is the zoom level of the camera. Modify it by calling ```camera.set_zoom()```, ```go.set(camera, "zoom")``` or ```go.animate(camera, "zoom", ...)```. Read it using ```camera.get_zoom()``` or ```go.get(camera_id, "zoom")```.
+This is the zoom level of the camera. Modify it by calling `camera.set_zoom()`, `go.set(camera, "zoom", zoom)` or `go.animate(camera, "zoom", ...)`. Read it using `camera.get_zoom()` or `go.get(camera_id, "zoom")`.
+
+Note that when using `go.animate()`, `go.get()` and `go.set()` you need to make sure to specify the URL to the actual camera script and not to the camera game object:
+
+* `go.animate("mycamera#camerascript", "zoom", ...)`
+* `go.set("mycamera#camerascript", "zoom")`
+* `go.get("mycamera#camerascript", "zoom")`
 
 #### projection (hash)
-The camera can be configured to support different kinds of orthographic projections. The default projection (aptly named ```DEFAULT```) uses the same orthographic projection matrix as in the default render script (ie aspect ratio isn't maintained and content is stretched). Other projections are available out-of-the box:
+The camera can be configured to support different kinds of orthographic projections. The default projection (aptly named `DEFAULT`) uses the same orthographic projection matrix as in the default render script (ie aspect ratio isn't maintained and content is stretched). Other projections are available out-of-the box:
 
-* ```FIXED_AUTO``` - A fixed aspect ratio projection that automatically zooms in/out to fit the original viewport contents regardless of window size.
-* ```FIXED_ZOOM``` - A fixed aspect ratio projection with zoom.
+* `FIXED_AUTO` - A fixed aspect ratio projection that automatically zooms in/out to fit the original viewport contents regardless of window size.
+* `FIXED_ZOOM` - A fixed aspect ratio projection with zoom.
 
 Note: For the above projections to work you need to pass the window dimensions from your render script to the camera. See [the section on render script integration](#render_script_integration).
 
-Additional custom projections can be added, see ```camera.add_projector()``` below.
+Additional custom projections can be added, see `camera.add_projector()` below.
 
 #### enabled (boolean)
-This controls if the camera is enabled by default or not. Send ```enable``` and ```disable``` messages to the script or use ```go.set(id, "enable", true|false)``` to toggle this value.
+This controls if the camera is enabled by default or not. Send `enable` and `disable` messages to the script or use `go.set(id, "enable", true|false)` to toggle this value.
 
 #### offset_gui (boolean)
-This controls if the gui should be offset during a screen shake or a camera recoil. This will send the camera offset to the render script using the ```send_camera_offset``` message.
+This controls if the gui should be offset during a screen shake or a camera recoil. This will send the camera offset to the render script using the `send_camera_offset` message.
 
 #### follow (boolean)
-This controls if the camera should follow a target or not. See ```camera.follow()``` for details.
+This controls if the camera should follow a target or not. See `camera.follow()` for details.
 
 #### follow_horizontal (boolean)
-This controls if the camera should follow the target along the horizontal axis or not. See ```camera.follow()``` for details.
+This controls if the camera should follow the target along the horizontal axis or not. See `camera.follow()` for details.
 
 #### follow_vertical (boolean)
-This controls if the camera should follow the target along the vertical axis or not. See ```camera.follow()``` for details.
+This controls if the camera should follow the target along the vertical axis or not. See `camera.follow()` for details.
 
 #### follow_target (hash)
-Id of the game object to follow. See ```camera.follow()``` for details.
+Id of the game object to follow. See `camera.follow()` for details.
 
 #### follow_lerp (number)
-Amount of lerp when following a target. See ```camera.follow()``` for details.
+Amount of lerp when following a target. See `camera.follow()` for details.
 
 #### follow_offset (vector3)
-Camera offset from the position of the followed target. See ```camera.follow()``` for details.
+Camera offset from the position of the followed target. See `camera.follow()` for details.
 
 #### bounds_left (number), bounds_right (number), bounds_top (number), bounds_bottom (number)
-The camera bounds. See ```camera.bounds()``` for details.
+The camera bounds. See `camera.bounds()` for details.
 
 #### deadzone_left (number), deadzone_right (number), deadzone_top (number), deadzone_bottom (number)
-The camera deadzone. See ```camera.deadzone()``` for details.
+The camera deadzone. See `camera.deadzone()` for details.
 
 
 ## Render script integration
@@ -72,7 +78,7 @@ In order for the Orthographic camera to function properly you need to integrate 
 The Orthographic API comes with a ready to use render script in `orthographic/render/orthograpic.render_script`. Open `game.project` and make sure to reference `orthographic/render/orthograpic.render` in the `Render` field in the `Bootstrap` section.
 
 ### 2. Integrating in an existing render script
-While the camera is enabled it will send ```set_view_projection``` messages once per frame to the render script. The message is the same as that of the camera component, meaning that it contains ```id```, ```view``` and ```projection``` values. Make sure that these values are handled and used properly in the render script.
+While the camera is enabled it will send `set_view_projection` messages once per frame to the render script. The message is the same as that of the camera component, meaning that it contains `id`, `view` and `projection` values. Make sure that these values are handled and used properly in the render script.
 
 #### 2.1. Simplified integration
 The Orthographic API provides a helper module to easily update the camera and set screen and world view and projection. Integrate it in your own render script like this:
@@ -106,7 +112,7 @@ The Orthographic API provides a helper module to easily update the camera and se
 NOTE: In order for this to work you need to make sure that the `Shared State` setting in the `Script` section of `game.project` is checked (defaults to checked)
 
 #### 2.2. Manual integration
-If you prefer to manually setup the integration you need to make sure to handle the ```set_view_projection``` message:
+If you prefer to manually setup the integration you need to make sure to handle the `set_view_projection` message:
 
 	function update(self)
 		...
@@ -124,7 +130,7 @@ If you prefer to manually setup the integration you need to make sure to handle 
 		end
 	end
 
-An alternative approach is to ignore the ```set_view_projection``` message and directly read the view and projection from the camera in the render script:
+An alternative approach is to ignore the `set_view_projection` message and directly read the view and projection from the camera in the render script:
 
 	local camera = require "orthographic.camera"
 
@@ -137,7 +143,7 @@ An alternative approach is to ignore the ```set_view_projection``` message and d
 		...
 	end
 
-It is recommended to send the window width and height from the render script to the camera module. This is required if any of the projectors provided in ```camera.lua``` is used. It also allows custom projectors to get the current window size by calling ```camera.get_window_size()```. Set the window size like this:
+It is recommended to send the window width and height from the render script to the camera module. This is required if any of the projectors provided in `camera.lua` is used. It also allows custom projectors to get the current window size by calling `camera.get_window_size()`. Set the window size like this:
 
 	local camera = require "orthographic.camera"
 
@@ -168,253 +174,253 @@ This refers to the actual mouse pixel position within the window. These are the 
 ## The Orthographic Camera API - functions
 The API can be used in two ways:
 
-1. Calling functions on the ```camera.lua``` module
-2. Sending messages to the ```camera.script```
+1. Calling functions on the `camera.lua` module
+2. Sending messages to the `camera.script`
 
 ### camera.shake(camera_id, [intensity], [duration], [direction], [cb])
 Shake the camera.
 
 **PARAMETERS**
-* ```camera_id``` (hash|url)
-* ```intensity``` (number) - Intensity of the shake, in percent of screen. Defaults to 0.05
-* ```duration``` (number) - Duration of the shake, in seconds. Defaults to 0.5
-* ```direction``` (hash) - Direction of the shake. Possible values: ```both```, ```horizontal```, ```vertical```. Defaults to ```both```.
-* ```cb``` (function) - Function to call when the shake has finished. Optional.
+* `camera_id` (hash|url)
+* `intensity` (number) - Intensity of the shake, in percent of screen. Defaults to 0.05
+* `duration` (number) - Duration of the shake, in seconds. Defaults to 0.5
+* `direction` (hash) - Direction of the shake. Possible values: `both`, `horizontal`, `vertical`. Defaults to `both`.
+* `cb` (function) - Function to call when the shake has finished. Optional.
 
 
 ### camera.stop_shaking(camera_id)
 Stop shaking the camera.
 
 **PARAMETERS**
-* ```camera_id``` (hash|url)
+* `camera_id` (hash|url)
 
 
 ### camera.recoil(camera_id, offset, [duration])
 Apply a recoil effect to the camera. The recoil will decay using linear interpolation.
 
 **PARAMETERS**
-* ```camera_id``` (hash|url)
-* ```offset``` (vector3) - Offset to apply to the camera. Defaults to 0.05
-* ```duration``` (number) - Duration of the recoil, in seconds. Defaults to 0.5
+* `camera_id` (hash|url)
+* `offset` (vector3) - Offset to apply to the camera. Defaults to 0.05
+* `duration` (number) - Duration of the recoil, in seconds. Defaults to 0.5
 
 
 ### camera.get_zoom(camera_id)
 Get the current zoom level of the camera.
 
 **PARAMETERS**
-* ```camera_id``` (hash|url)
+* `camera_id` (hash|url)
 
 **RETURN**
-* ```zoom``` (number) The current zoom of the camera
+* `zoom` (number) The current zoom of the camera
 
 
 ### camera.set_zoom(camera_id, zoom)
 Change the zoom level of the camera.
 
 **PARAMETERS**
-* ```camera_id``` (hash|url)
-* ```zoom``` (number) The new zoom level of the camera
+* `camera_id` (hash|url)
+* `zoom` (number) The new zoom level of the camera
 
 
 ### camera.follow(camera_id, target, [options])
 Follow a game object.
 
 **PARAMETERS**
-* ```camera_id``` (hash|url)
-* ```target``` (hash|url) - Game object to follow
-* ```options``` (table) - Options (see below)
+* `camera_id` (hash|url)
+* `target` (hash|url) - Game object to follow
+* `options` (table) - Options (see below)
 
-Acceptable values for the ```options``` table:
+Acceptable values for the `options` table:
 
-* ```lerp``` (number) - Lerp from current position to target position with ```lerp``` as t.
-* ```offset``` (vector3) - Camera offset from target position.
-* ```horizontal``` (boolean) - True if following the target along the horizontal axis.
-* ```vertical``` (vector3) - True if following the target along the vertical axis.
+* `lerp` (number) - Lerp from current position to target position with `lerp` as t.
+* `offset` (vector3) - Camera offset from target position.
+* `horizontal` (boolean) - True if following the target along the horizontal axis.
+* `vertical` (vector3) - True if following the target along the vertical axis.
 
 ### camera.unfollow(camera_id)
 Stop following a game object.
 
 **PARAMETERS**
-* ```camera_id``` (hash|url)
+* `camera_id` (hash|url)
 
 ### camera.deadzone(camera_id, left, top, right, bottom)
 If following a game object this will add a deadzone around the camera position where the camera position will not update. If the target moves to the edge of the deadzone the camera will start to follow until the target returns within the bounds of the deadzone.
 
 **PARAMETERS**
-* ```camera_id``` (hash|url)
-* ```left``` (number) - Number of pixels to the left of the camera
-* ```top``` (number) - Number of pixels above the camera
-* ```right``` (number) - Number of pixels to the right of the camera
-* ```bottom``` (number) - Number of pixels below the camera
+* `camera_id` (hash|url)
+* `left` (number) - Number of pixels to the left of the camera
+* `top` (number) - Number of pixels above the camera
+* `right` (number) - Number of pixels to the right of the camera
+* `bottom` (number) - Number of pixels below the camera
 
 ### camera.bounds(camera_id, left, top, right, bottom)
 Limits the camera position to within the specified rectangle.
 
 **PARAMETERS**
-* ```camera_id``` (hash|url)
-* ```left``` (number) - Left edge of the camera bounds
-* ```top``` (number) - Top edge of camera bounds
-* ```right``` (number) - Right edge of camera bounds
-* ```bottom``` (number) - Bottom edge of camera bounds
+* `camera_id` (hash|url)
+* `left` (number) - Left edge of the camera bounds
+* `top` (number) - Top edge of camera bounds
+* `right` (number) - Right edge of camera bounds
+* `bottom` (number) - Bottom edge of camera bounds
 
 
 ### camera.screen_to_world(camera_id, screen)
 Translate [screen coordinates](#screen-coordinates) to world coordinates, based on the view and projection of the camera.
 
 **PARAMETERS**
-* ```camera_id``` (hash|url)
-* ```screen``` (vector3) Screen coordinates to convert
+* `camera_id` (hash|url)
+* `screen` (vector3) Screen coordinates to convert
 
 **RETURN**
-* ```world_coords``` (vector3) World coordinates
+* `world_coords` (vector3) World coordinates
 
 
 ### camera.window_to_world(camera_id, window)
 Translate [window coordinates](#window-coordinates) to world coordinates, based on the view and projection of the camera.
 
 **PARAMETERS**
-* ```camera_id``` (hash|url)
-* ```window``` (vector3) Window coordinates to convert
+* `camera_id` (hash|url)
+* `window` (vector3) Window coordinates to convert
 
 **RETURN**
-* ```world_coords``` (vector3) World coordinates
+* `world_coords` (vector3) World coordinates
 
 
 ### camera.screen_to_world_bounds(camera_id)
 Translate [screen boundaries](#screen-coordinates) (corners) to world coordinates, based on the view and projection of the camera.
 
 **PARAMETERS**
-* ```camera_id``` (hash|url)
+* `camera_id` (hash|url)
 
 **RETURN**
-* ```bounds``` (vector4) Screen bounds (x = left, y = top, z = right, w = bottom)
+* `bounds` (vector4) Screen bounds (x = left, y = top, z = right, w = bottom)
 
 
 ### camera.world_to_screen(camera_id, world, [adjust_mode])
 Translate world coordinates to [screen coordinates](#screen-coordinates), based on the view and projection of the camera, optionally taking into account an adjust mode. This is useful when manually culling game objects and you need to determine if a world coordinate will be visible or not. It can also be used to position gui nodes on top of game objects.
 
 **PARAMETER**
-* ```camera_id``` (hash|url)
-* ```world``` (vector3) World coordinates to convert
-* ```adjust_mode``` (number) One of gui.ADJUST_FIT, gui.ADJUST_ZOOM and gui.ADJUST_STRETCH, or nil to not take into account the adjust mode.
+* `camera_id` (hash|url)
+* `world` (vector3) World coordinates to convert
+* `adjust_mode` (number) One of gui.ADJUST_FIT, gui.ADJUST_ZOOM and gui.ADJUST_STRETCH, or nil to not take into account the adjust mode.
 
 **RETURN**
-* ```screen_coords``` (vector3) Screen coordinates
+* `screen_coords` (vector3) Screen coordinates
 
 
 ### camera.unproject(view, projection, screen)
 Translate [screen coordinates](#screen-coordinates) to world coordinates using the specified view and projection.
 
 **PARAMETERS**
-* ```view``` (matrix4)
-* ```projection``` (matrix4)
-* ```screen``` (vector3) Screen coordinates to convert
+* `view` (matrix4)
+* `projection` (matrix4)
+* `screen` (vector3) Screen coordinates to convert
 
 **RETURN**
-* ```world_coords``` (vector3) Note: Same v3 object as passed in as argument
+* `world_coords` (vector3) Note: Same v3 object as passed in as argument
 
 
 ### camera.project(view, projection, world)
 Translate world coordinates to [screen coordinates](#screen-coordinates) using the specified view and projection.
 
 **PARAMETERS**
-* ```view``` (matrix4)
-* ```projection``` (matrix4)
-* ```world``` (vector3) World coordinates to convert
+* `view` (matrix4)
+* `projection` (matrix4)
+* `world` (vector3) World coordinates to convert
 
 **RETURN**
-* ```screen_coords``` (vector3) Note: Same v3 object as passed in as argument
+* `screen_coords` (vector3) Note: Same v3 object as passed in as argument
 
 
 ### camera.add_projector(projector_id, projector_fn)
 Add a custom projector that can be used by cameras in your project (see configuration above).
 
 **PARAMETERS**
-* ```projector_id``` (hash) - Id of the projector. Used as a value in the ```projection``` field of the camera script.
-* ```projector_fn``` (function) - The function to call when a projection matrix is needed for the camera. The function will receive the id, near_z and far_z values of the camera.
+* `projector_id` (hash) - Id of the projector. Used as a value in the `projection` field of the camera script.
+* `projector_fn` (function) - The function to call when a projection matrix is needed for the camera. The function will receive the id, near_z and far_z values of the camera.
 
 
 ### camera.use_projector(camera_id, projector_id)
-Set a specific projector for a camera. This must be either one of the predefined projectors (see above) or a custom projector added using ```camera.add_projector()```.
+Set a specific projector for a camera. This must be either one of the predefined projectors (see above) or a custom projector added using `camera.add_projector()`.
 
 **PARAMETERS**
-* ```camera_id``` (hash) - Id of the camera to set projector for.
-* ```projector_id``` (hash) - Id of the projector.
+* `camera_id` (hash) - Id of the camera to set projector for.
+* `projector_id` (hash) - Id of the projector.
 
 
 ### camera.set_window_size(width, height)
-Set the current window size so that it is available to projectors via ```camera.get_window_size()```. Set this via your render script.
+Set the current window size so that it is available to projectors via `camera.get_window_size()`. Set this via your render script.
 
 **PARAMETERS**
-* ```width``` (number) - Current window width.
-* ```height``` (number) - Current window height.
+* `width` (number) - Current window width.
+* `height` (number) - Current window height.
 
 
 ### camera.set_window_scaling_factor(scaling_factor)
 Set window scaling factor (basically retina or no retina screen). There is no built-in way to detect if Defold is running on a retina or non retina screen. This information combined with the High DPI setting in game.project can be used to ensure that the zoom behaves the same way regardless of screen type and High DPI setting. You can use an extension such as [DefOS](https://github.com/subsoap/defos) to get the window scaling factor.
 
 **PARAMETERS**
-* ```scaling_factor``` (number) - Current window scaling factor
+* `scaling_factor` (number) - Current window scaling factor
 
 
 ### camera.get_window_size()
-Get the current window size, as it was provided by ```camera.set_window_size()```. The default values will be the ones specified in game.project.
+Get the current window size, as it was provided by `camera.set_window_size()`. The default values will be the ones specified in game.project.
 
 **RETURN**
-* ```width``` (number) - Current window width.
-* ```height``` (number) - Current window height.
+* `width` (number) - Current window width.
+* `height` (number) - Current window height.
 
 
 ### camera.get_display_size()
 Get the display size, as specified in game.project.
 
 **RETURN**
-* ```width``` (number) - Display width.
-* ```height``` (number) - Display height.
+* `width` (number) - Display width.
+* `height` (number) - Display height.
 
 ## The Orthographic Camera API - messages
 Most of the functions of the API have message equivalents that can be sent to the camera component.
 
 ### shake
-Message equivalent to ```camera.shake()```. Accepted message keys: ```intensity```, ```duration``` and ```direction```.
+Message equivalent to `camera.shake()`. Accepted message keys: `intensity`, `duration` and `direction`.
 
 	msg.post("camera", "shake", { intensity = 0.05, duration = 2.5, direction = "both" })
 
 ### stop_shaking
-Message equivalent to ```camera.stop_shaking()```.
+Message equivalent to `camera.stop_shaking()`.
 
 	msg.post("camera", "stop_shaking")
 
 ### recoil
-Message equivalent to ```camera.recoil()```. Accepted message keys: ```offset``` and ```duration```.
+Message equivalent to `camera.recoil()`. Accepted message keys: `offset` and `duration`.
 
 	msg.post("camera", "recoil", { offset = vmath.vector3(100, 100, 0), duration = 0.75 })
 
 ### shake_complete
-Message sent back to the sender of a ```shake``` message when the shake has completed.
+Message sent back to the sender of a `shake` message when the shake has completed.
 
 ### follow
-Message equivalent to ```camera.follow()```. Accepted message keys: ```target```, ```lerp```, ```horizontal``` and ```vertical```.
+Message equivalent to `camera.follow()`. Accepted message keys: `target`, `lerp`, `horizontal` and `vertical`.
 
 	msg.post("camera", "follow", { target = hash("player"), lerp = 0.7, horizontal = true, vertical = false })
 
 ### unfollow
-Message equivalent to ```camera.unfollow()```.
+Message equivalent to `camera.unfollow()`.
 
 	msg.post("camera", "unfollow")
 
 ### deadzone
-Message equivalent to ```camera.deadzone()```. Accepted message keys: ```left```, ```right```, ```bottom``` and ```top```.
+Message equivalent to `camera.deadzone()`. Accepted message keys: `left`, `right`, `bottom` and `top`.
 
 	msg.post("camera", "deadzone", { left = 10, right = 200, bottom = 10, top = 100 })
 
 ### bounds
-Message equivalent to ```camera.bounds()```. Accepted message keys: ```left```, ```right```, ```bottom``` and ```top```.
+Message equivalent to `camera.bounds()`. Accepted message keys: `left`, `right`, `bottom` and `top`.
 
 	msg.post("camera", "bounds", { left = 10, right = 200, bottom = 10, top = 100 })
 
 ### zoom_to
-Message equivalent to ```camera.zoom_to()```. Accepted message keys: ```zoom```.
+Message equivalent to `camera.zoom_to()`. Accepted message keys: `zoom`.
 
 	msg.post("camera", "zoom_to", { zoom = 2.5 })
 
