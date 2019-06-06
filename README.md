@@ -55,6 +55,9 @@ This controls if the camera should follow the target along the horizontal axis o
 #### follow_vertical (boolean)
 This controls if the camera should follow the target along the vertical axis or not. See `camera.follow()` for details.
 
+### follow_immediately (boolean)
+This controls if the camera should immediately position itself on the follow target when initialized or if it should apply lerp (see below). See `camera.follow()` for details.
+
 #### follow_target (hash)
 Id of the game object to follow. See `camera.follow()` for details.
 
@@ -235,7 +238,8 @@ Acceptable values for the `options` table:
 * `lerp` (number) - Lerp from current position to target position with `lerp` as t.
 * `offset` (vector3) - Camera offset from target position.
 * `horizontal` (boolean) - True if following the target along the horizontal axis.
-* `vertical` (vector3) - True if following the target along the vertical axis.
+* `vertical` (boolean) - True if following the target along the vertical axis.
+* `immediate` (boolean) - True if the camera should be immediately positioned on the target even when lerping.
 
 ### camera.unfollow(camera_id)
 Stop following a game object.
@@ -400,9 +404,9 @@ Message equivalent to `camera.recoil()`. Accepted message keys: `offset` and `du
 Message sent back to the sender of a `shake` message when the shake has completed.
 
 ### follow
-Message equivalent to `camera.follow()`. Accepted message keys: `target`, `lerp`, `horizontal` and `vertical`.
+Message equivalent to `camera.follow()`. Accepted message keys: `target`, `lerp`, `horizontal`, `vertical`, `immediate`.
 
-	msg.post("camera", "follow", { target = hash("player"), lerp = 0.7, horizontal = true, vertical = false })
+	msg.post("camera", "follow", { target = hash("player"), lerp = 0.7, horizontal = true, vertical = false, immediate = true })
 
 ### unfollow
 Message equivalent to `camera.unfollow()`.

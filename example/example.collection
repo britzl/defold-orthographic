@@ -30,6 +30,21 @@ instances {
       value: "true"
       type: PROPERTY_TYPE_BOOLEAN
     }
+    properties {
+      id: "follow"
+      value: "true"
+      type: PROPERTY_TYPE_BOOLEAN
+    }
+    properties {
+      id: "follow_immediately"
+      value: "true"
+      type: PROPERTY_TYPE_BOOLEAN
+    }
+    properties {
+      id: "follow_target"
+      value: "/player"
+      type: PROPERTY_TYPE_HASH
+    }
   }
   scale3 {
     x: 1.0

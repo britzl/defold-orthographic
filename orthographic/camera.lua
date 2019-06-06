@@ -367,6 +367,7 @@ end
 -- 		offset - Offset from target position (default: nil)
 --		horizontal - true if following target along horizontal axis (default: true)
 --		vertical - true if following target along vertical axis (default: true)
+--		immediate - true if camera should be immediately positioned on the target
 function M.follow(camera_id, target, options, __offset)
 	assert(camera_id, "You must provide a camera id")
 	assert(target, "You must provide a target")
@@ -376,11 +377,13 @@ function M.follow(camera_id, target, options, __offset)
 	local offset = nil
 	local vertical = true
 	local horizontal = true
+	local immediate = false
 	if type(options) == "table" then
 		lerp = options.lerp
 		offset = options.offset
 		horizontal = options.horizontal
 		vertical = options.vertical
+		immediate = options.immediate
 	else
 		lerp = options
 		offset = __offset
@@ -392,6 +395,7 @@ function M.follow(camera_id, target, options, __offset)
 		offset = offset,
 		horizontal = horizontal,
 		vertical = vertical,
+		immediate = immediate,
 	})
 end
 
