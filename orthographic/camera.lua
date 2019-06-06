@@ -172,22 +172,16 @@ function M.get_display_size()
 	return DISPLAY_WIDTH, DISPLAY_HEIGHT
 end
 
-local function calculate_projection(camera_id)
-	local camera = cameras[camera_id]
-	local projector_id = go.get(camera.url, "projection")
-	assert(projectors[projector_id], "Unknown projection id")
-	local near_z = go.get(camera.url, "near_z")
-	local far_z = go.get(camera.url, "far_z")
-	local zoom = go.get(camera.url, "zoom")
-	camera.zoom = zoom
-	local projector_fn = projectors[projector_id] or projectors[M.PROJECTOR.DEFAULT]
-	return projector_fn(camera_id, near_z, far_z, zoom)
+local function calculate_projection(camera)
+	local projection_id = camera.projection_id
+	assert(projectors[projection_id], "Unknown projection id")
+	local projector_fn = projectors[projection_id] or projectors[M.PROJECTOR.DEFAULT]
+	return projector_fn(camera_id, camera.near_z, camera.far_z, camera.zoom)
 end
 
 
-
-local function calculate_view(camera_id, camera_world_pos, offset)
-	local rot = go.get_world_rotation(camera_id)
+local function calculate_view(camera, camera_world_pos, offset)
+	local rot = go.get_world_rotation(camera.id)
 	local pos = camera_world_pos - vmath.rotate(rot, OFFSET)
 	if offset then
 		pos = pos + offset
@@ -208,9 +202,14 @@ function M.init(camera_id, camera_script_url, settings)
 	assert(camera_id, "You must provide a camera id")
 	assert(camera_script_url, "You must provide a camera script url")
 	cameras[camera_id] = settings
-	cameras[camera_id].url = camera_script_url
-	cameras[camera_id].view = calculate_view(camera_id, go.get_world_position(camera_id))	
-	cameras[camera_id].projection = calculate_projection(camera_id)
+	local camera = cameras[camera_id]
+	camera.id = camera_id
+	camera.url = camera_script_url
+	camera.projection_id = go.get(camera_script_url, "projection")
+	camera.near_z = go.get(camera_script_url, "near_z")
+	camera.far_z = go.get(camera_script_url, "far_z")
+	camera.view = calculate_view(camera, go.get_world_position(camera_id))
+	camera.projection = calculate_projection(camera)
 end
 
 
@@ -354,8 +353,12 @@ function M.update(camera_id, dt)
 		end
 	end
 	camera.offset = offset
-	camera.view = calculate_view(camera_id, camera_world_pos, offset)	
-	camera.projection = calculate_projection(camera_id)
+	camera.projection_id = go.get(camera.url, "projection")
+	camera.near_z = go.get(camera.url, "near_z")
+	camera.far_z = go.get(camera.url, "far_z")
+	camera.zoom = go.get(camera.url, "zoom")
+	camera.view = calculate_view(camera, camera_world_pos, offset)	
+	camera.projection = calculate_projection(camera)
 end
 
 
@@ -488,7 +491,10 @@ end
 function M.set_zoom(camera_id, zoom)
 	assert(camera_id, "You must provide a camera id")
 	assert(zoom, "You must provide a zoom level")
-	msg.post(cameras[camera_id].url, "zoom_to", { zoom = zoom })
+	local camera = cameras[camera_id]
+	msg.post(camera.url, "zoom_to", { zoom = zoom })
+	camera.zoom = zoom
+	camera.projection = calculate_projection(camera)
 end
 
 

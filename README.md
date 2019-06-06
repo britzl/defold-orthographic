@@ -437,3 +437,8 @@ Enable the camera. While the camera is enabled it will update it's view and proj
 Disable the camera.
 
 	msg.post("camera", "disable")
+
+### use_projection
+Set which projection to use.
+
+	msg.post("camera", "use_projection", { projection = hash("FIXED_AUTO") })
