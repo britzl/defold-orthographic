@@ -1,0 +1,7 @@
+local deftest = require "deftest.deftest"
+local test_camera = require "test.test_camera"
+
+function init(self)
+	deftest.add(test_camera)
+	deftest.run()
+end
