@@ -1,0 +1,25 @@
+local SCENES = {
+	"#scene1proxy",
+	"#scene2proxy"
+}
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+	self.scene_index = 0
+	msg.post("#", "switch_scene")
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("switch_scene") then
+		if self.scene_index > 0 then
+			msg.post(SCENES[self.scene_index], "unload")
+		end
+		self.scene_index = self.scene_index + 1
+		if self.scene_index > #SCENES then
+			self.scene_index = 1
+		end
+		msg.post(SCENES[self.scene_index], "async_load")
+	elseif message_id == hash("proxy_loaded") then
+		msg.post(sender, "enable")
+	end
+end
