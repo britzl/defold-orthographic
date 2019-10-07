@@ -218,7 +218,12 @@ end
 -- @param camera_id
 function M.final(camera_id)
 	assert(camera_id, "You must provide a camera id")
-	cameras[camera_id] = nil
+	-- check that a new camera with the same id but from a different go hasn't been
+	-- replacing the camera that is being unregistered
+	-- if this is the case we simply ignore the call to final()
+	if cameras[camera_id].url ~= msg.url() then
+		cameras[camera_id] = nil
+	end
 end
 
 --- Update a camera
