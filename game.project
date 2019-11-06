@@ -1,10 +1,10 @@
 [project]
 title = Orthographic
 version = 0.9
-dependencies = https://github.com/subsoap/defos/archive/v2.1.0.zip,https://github.com/britzl/deftest/archive/2.7.0.zip
+dependencies = https://github.com/subsoap/defos/archive/v2.3.1.zip,https://github.com/britzl/deftest/archive/2.7.0.zip
 
 [bootstrap]
-main_collection = /example/example.collectionc
+main_collection = /example/allfeature/example.collectionc
 render = /orthographic/render/orthographic.renderc
 
 [input]
