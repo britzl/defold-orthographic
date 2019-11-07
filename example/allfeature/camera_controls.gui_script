@@ -55,7 +55,7 @@ end
 
 local function post_follow_message(self)
 	msg.post(CAMERA_ID, "follow", {
-		target = "/player",
+		target = {"/player2", "/player"},
 		lerp = self.lerp,
 		offset = self.camera_offset,
 		horizontal = self.follow_horizontal,

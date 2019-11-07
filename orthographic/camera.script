@@ -42,13 +42,26 @@ local ZOOM_TO = hash("zoom_to")
 local USE_PROJECTION = hash("use_projection")
 
 local function position_on_follow(self)
-	local target_position = go.get_position(self.follow_target)
+	local targets = camera.get_targets()
 	local camera_position = go.get_position()
-	target_position.z = camera_position.z
+	local target_position
+	if #targets == 0 then
+		target_position = camera_position
+	else
+		target_position = vmath.vector3()
+		for i = 1, #targets do
+			target_position = target_position + go.get_position(targets[i])
+		end
+		target_position = target_position / #targets
+		target_position.z = camera_position.z
+	end
 	go.set_position(target_position)
 end
 
 function init(self)
+	if self.follow then
+		camera.set_targets(self.follow_target)
+	end
 	camera.init(go.get_id(), msg.url(), { zoom = self.zoom })
 	if self.enabled then
 		camera.update(go.get_id(), 0)
@@ -97,7 +110,7 @@ function on_message(self, message_id, message, sender)
 		if message.vertical == nil then message.vertical = true end
 		self.follow_horizontal = message.horizontal
 		self.follow_vertical = message.vertical
-		self.follow_target = type(message.target) == "string" and hash(message.target) or message.target
+		camera.set_targets(message.target)
 		self.follow_lerp = message.lerp or 1
 		self.follow_offset = message.offset or vmath.vector3()
 		self.follow_immediately = message.immediate

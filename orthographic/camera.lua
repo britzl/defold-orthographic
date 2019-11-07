@@ -42,6 +42,7 @@ local v4_tmp = vmath.vector4()
 local v3_tmp = vmath.vector3()
 
 local cameras = {}
+local targets = {}
 
 --- projection providers (projectors)
 -- a mapping of id to function to calculate and return a projection matrix
@@ -193,6 +194,30 @@ local function calculate_view(camera, camera_world_pos, offset)
 	return view
 end
 
+--- Return target tables
+function M.get_targets()
+	return targets
+end
+
+--- Set targets
+-- @param message_targets
+function M.set_targets(message_targets)
+	targets = {}
+	if type(message_targets) == "table" then
+		for i = 1, #message_targets do
+			if type(message_targets[i]) == "string" then
+				table.insert(targets, hash(message_targets[i]))
+			else
+				table.insert(targets, message_targets[i])
+			end
+		end
+	elseif type(message_targets) == "string" then
+		table.insert(targets, hash(message_targets))
+	else
+		table.insert(targets, message_targets)
+	end
+end
+
 
 --- Initialize a camera
 -- Note: This is called automatically from the init() function of the camera.script
@@ -249,9 +274,12 @@ function M.update(camera_id, dt)
 	if follow_enabled then
 		local follow_horizontal = go.get(camera.url, "follow_horizontal")
 		local follow_vertical = go.get(camera.url, "follow_vertical")
-		local follow = go.get(camera.url, "follow_target")
 		local follow_offset = go.get(camera.url, "follow_offset")
-		local target_world_pos = go.get_world_position(follow) + follow_offset
+		local target_world_pos = go.get_world_position(targets[1])
+		for i = 2, #targets do
+			target_world_pos = target_world_pos + go.get_world_position(targets[i])
+		end
+		target_world_pos = target_world_pos / #targets + follow_offset
 		local new_pos
 		local deadzone_top = go.get(camera.url, "deadzone_top")
 		local deadzone_left = go.get(camera.url, "deadzone_left")
