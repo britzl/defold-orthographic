@@ -23,29 +23,20 @@ go.property("deadzone_bottom", 0)
 go.property("deadzone_right", 0)
 go.property("deadzone_top", 0)
 
-
-
 local camera = require "orthographic.camera"
 
-
-local ENABLE = hash("enable")
-local DISABLE = hash("disable")
-local UNFOLLOW = hash("unfollow")
-local FOLLOW = hash("follow")
-local RECOIL = hash("recoil")
-local SHAKE = hash("shake")
-local STOP_SHAKING = hash("stop_shaking")
-local DEADZONE = hash("deadzone")
-local BOUNDS = hash("bounds")
-local UPDATE_CAMERA = hash("update_camera")
-local ZOOM_TO = hash("zoom_to")
-local USE_PROJECTION = hash("use_projection")
+local function has_active_follow_target(follow_id)
+	local ok, err = pcall(go.get_position, follow_id)
+	return ok
+end
 
 local function position_on_follow(self)
-	local target_position = go.get_position(self.follow_target)
-	local camera_position = go.get_position()
-	target_position.z = camera_position.z
-	go.set_position(target_position)
+	if has_active_follow_target(self.follow_target) then
+		local target_position = go.get_position(self.follow_target)
+		local camera_position = go.get_position()
+		target_position.z = camera_position.z
+		go.set_position(target_position)
+	end
 end
 
 function init(self)
@@ -69,28 +60,28 @@ function update(self, dt)
 	if self.enabled then
 		-- update camera and view projection after all game objects have been updated
 		-- will jitter otherwise
-		msg.post("#", UPDATE_CAMERA, { dt = dt })
+		msg.post("#", camera.MSG_UPDATE_CAMERA, { dt = dt })
 	end
 end
 
 
 function on_message(self, message_id, message, sender)
-	if message_id == UPDATE_CAMERA then
+	if message_id == camera.MSG_UPDATE_CAMERA then
 		camera.update(go.get_id(), message.dt)
 		camera.send_view_projection(go.get_id())
 		if self.offset_gui then
 			camera.send_camera_offset(go.get_id())
 		end
-	elseif message_id == ENABLE then
+	elseif message_id == camera.MSG_ENABLE then
 		self.enabled = true
-	elseif message_id == DISABLE then
+	elseif message_id == camera.MSG_DISABLE then
 		self.enabled = false
-	elseif message_id == UNFOLLOW then
+	elseif message_id == camera.MSG_UNFOLLOW then
 		self.follow = false
-	elseif message_id == USE_PROJECTION then
+	elseif message_id == camera.MSG_USE_PROJECTION then
 		assert(message.projection, "You must provide a projection")
 		self.projection = message.projection
-	elseif message_id == FOLLOW then
+	elseif message_id == camera.MSG_FOLLOW then
 		assert(message.target, "You must provide a target")
 		self.follow = true
 		if message.horizontal == nil then message.horizontal = true end
@@ -104,25 +95,28 @@ function on_message(self, message_id, message, sender)
 		if self.follow and self.follow_immediately then
 			position_on_follow(self)
 		end
-	elseif message_id == DEADZONE then
+	elseif message_if == camera.MSG_FOLLOW_OFFSET then
+		assert(message.offset, "You must provide an offset")
+		self.follow_offset = message.offset
+	elseif message_id == camera.MSG_DEADZONE then
 		self.deadzone_right = message.right or 0
 		self.deadzone_top = message.top or 0
 		self.deadzone_left = message.left or 0
 		self.deadzone_bottom = message.bottom or 0
-	elseif message_id == BOUNDS then
+	elseif message_id == camera.MSG_BOUNDS then
 		self.bounds_right = message.right or 0
 		self.bounds_top = message.top or 0
 		self.bounds_left = message.left or 0
 		self.bounds_bottom = message.bottom or 0
-	elseif message_id == SHAKE then
+	elseif message_id == camera.MSG_SHAKE then
 		camera.shake(go.get_id(), message.intensity, message.duration, message.direction, function()
-			msg.post(sender, "shake_completed")
+			msg.post(sender, camera.MSG_SHAKE_COMPLETED)
 		end)
-	elseif message_id == RECOIL then
+	elseif message_id == camera.MSG_RECOIL then
 		camera.recoil(go.get_id(), message.offset, message.duration)
-	elseif message_id == STOP_SHAKING then
+	elseif message_id == camera.MSG_STOP_SHAKING then
 		camera.stop_shaking(go.get_id())
-	elseif message_id == ZOOM_TO then
+	elseif message_id == camera.MSG_ZOOM_TO then
 		assert(message.zoom, "You must provide a zoom level")
 		self.zoom = message.zoom
 	end

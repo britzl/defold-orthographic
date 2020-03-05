@@ -180,6 +180,7 @@ The API can be used in two ways:
 1. Calling functions on the `camera.lua` module
 2. Sending messages to the `camera.script`
 
+
 ### camera.shake(camera_id, [intensity], [duration], [direction], [cb])
 Shake the camera.
 
@@ -196,7 +197,6 @@ Stop shaking the camera.
 
 **PARAMETERS**
 * `camera_id` (hash|url)
-
 
 ### camera.recoil(camera_id, offset, [duration])
 Apply a recoil effect to the camera. The recoil will decay using linear interpolation.
@@ -241,11 +241,21 @@ Acceptable values for the `options` table:
 * `vertical` (boolean) - True if following the target along the vertical axis.
 * `immediate` (boolean) - True if the camera should be immediately positioned on the target even when lerping.
 
+
+### camera.follow_offset(camera_id, offset)
+Change the camera follow offset.
+
+**PARAMETERS**
+* `camera_id` (hash|url)
+* `offset` (vector3) - Camera offset from target position.
+
+
 ### camera.unfollow(camera_id)
 Stop following a game object.
 
 **PARAMETERS**
 * `camera_id` (hash|url)
+
 
 ### camera.deadzone(camera_id, left, top, right, bottom)
 If following a game object this will add a deadzone around the camera position where the camera position will not update. If the target moves to the edge of the deadzone the camera will start to follow until the target returns within the bounds of the deadzone.
@@ -256,6 +266,7 @@ If following a game object this will add a deadzone around the camera position w
 * `top` (number) - Number of pixels above the camera
 * `right` (number) - Number of pixels to the right of the camera
 * `bottom` (number) - Number of pixels below the camera
+
 
 ### camera.bounds(camera_id, left, top, right, bottom)
 Limits the camera position to within the specified rectangle.
@@ -404,9 +415,14 @@ Message equivalent to `camera.recoil()`. Accepted message keys: `offset` and `du
 Message sent back to the sender of a `shake` message when the shake has completed.
 
 ### follow
-Message equivalent to `camera.follow()`. Accepted message keys: `target`, `lerp`, `horizontal`, `vertical`, `immediate`.
+Message equivalent to `camera.follow()`. Accepted message keys: `target`, `lerp`, `horizontal`, `vertical`, `immediate`, `offset`.
 
 	msg.post("camera", "follow", { target = hash("player"), lerp = 0.7, horizontal = true, vertical = false, immediate = true })
+
+### follow_offset
+Message equivalent to `camera.follow_offset()`. Accepted message keys: `offset`.
+
+	msg.post("camera", "follow_offset", { offset = vmath.vector3(150, 250, 0) })
 
 ### unfollow
 Message equivalent to `camera.unfollow()`.

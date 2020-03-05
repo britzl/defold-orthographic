@@ -1,0 +1,41 @@
+local camera = require "orthographic.camera"
+
+local CAMERA_ID = hash("/camera")
+
+local function update_bounds(self)
+	if self.bounds then
+		local left = 0
+		local top = 1280
+		local right = 1728
+		local bottom = 0
+		camera.bounds(CAMERA_ID, left, top, right, bottom)
+		print("Enabled camera bounds")
+	else
+		camera.bounds(CAMERA_ID)
+		print("Disabled camera bounds")
+	end
+end
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+	self.bounds = true
+	msg.post("#", "update_bounds") -- delay first time to allow the camera to init
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("update_bounds") then
+		update_bounds(self)
+	end
+end
+
+function on_input(self, action_id, action)
+	if action_id == hash("touch") and action.released then
+		self.bounds = not self.bounds
+		update_bounds(self)
+	end
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Remove this function if not needed
+end

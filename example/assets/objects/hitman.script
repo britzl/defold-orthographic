@@ -1,5 +1,6 @@
 go.property("max_camera_offset", vmath.vector3(300, 500, 0))
 go.property("camera_offset_lerp", 0.05)
+go.property("crosshair", true)
 
 local camera = require "orthographic.camera"
 
@@ -9,23 +10,21 @@ local CAMERA_ID = hash("/camera")
 
 function init(self)
 	self.input = {}
-	self.crosshair = vmath.vector3()
 	self.camera_offset = vmath.vector3()
+	msg.post(".", "acquire_input_focus")
 end
 
 function update(self, dt)
-	-- update crosshair based on mouse and camera position
-	local cursor_pos = camera.screen_to_world(CAMERA_ID, self.crosshair)
-	cursor_pos = vmath.lerp(0.5, go.get_position("crosshair"), cursor_pos)
-	go.set_position(cursor_pos, "crosshair")
-	label.set_text("crosshair#position", ("%.2f x %.2f"):format(cursor_pos.x, cursor_pos.y))
 
 	-- rotate towards cursor
-	local player_world = go.get_world_position()
-	local angle = math.atan2(player_world.x - cursor_pos.x, cursor_pos.y - player_world.y)
-	local rotation = vmath.quat_rotation_z(angle)
-	go.set_rotation(rotation)
-	
+	if self.crosshair then
+		local crosshair_world = go.get_world_position("crosshair")
+		local player_world = go.get_world_position()
+		local angle = math.atan2(player_world.x - crosshair_world.x, crosshair_world.y - player_world.y)
+		local rotation = vmath.quat_rotation_z(angle)
+		go.set_rotation(rotation)
+	end
+		
 	-- update player position
 	local pos = go.get_position()
 	if self.input[hash("up")] then
@@ -43,14 +42,12 @@ function update(self, dt)
 		self.camera_offset.x = vmath.lerp(self.camera_offset_lerp, self.camera_offset.x, self.max_camera_offset.y)
 	end
 
-	msg.post("controls", "camera_offset", { offset = self.camera_offset})
 	go.set_position(pos)
+
+	msg.post(CAMERA_ID, camera.MSG_FOLLOW_OFFSET, { offset = self.camera_offset})
 end
 
 function on_input(self, action_id, action)
-	self.crosshair.x = action.x
-	self.crosshair.y = action.y
-	
 	if action_id then
 		if action.pressed then
 			self.input[action_id] = true
@@ -59,10 +56,10 @@ function on_input(self, action_id, action)
 		end
 
 		-- shoot and apply recoil
-		if action_id == hash("touch") and action.released then
-			local crosshair_pos = go.get_position("crosshair")
-			local player_pos = go.get_position()
-			local offset = (crosshair_pos - player_pos) * 0.1
+		if self.crosshair and action_id == hash("touch") and action.released then
+			local crosshair_world = go.get_position("crosshair")
+			local player_world = go.get_position()
+			local offset = (crosshair_world - player_world) * 0.1
 			camera.recoil(CAMERA_ID, offset, 0.5)
 		end
 	end

@@ -1,4 +1,4 @@
-script: "/example/allfeature/camera_controls.gui_script"
+script: "/example/allfeatures/camera_controls.gui_script"
 fonts {
   name: "silkscreen"
   font: "/example/assets/fonts/silkscreen.font"

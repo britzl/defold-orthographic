@@ -1,0 +1,25 @@
+local camera = require "orthographic.camera"
+
+local CAMERA_ID = hash("/camera")
+
+function init(self)
+	self.crosshair = vmath.vector3()
+	msg.post(".", "acquire_input_focus")
+end
+
+function update(self, dt)
+	local cursor_pos = camera.screen_to_world(CAMERA_ID, self.crosshair)
+	cursor_pos = vmath.lerp(0.5, go.get_position(), cursor_pos)
+	go.set_position(cursor_pos)
+	label.set_text("#position", ("%.2f x %.2f"):format(cursor_pos.x, cursor_pos.y))
+end
+
+function on_input(self, action_id, action)
+	self.crosshair.x = action.x
+	self.crosshair.y = action.y
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Remove this function if not needed
+end

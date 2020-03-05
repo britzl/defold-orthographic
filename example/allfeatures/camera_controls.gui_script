@@ -1,6 +1,7 @@
 local camera = require "orthographic.camera"
 
 local CAMERA_ID = hash("/camera")
+local PLAYER_ID = hash("/hitman")
 
 local PROJECTIONS = {
 	{ name = "Default", id = camera.PROJECTOR.DEFAULT },
@@ -9,7 +10,6 @@ local PROJECTIONS = {
 }
 
 function init(self)
-	msg.post("player", "acquire_input_focus")
 	msg.post(".", "acquire_input_focus")
 	gui.set_enabled(gui.get_node("deadzone_visualizer"), false)
 	self.bounds_enabled = false
@@ -54,8 +54,8 @@ function update(self, dt)
 end
 
 local function post_follow_message(self)
-	msg.post(CAMERA_ID, "follow", {
-		target = "/player",
+	msg.post(CAMERA_ID, camera.MSG_FOLLOW, {
+		target = PLAYER_ID,
 		lerp = self.lerp,
 		offset = self.camera_offset,
 		horizontal = self.follow_horizontal,

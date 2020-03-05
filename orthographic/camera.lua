@@ -2,6 +2,22 @@
 
 local M = {}
 
+M.MSG_ENABLE = hash("enable")
+M.MSG_DISABLE = hash("disable")
+M.MSG_UNFOLLOW = hash("unfollow")
+M.MSG_FOLLOW = hash("follow")
+M.MSG_FOLLOW_OFFSET = hash("follow_offset")
+M.MSG_RECOIL = hash("recoil")
+M.MSG_SHAKE = hash("shake")
+M.MSG_SHAKE_COMPLETED = hash("shake_completed")
+M.MSG_STOP_SHAKING = hash("stop_shaking")
+M.MSG_DEADZONE = hash("deadzone")
+M.MSG_BOUNDS = hash("bounds")
+M.MSG_UPDATE_CAMERA = hash("update_camera")
+M.MSG_ZOOM_TO = hash("zoom_to")
+M.MSG_USE_PROJECTION = hash("use_projection")
+
+
 local HIGH_DPI = (sys.get_config("display.high_dpi", "0") == "1")
 local dpi_ratio = 1
 
@@ -73,6 +89,14 @@ projectors[M.PROJECTOR.FIXED_ZOOM] = function(camera_id, near_z, far_z, zoom)
 	return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
 end
 
+local function log(s, ...)
+	if s then print(s:format(...)) end
+end
+
+local function check_game_object(id)
+	local ok, err = pcall(go.get_position, id)
+	return ok
+end
 
 -- http://www.rorydriscoll.com/2016/03/07/frame-rate-independent-damping-using-lerp/
 -- return vmath.lerp(1 - math.pow(t, dt), v1, v2)
@@ -193,7 +217,6 @@ local function calculate_view(camera, camera_world_pos, offset)
 	return view
 end
 
-
 --- Initialize a camera
 -- Note: This is called automatically from the init() function of the camera.script
 -- @param camera_id
@@ -210,8 +233,11 @@ function M.init(camera_id, camera_script_url, settings)
 	camera.far_z = go.get(camera_script_url, "far_z")
 	camera.view = calculate_view(camera, go.get_world_position(camera_id))
 	camera.projection = calculate_projection(camera)
-end
 
+	if not sys.get_engine_info().is_debug then
+		log = function() end
+	end
+end
 
 --- Finalize a camera
 -- Note: This is called automatically from the final() function of the camera.script
@@ -247,45 +273,49 @@ function M.update(camera_id, dt)
 	local camera_world_to_local_diff = camera_world_pos - go.get_position(camera_id)
 	local follow_enabled = go.get(camera.url, "follow")
 	if follow_enabled then
-		local follow_horizontal = go.get(camera.url, "follow_horizontal")
-		local follow_vertical = go.get(camera.url, "follow_vertical")
 		local follow = go.get(camera.url, "follow_target")
-		local follow_offset = go.get(camera.url, "follow_offset")
-		local target_world_pos = go.get_world_position(follow) + follow_offset
-		local new_pos
-		local deadzone_top = go.get(camera.url, "deadzone_top")
-		local deadzone_left = go.get(camera.url, "deadzone_left")
-		local deadzone_right = go.get(camera.url, "deadzone_right")
-		local deadzone_bottom = go.get(camera.url, "deadzone_bottom")
-		if deadzone_top ~= 0 or deadzone_left ~= 0 or deadzone_right ~= 0 or deadzone_bottom ~= 0 then
-			new_pos = vmath.vector3(camera_world_pos)
-			local left_edge = camera_world_pos.x - deadzone_left
-			local right_edge = camera_world_pos.x + deadzone_right
-			local top_edge = camera_world_pos.y + deadzone_top
-			local bottom_edge = camera_world_pos.y - deadzone_bottom
-			if target_world_pos.x < left_edge then
-				new_pos.x = new_pos.x - (left_edge - target_world_pos.x)
-			elseif target_world_pos.x > right_edge then
-				new_pos.x = new_pos.x + (target_world_pos.x - right_edge)
-			end
-			if target_world_pos.y > top_edge then
-				new_pos.y = new_pos.y + (target_world_pos.y - top_edge)
-			elseif target_world_pos.y < bottom_edge then
-				new_pos.y = new_pos.y - (bottom_edge - target_world_pos.y)
-			end
+		if not check_game_object(follow) then
+			log("Camera '%s' has a follow target '%s' that does not exist", tostring(camera_id), tostring(follow))
 		else
-			new_pos = target_world_pos
+			local follow_horizontal = go.get(camera.url, "follow_horizontal")
+			local follow_vertical = go.get(camera.url, "follow_vertical")
+			local follow_offset = go.get(camera.url, "follow_offset")
+			local target_world_pos = go.get_world_position(follow) + follow_offset
+			local new_pos
+			local deadzone_top = go.get(camera.url, "deadzone_top")
+			local deadzone_left = go.get(camera.url, "deadzone_left")
+			local deadzone_right = go.get(camera.url, "deadzone_right")
+			local deadzone_bottom = go.get(camera.url, "deadzone_bottom")
+			if deadzone_top ~= 0 or deadzone_left ~= 0 or deadzone_right ~= 0 or deadzone_bottom ~= 0 then
+				new_pos = vmath.vector3(camera_world_pos)
+				local left_edge = camera_world_pos.x - deadzone_left
+				local right_edge = camera_world_pos.x + deadzone_right
+				local top_edge = camera_world_pos.y + deadzone_top
+				local bottom_edge = camera_world_pos.y - deadzone_bottom
+				if target_world_pos.x < left_edge then
+					new_pos.x = new_pos.x - (left_edge - target_world_pos.x)
+				elseif target_world_pos.x > right_edge then
+					new_pos.x = new_pos.x + (target_world_pos.x - right_edge)
+				end
+				if target_world_pos.y > top_edge then
+					new_pos.y = new_pos.y + (target_world_pos.y - top_edge)
+				elseif target_world_pos.y < bottom_edge then
+					new_pos.y = new_pos.y - (bottom_edge - target_world_pos.y)
+				end
+			else
+				new_pos = target_world_pos
+			end
+			new_pos.z = camera_world_pos.z
+			if not follow_vertical then
+				new_pos.y = camera_world_pos.y
+			end
+			if not follow_horizontal then
+				new_pos.x = camera_world_pos.x
+			end
+			local follow_lerp = go.get(camera.url, "follow_lerp")
+			camera_world_pos = lerp_with_dt(follow_lerp, dt, camera_world_pos, new_pos)
+			camera_world_pos.z = new_pos.z
 		end
-		new_pos.z = camera_world_pos.z
-		if not follow_vertical then
-			new_pos.y = camera_world_pos.y
-		end
-		if not follow_horizontal then
-			new_pos.x = camera_world_pos.x
-		end
-		local follow_lerp = go.get(camera.url, "follow_lerp")
-		camera_world_pos = lerp_with_dt(follow_lerp, dt, camera_world_pos, new_pos)
-		camera_world_pos.z = new_pos.z
 	end
 
 	local bounds_top = go.get(camera.url, "bounds_top")
@@ -376,34 +406,17 @@ end
 --		horizontal - true if following target along horizontal axis (default: true)
 --		vertical - true if following target along vertical axis (default: true)
 --		immediate - true if camera should be immediately positioned on the target
-function M.follow(camera_id, target, options, __offset)
+function M.follow(camera_id, target, options)
 	assert(camera_id, "You must provide a camera id")
 	assert(target, "You must provide a target")
 
-	-- handle old function signature where 3rd argument was lerp and 4th was offset
-	local lerp = nil
-	local offset = nil
-	local vertical = true
-	local horizontal = true
-	local immediate = false
-	if type(options) == "table" then
-		lerp = options.lerp
-		offset = options.offset
-		horizontal = options.horizontal
-		vertical = options.vertical
-		immediate = options.immediate
-	else
-		lerp = options
-		offset = __offset
-	end
-	
-	msg.post(cameras[camera_id].url, "follow", {
+	msg.post(cameras[camera_id].url, M.MSG_FOLLOW, {
 		target = target,
-		lerp = lerp,
-		offset = offset,
-		horizontal = horizontal,
-		vertical = vertical,
-		immediate = immediate,
+		lerp = options.lerp,
+		offset = options.offset,
+		horizontal = options.horizontal,
+		vertical = options.vertical,
+		immediate = options.immediate,
 	})
 end
 
@@ -412,8 +425,19 @@ end
 -- @param camera_id
 function M.unfollow(camera_id)
 	assert(camera_id, "You must provide a camera id")
-	msg.post(cameras[camera_id].url, "unfollow")
+	msg.post(cameras[camera_id].url, M.MSG_UNFOLLOW)
 end
+
+
+--- Change the camera follow offset
+-- @param camera_id
+-- @param offset - Offset from target position
+function M.follow_offset(camera_id, offset)
+	assert(camera_id, "You must provide a camera id")
+	assert(offset, "You must provide an offset")
+	msg.post(cameras[camera_id].url, M.MSG_FOLLOW_OFFSET, { offset = offset })
+end
+
 
 --- Set the camera deadzone
 -- @param camera_id
@@ -425,9 +449,9 @@ function M.deadzone(camera_id, left, top, right, bottom)
 	assert(camera_id, "You must provide a camera id")
 	local camera = cameras[camera_id]
 	if left and right and top and bottom then
-		msg.post(camera.url, "deadzone", { left = left, top = top, right = right, bottom = bottom })
+		msg.post(camera.url, M.MSG_DEADZONE, { left = left, top = top, right = right, bottom = bottom })
 	else
-		msg.post(camera.url, "deadzone")
+		msg.post(camera.url, M.MSG_DEADZONE)
 	end
 end
 
@@ -442,9 +466,9 @@ function M.bounds(camera_id, left, top, right, bottom)
 	assert(camera_id, "You must provide a camera id")
 	local camera = cameras[camera_id]
 	if left and top and right and bottom then
-		msg.post(camera.url, "bounds", { left = left, top = top, right = right, bottom = bottom })
+		msg.post(camera.url, M.MSG_BOUNDS, { left = left, top = top, right = right, bottom = bottom })
 	else
-		msg.post(camera.url, "bounds")
+		msg.post(camera.url, M.MSG_BOUNDS)
 	end
 end
 
@@ -497,7 +521,7 @@ function M.set_zoom(camera_id, zoom)
 	assert(camera_id, "You must provide a camera id")
 	assert(zoom, "You must provide a zoom level")
 	local camera = cameras[camera_id]
-	msg.post(camera.url, "zoom_to", { zoom = zoom })
+	msg.post(camera.url, M.MSG_ZOOM_TO, { zoom = zoom })
 	camera.zoom = zoom
 	camera.projection = calculate_projection(camera)
 end
@@ -542,7 +566,7 @@ function M.send_view_projection(camera_id)
 end
 
 
---- Send the camera offset tp the render script
+--- Send the camera offset to the render script
 -- @param camera_id
 function M.send_camera_offset(camera_id)
 	assert(camera_id, "You must provide a camera id")
