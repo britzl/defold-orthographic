@@ -144,15 +144,17 @@ function M.set_window_scaling_factor(scaling_factor)
 	end
 end
 
---- Set the window size
--- Call this from your render script to update the current window size
--- The width and height can later be retrieved through the M.get_window_size()
--- function. This is a convenience for use by custom projector functions
+--- Update the window size
 -- @param width Current window width
 -- @param height Current window height
-function M.set_window_size(width, height)
-	assert(width, "You must provide window width")
-	assert(height, "You must provide window height")
+local function update_window_size()
+	local width, height = window.get_size()
+	if width == 0 or height == 0 then
+		return
+	end
+	if width == WINDOW_WIDTH and height == WINDOW_HEIGHT then
+		return
+	end
 	WINDOW_WIDTH = width
 	WINDOW_HEIGHT = height
 
@@ -269,6 +271,8 @@ function M.update(camera_id, dt)
 		return
 	end
 
+	update_window_size()
+	
 	local camera_world_pos = go.get_world_position(camera_id)
 	local camera_world_to_local_diff = camera_world_pos - go.get_position(camera_id)
 	local follow_enabled = go.get(camera.url, "follow")

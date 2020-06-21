@@ -19,9 +19,6 @@ function init(self)
 end
 
 function update(self)
-	render_helper.update()
-
-
 	-- clear color
 	render.set_depth_mask(true)
 	render.clear({[render.BUFFER_COLOR_BIT] = self.clear_color, [render.BUFFER_DEPTH_BIT] = 1, [render.BUFFER_STENCIL_BIT] = 0})

@@ -15,24 +15,10 @@ local world_view = vmath.matrix4()
 local world_projection = vmath.matrix4()
 local screen_view = vmath.matrix4()
 local camera_offset = nil
-local window_width = nil
-local window_height = nil
 
 
 function M.init()
 end
-
-
-function M.update()
-	local current_window_width = render.get_window_width()
-	local current_window_height = render.get_window_height()
-	if window_width ~= current_window_width or window_height ~= current_window_height then
-		window_width = current_window_width
-		window_height = current_window_height
-		camera.set_window_size(current_window_width, current_window_height)
-	end
-end
-
 
 function M.world_projection()
 	return world_projection

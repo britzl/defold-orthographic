@@ -95,9 +95,6 @@ The Orthographic API provides a helper module to easily update the camera and se
 	end
 
 	function update(self)
-		render_helper.update()
-		...
-
 		render_helper.set_world_view_projection()
 		-- draw world
 		...
