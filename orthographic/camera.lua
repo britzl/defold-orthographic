@@ -2,6 +2,8 @@
 
 local M = {}
 
+M.ORTHOGRAPHIC_RENDER_SCRIPT_USED = false
+
 M.MSG_ENABLE = hash("enable")
 M.MSG_DISABLE = hash("disable")
 M.MSG_UNFOLLOW = hash("unfollow")
@@ -238,6 +240,10 @@ function M.init(camera_id, camera_script_url, settings)
 
 	if not sys.get_engine_info().is_debug then
 		log = function() end
+	end
+
+	if not M.ORTHOGRAPHIC_RENDER_SCRIPT_USED then
+		log("WARNING: orthographic.render_script not used. Did you forget to change render file in game.project?")
 	end
 end
 

@@ -1,6 +1,8 @@
 local render_helper = require "orthographic.render.helper"
 local camera = require "orthographic.camera"
 
+camera.ORTHOGRAPHIC_RENDER_SCRIPT_USED = true
+
 local CLEAR_COLOR = hash("clear_color")
 
 function init(self)
