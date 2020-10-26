@@ -104,6 +104,7 @@ end
 -- return vmath.lerp(1 - math.pow(t, dt), v1, v2)
 -- https://www.gamasutra.com/blogs/ScottLembcke/20180404/316046/Improved_Lerp_Smoothing.php
 local function lerp_with_dt(t, dt, v1, v2)
+	if dt == 0 then return vmath.lerp(t, v1, v2) end
 	local rate = UPDATE_FREQUENCY * math.log10(1 - t)
 	return vmath.lerp(1 - math.pow(10, rate * dt), v1, v2)
 	--return vmath.lerp(t, v1, v2)
