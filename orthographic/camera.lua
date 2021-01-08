@@ -50,6 +50,8 @@ local GUI_ADJUST = {
 -- center camera to middle of screen
 local OFFSET = vmath.vector3(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, 0)
 
+local WINDOW_OFFSET = vmath.vector3(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0)
+
 local VECTOR3_ZERO = vmath.vector3(0)
 local VECTOR3_MINUS1_Z = vmath.vector3(0, 0, -1.0)
 local VECTOR3_UP = vmath.vector3(0, 1.0, 0)
@@ -161,6 +163,8 @@ local function update_window_size()
 	WINDOW_WIDTH = width
 	WINDOW_HEIGHT = height
 
+	WINDOW_OFFSET = vmath.vector3(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0)
+
 	local sx = WINDOW_WIDTH / DISPLAY_WIDTH
 	local sy = WINDOW_HEIGHT / DISPLAY_HEIGHT
 
@@ -211,7 +215,7 @@ end
 
 local function calculate_view(camera, camera_world_pos, offset)
 	local rot = go.get_world_rotation(camera.id)
-	local pos = camera_world_pos - vmath.rotate(rot, OFFSET)
+	local pos = camera_world_pos - vmath.rotate(rot, WINDOW_OFFSET)
 	if offset then
 		pos = pos + offset
 	end
@@ -338,11 +342,11 @@ function M.update(camera_id, dt)
 		local tr = M.world_to_screen(camera_id, vmath.vector3(bounds_right, bounds_top, 0))
 		local bl = M.world_to_screen(camera_id, vmath.vector3(bounds_left, bounds_bottom, 0))
 
-		local tr_offset = tr - OFFSET
-		local bl_offset = bl + OFFSET
+		local tr_offset = tr - WINDOW_OFFSET
+		local bl_offset = bl + WINDOW_OFFSET
 
 		local bounds_width = tr.x - bl.x
-		if bounds_width < DISPLAY_WIDTH then
+		if bounds_width < WINDOW_WIDTH then
 			cp.x = bl.x + bounds_width / 2
 		else
 			cp.x = math.max(cp.x, bl_offset.x)
@@ -350,7 +354,7 @@ function M.update(camera_id, dt)
 		end
 
 		local bounds_height = tr.y - bl.y
-		if bounds_height < DISPLAY_HEIGHT then
+		if bounds_height < WINDOW_HEIGHT then
 			cp.y = bl.y + bounds_height / 2
 		else
 			cp.y = math.max(cp.y, bl_offset.y)
