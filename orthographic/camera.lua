@@ -654,8 +654,8 @@ function M.project(view, projection, world)
 	assert(world, "You must provide world coordinates to translate")
 	v4_tmp.x, v4_tmp.y, v4_tmp.z, v4_tmp.w = world.x, world.y, world.z, 1
 	local v4 = projection * view * v4_tmp
-	world.x = ((v4.x + 1) / 2) * WINDOW_WIDTH
-	world.y = ((v4.y + 1) / 2) * WINDOW_HEIGHT
+	world.x = ((v4.x + 1) / 2) * DISPLAY_WIDTH
+	world.y = ((v4.y + 1) / 2) * DISPLAY_HEIGHT
 	world.z = ((v4.z + 1) / 2)
 	return world
 end
