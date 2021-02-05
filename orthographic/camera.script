@@ -95,7 +95,7 @@ function on_message(self, message_id, message, sender)
 		if self.follow and self.follow_immediately then
 			position_on_follow(self)
 		end
-	elseif message_if == camera.MSG_FOLLOW_OFFSET then
+	elseif message_id == camera.MSG_FOLLOW_OFFSET then
 		assert(message.offset, "You must provide an offset")
 		self.follow_offset = message.offset
 	elseif message_id == camera.MSG_DEADZONE then
