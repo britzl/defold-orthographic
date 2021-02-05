@@ -656,7 +656,7 @@ function M.project(view, projection, world)
 	local v4 = projection * view * v4_tmp
 	world.x = ((v4.x + 1) / 2) * DISPLAY_WIDTH
 	world.y = ((v4.y + 1) / 2) * DISPLAY_HEIGHT
-	world.z = ((v4.z + 1) / 2)
+	world.z = ((v4.z + 0) / 2)
 	return world
 end
 
@@ -664,7 +664,7 @@ end
 local function unproject_xyz(inverse_view_projection, x, y, z)
 	x = (2 * x / DISPLAY_WIDTH) - 1
 	y = (2 * y / DISPLAY_HEIGHT) - 1
-	z = (2 * z) - 1
+	z = (2 * z)
 	local inv = inverse_view_projection
 	local x1 = x * inv.m00 + y * inv.m01 + z * inv.m02 + inv.m03
 	local y1 = x * inv.m10 + y * inv.m11 + z * inv.m12 + inv.m13
