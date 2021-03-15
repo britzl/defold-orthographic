@@ -167,23 +167,23 @@ local function update_window_size()
 	-- Fit
 	local adjust = GUI_ADJUST[gui.ADJUST_FIT]
 	local scale = math.min(sx, sy)
-	adjust.sx = scale
-	adjust.sy = scale
+	adjust.sx = scale * 1 / sx
+	adjust.sy = scale * 1 / sy
 	adjust.ox = (WINDOW_WIDTH - DISPLAY_WIDTH * scale) * 0.5 / scale
 	adjust.oy = (WINDOW_HEIGHT - DISPLAY_HEIGHT * scale) * 0.5 / scale
 
 	-- Zoom
 	adjust = GUI_ADJUST[gui.ADJUST_ZOOM]
 	scale = math.max(sx, sy)
-	adjust.sx = scale
-	adjust.sy = scale
+	adjust.sx = scale * 1 / sx
+	adjust.sy = scale * 1 / sy
 	adjust.ox = (WINDOW_WIDTH - DISPLAY_WIDTH * scale) * 0.5 / scale
 	adjust.oy = (WINDOW_HEIGHT - DISPLAY_HEIGHT * scale) * 0.5 / scale
 
 	-- Stretch
 	adjust = GUI_ADJUST[gui.ADJUST_STRETCH]
-	adjust.sx = sx
-	adjust.sy = sy
+	adjust.sx = 1
+	adjust.sy = 1
 	-- distorts to fit window, offsets always zero
 end
 
@@ -634,8 +634,8 @@ function M.world_to_screen(camera_id, world, adjust_mode)
 	local projection = cameras[camera_id].projection or MATRIX4
 	local screen = M.project(view, projection, vmath.vector3(world))
 	if adjust_mode then
-		screen.x = screen.x / GUI_ADJUST[adjust_mode].sx - GUI_ADJUST[adjust_mode].ox
-		screen.y = screen.y / GUI_ADJUST[adjust_mode].sy - GUI_ADJUST[adjust_mode].oy
+		screen.x = (screen.x / GUI_ADJUST[adjust_mode].sx) - GUI_ADJUST[adjust_mode].ox
+		screen.y = (screen.y / GUI_ADJUST[adjust_mode].sy) - GUI_ADJUST[adjust_mode].oy
 	end
 	return vmath.vector3(screen.x, screen.y, screen.z)
 end
