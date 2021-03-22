@@ -86,7 +86,7 @@ While the camera is enabled it will send `set_view_projection` messages once per
 #### 2.1. Simplified integration
 The Orthographic API provides a helper module to easily update the camera and set screen and world view and projection. Integrate it in your own render script like this:
 
-	local helper = require "orthographic.render.helper"
+	local render_helper = require "orthographic.render.helper"
 
 	function init(self)
 		...
