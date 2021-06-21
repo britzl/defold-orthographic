@@ -647,27 +647,16 @@ function M.screen_to_world(camera_id, screen)
 	local camera = cameras[camera_id]
 	local view = camera.view or MATRIX4
 	local projection = camera.projection or MATRIX4
+	local viewport = camera.viewport or VECTOR4
+	local viewport_width = viewport.z * DISPLAY_WIDTH / WINDOW_WIDTH
+	local viewport_height = viewport.w * DISPLAY_HEIGHT / WINDOW_HEIGHT
+	local viewport_left = viewport.x * DISPLAY_WIDTH / WINDOW_WIDTH
+	local viewport_bottom = viewport.y * DISPLAY_HEIGHT / WINDOW_HEIGHT
 
 	local s = vmath.vector3(screen)
-
-	local viewport_width = camera.viewport.z
-	local viewport_height = camera.viewport.w
-		
+	s.x = (s.x - viewport_left) * (DISPLAY_WIDTH / viewport_width)
+	s.y = (s.y - viewport_bottom) * (DISPLAY_HEIGHT / viewport_height)
 	
-	if camera.crop then
-		local zoom = camera.zoom
-		local viewport_width = camera.viewport.z
-		local viewport_height = camera.viewport.w
-		local projected_width = viewport_width / (zoom / dpi_ratio)
-		local projected_height = viewport_height / (zoom / dpi_ratio)
-		
-		s.x = s.x / (projected_width / WINDOW_WIDTH) / (projected_height / WINDOW_HEIGHT)
-		s.x = s.x - camera.viewport.x
-		print(camera.viewport.x, camera.viewport.z)
-
-		s.y = s.y / (projected_height / WINDOW_HEIGHT)
-		s.y = s.y - camera.viewport.y
-	end
 	return M.unproject(view, projection, s)
 end
 
