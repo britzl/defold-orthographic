@@ -682,8 +682,10 @@ end
 function M.window_to_world(camera_id, window)
 	assert(camera_id, "You must provide a camera id")
 	assert(window, "You must provide window coordinates to convert")
-	local view = cameras[camera_id].view or MATRIX4
-	local projection = cameras[camera_id].projection or MATRIX4
+	local camera = cameras[camera_id]
+	local view = camera.view or MATRIX4
+	local projection = camera.projection or MATRIX4
+	local viewport = camera.viewport or VECTOR4
 	local scale_x = window.x * dpi_ratio * DISPLAY_WIDTH / WINDOW_WIDTH
 	local scale_y = window.y * dpi_ratio * DISPLAY_HEIGHT / WINDOW_HEIGHT
 	local screen = vmath.vector3(scale_x, scale_y, 0)
@@ -699,8 +701,9 @@ end
 function M.world_to_screen(camera_id, world, adjust_mode)
 	assert(camera_id, "You must provide a camera id")
 	assert(world, "You must provide world coordinates to convert")
-	local view = cameras[camera_id].view or MATRIX4
-	local projection = cameras[camera_id].projection or MATRIX4
+	local camera = cameras[camera_id]
+	local view = camera.view or MATRIX4
+	local projection = camera.projection or MATRIX4
 	local screen = M.project(view, projection, vmath.vector3(world))
 	if adjust_mode then
 		screen.x = (screen.x / GUI_ADJUST[adjust_mode].sx) - GUI_ADJUST[adjust_mode].ox
@@ -763,8 +766,10 @@ end
 -- @return bounds Vector4 where x is left, y is top, z is right and w is bottom
 function M.screen_to_world_bounds(camera_id)
 	assert(camera_id, "You must provide a camera id")
-	local view = cameras[camera_id].view or MATRIX4
-	local projection = cameras[camera_id].projection or MATRIX4
+	local camera = cameras[camera_id]
+	local view = camera.view or MATRIX4
+	local projection = camera.projection or MATRIX4
+	local viewport = camera.viewport or VECTOR4
 	local inv = vmath.inv(projection * view)
 	local bl_x, bl_y = unproject_xyz(inv, 0, 0, 0)
 	local br_x, br_y = unproject_xyz(inv, DISPLAY_WIDTH, 0, 0)
