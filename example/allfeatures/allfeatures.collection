@@ -45,6 +45,26 @@ instances {
       value: "/hitman"
       type: PROPERTY_TYPE_HASH
     }
+    properties {
+      id: "viewport_left"
+      value: "20.0"
+      type: PROPERTY_TYPE_NUMBER
+    }
+    properties {
+      id: "viewport_bottom"
+      value: "20.0"
+      type: PROPERTY_TYPE_NUMBER
+    }
+    properties {
+      id: "viewport_right"
+      value: "500.0"
+      type: PROPERTY_TYPE_NUMBER
+    }
+    properties {
+      id: "viewport_top"
+      value: "500.0"
+      type: PROPERTY_TYPE_NUMBER
+    }
   }
   scale3 {
     x: 1.0

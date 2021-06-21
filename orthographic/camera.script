@@ -18,10 +18,16 @@ go.property("bounds_left", 0)
 go.property("bounds_bottom", 0)
 go.property("bounds_right", 0)
 go.property("bounds_top", 0)
+
 go.property("deadzone_left", 0)
 go.property("deadzone_bottom", 0)
 go.property("deadzone_right", 0)
 go.property("deadzone_top", 0)
+
+go.property("viewport_left", 0)
+go.property("viewport_bottom", 0)
+go.property("viewport_right", 0)
+go.property("viewport_top", 0)
 
 local camera = require "orthographic.camera"
 
@@ -69,6 +75,7 @@ function on_message(self, message_id, message, sender)
 	if message_id == camera.MSG_UPDATE_CAMERA then
 		camera.update(go.get_id(), message.dt)
 		camera.send_view_projection(go.get_id())
+		camera.send_viewport(go.get_id())
 		if self.offset_gui then
 			camera.send_camera_offset(go.get_id())
 		end
@@ -108,6 +115,11 @@ function on_message(self, message_id, message, sender)
 		self.bounds_top = message.top or 0
 		self.bounds_left = message.left or 0
 		self.bounds_bottom = message.bottom or 0
+	elseif message_id == camera.MSG_VIEWPORT then
+		self.viewport_right = message.right or 0
+		self.viewport_top = message.top or 0
+		self.viewport_left = message.left or 0
+		self.viewport_bottom = message.bottom or 0
 	elseif message_id == camera.MSG_SHAKE then
 		camera.shake(go.get_id(), message.intensity, message.duration, message.direction, function()
 			msg.post(sender, camera.MSG_SHAKE_COMPLETED)

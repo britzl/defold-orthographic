@@ -18,6 +18,7 @@ M.MSG_BOUNDS = hash("bounds")
 M.MSG_UPDATE_CAMERA = hash("update_camera")
 M.MSG_ZOOM_TO = hash("zoom_to")
 M.MSG_USE_PROJECTION = hash("use_projection")
+M.MSG_VIEWPORT = hash("viewport")
 
 
 local HIGH_DPI = (sys.get_config("display.high_dpi", "0") == "1")
@@ -55,6 +56,7 @@ local VECTOR3_MINUS1_Z = vmath.vector3(0, 0, -1.0)
 local VECTOR3_UP = vmath.vector3(0, 1.0, 0)
 
 local MATRIX4 = vmath.matrix4()
+local VECTOR4 = vmath.vector4()
 
 local v4_tmp = vmath.vector4()
 local v3_tmp = vmath.vector3()
@@ -205,7 +207,7 @@ local function calculate_projection(camera)
 	local projection_id = camera.projection_id
 	assert(projectors[projection_id], "Unknown projection id")
 	local projector_fn = projectors[projection_id] or projectors[M.PROJECTOR.DEFAULT]
-	return projector_fn(camera_id, camera.near_z, camera.far_z, camera.zoom)
+	return projector_fn(camera.id, camera.near_z, camera.far_z, camera.zoom)
 end
 
 
@@ -238,6 +240,7 @@ function M.init(camera_id, camera_script_url, settings)
 	camera.far_z = go.get(camera_script_url, "far_z")
 	camera.view = calculate_view(camera, go.get_world_position(camera_id))
 	camera.projection = calculate_projection(camera)
+	camera.viewport = vmath.vector4(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT)
 
 	if not sys.get_engine_info().is_debug then
 		log = function() end
@@ -360,6 +363,22 @@ function M.update(camera_id, dt)
 		camera_world_pos = M.screen_to_world(camera_id, cp)
 	end
 
+	local viewport_top = go.get(camera.url, "viewport_top")
+	local viewport_left = go.get(camera.url, "viewport_left")
+	local viewport_bottom = go.get(camera.url, "viewport_bottom")
+	local viewport_right = go.get(camera.url, "viewport_right")
+	if viewport_top ~= 0 or viewport_left ~= 0 or viewport_bottom ~= 0 or viewport_right ~= 0 then
+		camera.viewport.x = viewport_left
+		camera.viewport.y = viewport_bottom
+		camera.viewport.z = viewport_right - viewport_left
+		camera.viewport.w = viewport_top - viewport_bottom
+	else
+		camera.viewport.x = 0
+		camera.viewport.y = 0
+		camera.viewport.z = WINDOW_WIDTH
+		camera.viewport.w = WINDOW_HEIGHT
+	end
+	
 	go.set_position(camera_world_pos + camera_world_to_local_diff, camera_id)
 
 	
@@ -537,6 +556,15 @@ function M.set_zoom(camera_id, zoom)
 	camera.projection = calculate_projection(camera)
 end
 
+function M.set_viewport(camera_id, zoom)
+	assert(camera_id, "You must provide a camera id")
+	assert(zoom, "You must provide a zoom level")
+	local camera = cameras[camera_id]
+	msg.post(camera.url, M.MSG_ZOOM_TO, { zoom = zoom })
+	camera.zoom = zoom
+	camera.projection = calculate_projection(camera)
+end
+
 
 --- Get the zoom level of a camera
 -- @param camera_id
@@ -553,6 +581,15 @@ end
 function M.get_projection(camera_id)
 	assert(camera_id, "You must provide a camera id")
 	return cameras[camera_id].projection
+end
+
+
+--- Get the projection id for a camera
+-- @param camera_id
+-- @return Projection id
+function M.get_projection_id(camera_id)
+	assert(camera_id, "You must provide a camera id")
+	return cameras[camera_id].projection_id
 end
 
 
@@ -577,6 +614,16 @@ function M.send_view_projection(camera_id)
 end
 
 
+--- Send the viewport for a camera to the render script
+-- @param camera_id
+function M.send_viewport(camera_id)
+	assert(camera_id, "You must provide a camera id")
+	local camera = cameras[camera_id]
+	local viewport = camera.viewport or VECTOR4
+	msg.post("@render:", "set_viewport", { id = camera_id, viewport = viewport })
+end
+
+
 --- Send the camera offset to the render script
 -- @param camera_id
 function M.send_camera_offset(camera_id)
@@ -597,9 +644,31 @@ end
 function M.screen_to_world(camera_id, screen)
 	assert(camera_id, "You must provide a camera id")
 	assert(screen, "You must provide screen coordinates to convert")
-	local view = cameras[camera_id].view or MATRIX4
-	local projection = cameras[camera_id].projection or MATRIX4
-	return M.unproject(view, projection, vmath.vector3(screen))
+	local camera = cameras[camera_id]
+	local view = camera.view or MATRIX4
+	local projection = camera.projection or MATRIX4
+
+	local s = vmath.vector3(screen)
+
+	local viewport_width = camera.viewport.z
+	local viewport_height = camera.viewport.w
+		
+	
+	if camera.crop then
+		local zoom = camera.zoom
+		local viewport_width = camera.viewport.z
+		local viewport_height = camera.viewport.w
+		local projected_width = viewport_width / (zoom / dpi_ratio)
+		local projected_height = viewport_height / (zoom / dpi_ratio)
+		
+		s.x = s.x / (projected_width / WINDOW_WIDTH) / (projected_height / WINDOW_HEIGHT)
+		s.x = s.x - camera.viewport.x
+		print(camera.viewport.x, camera.viewport.z)
+
+		s.y = s.y / (projected_height / WINDOW_HEIGHT)
+		s.y = s.y - camera.viewport.y
+	end
+	return M.unproject(view, projection, s)
 end
 
 
