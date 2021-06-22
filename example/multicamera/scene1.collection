@@ -72,6 +72,54 @@ instances {
     z: 1.0
   }
 }
+instances {
+  id: "camera2"
+  prototype: "/orthographic/camera.go"
+  position {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  }
+  rotation {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+  component_properties {
+    id: "script"
+    properties {
+      id: "order"
+      value: "2.0"
+      type: PROPERTY_TYPE_NUMBER
+    }
+    properties {
+      id: "viewport_left"
+      value: "20.0"
+      type: PROPERTY_TYPE_NUMBER
+    }
+    properties {
+      id: "viewport_bottom"
+      value: "20.0"
+      type: PROPERTY_TYPE_NUMBER
+    }
+    properties {
+      id: "viewport_right"
+      value: "340.0"
+      type: PROPERTY_TYPE_NUMBER
+    }
+    properties {
+      id: "viewport_top"
+      value: "200.0"
+      type: PROPERTY_TYPE_NUMBER
+    }
+  }
+  scale3 {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+}
 scale_along_z: 0
 embedded_instances {
   id: "map"

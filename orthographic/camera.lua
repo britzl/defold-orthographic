@@ -62,6 +62,9 @@ local v4_tmp = vmath.vector4()
 local v3_tmp = vmath.vector3()
 
 local cameras = {}
+local camera_ids = {}
+-- track if the cameras list has changed or not
+local cameras_dirty = true
 
 --- projection providers (projectors)
 -- a mapping of id to function to calculate and return a projection matrix
@@ -232,6 +235,7 @@ function M.init(camera_id, camera_script_url, settings)
 	assert(camera_id, "You must provide a camera id")
 	assert(camera_script_url, "You must provide a camera script url")
 	cameras[camera_id] = settings
+	cameras_dirty = true
 	local camera = cameras[camera_id]
 	camera.id = camera_id
 	camera.url = camera_script_url
@@ -259,8 +263,9 @@ function M.final(camera_id)
 	-- check that a new camera with the same id but from a different go hasn't been
 	-- replacing the camera that is being unregistered
 	-- if this is the case we simply ignore the call to final()
-	if cameras[camera_id].url ~= msg.url() then
+	if cameras[camera_id].url == msg.url() then
 		cameras[camera_id] = nil
+		cameras_dirty = true
 	end
 end
 
@@ -281,8 +286,18 @@ function M.update(camera_id, dt)
 		return
 	end
 
-	update_window_size()
+	local enabled = go.get(camera.url, "enabled")
+	local order = go.get(camera.url, "order")
+	cameras_dirty = cameras_dirty or (camera.enabled ~= enabled)
+	cameras_dirty = cameras_dirty or (camera.order ~= order)
+	camera.enabled = enabled
+	camera.order = order
+	if not enabled then
+		return
+	end
 	
+	update_window_size()
+
 	local camera_world_pos = go.get_world_position(camera_id)
 	local camera_world_to_local_diff = camera_world_pos - go.get_position(camera_id)
 	local follow_enabled = go.get(camera.url, "follow")
@@ -418,6 +433,7 @@ function M.update(camera_id, dt)
 		end
 	end
 	camera.offset = offset
+	
 	camera.projection_id = go.get(camera.url, "projection")
 	camera.near_z = go.get(camera.url, "near_z")
 	camera.far_z = go.get(camera.url, "far_z")
@@ -426,6 +442,27 @@ function M.update(camera_id, dt)
 	camera.projection = calculate_projection(camera)
 end
 
+--- Get list of camera ids
+-- @return List of camera ids
+function M.get_cameras()
+	if cameras_dirty then
+		cameras_dirty = false
+		local enabled_cameras = {}
+		for camera_id,camera in pairs(cameras) do
+			if camera.enabled then
+				enabled_cameras[#enabled_cameras + 1] = camera
+			end
+		end
+		table.sort(enabled_cameras, function(a, b)
+			return b.order > a.order
+		end)
+		camera_ids = {}
+		for i=1,#enabled_cameras do
+			camera_ids[i] = enabled_cameras[i].id
+		end
+	end
+	return camera_ids
+end
 
 --- Follow a game object
 -- @param camera_id
@@ -556,15 +593,6 @@ function M.set_zoom(camera_id, zoom)
 	camera.projection = calculate_projection(camera)
 end
 
-function M.set_viewport(camera_id, zoom)
-	assert(camera_id, "You must provide a camera id")
-	assert(zoom, "You must provide a zoom level")
-	local camera = cameras[camera_id]
-	msg.post(camera.url, M.MSG_ZOOM_TO, { zoom = zoom })
-	camera.zoom = zoom
-	camera.projection = calculate_projection(camera)
-end
-
 
 --- Get the zoom level of a camera
 -- @param camera_id
@@ -603,6 +631,24 @@ function M.get_view(camera_id)
 end
 
 
+--- Get the viewport for a specific camera
+-- @param camera_id
+-- @return Viewport (vector4)
+function M.get_viewport(camera_id)
+	assert(camera_id, "You must provide a camera id")
+	return cameras[camera_id].viewport
+end
+
+
+--- Get the offset for a specific camera
+-- @param camera_id
+-- @return Offset (vector3)
+function M.get_offset(camera_id)
+	assert(camera_id, "You must provide a camera id")
+	return cameras[camera_id].offset
+end
+
+
 --- Send the view and projection matrix for a camera to the render script
 -- @param camera_id
 function M.send_view_projection(camera_id)
@@ -611,25 +657,6 @@ function M.send_view_projection(camera_id)
 	local view = camera.view or MATRIX4
 	local projection = camera.projection or MATRIX4
 	msg.post("@render:", "set_view_projection", { id = camera_id, view = view, projection = projection })
-end
-
-
---- Send the viewport for a camera to the render script
--- @param camera_id
-function M.send_viewport(camera_id)
-	assert(camera_id, "You must provide a camera id")
-	local camera = cameras[camera_id]
-	local viewport = camera.viewport or VECTOR4
-	msg.post("@render:", "set_viewport", { id = camera_id, viewport = viewport })
-end
-
-
---- Send the camera offset to the render script
--- @param camera_id
-function M.send_camera_offset(camera_id)
-	assert(camera_id, "You must provide a camera id")
-	local camera = cameras[camera_id]
-	msg.post("@render:", "set_camera_offset", { id = camera_id, offset = camera.offset })
 end
 
 

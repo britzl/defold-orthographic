@@ -26,11 +26,6 @@ instances {
       type: PROPERTY_TYPE_HASH
     }
     properties {
-      id: "offset_gui"
-      value: "true"
-      type: PROPERTY_TYPE_BOOLEAN
-    }
-    properties {
       id: "follow"
       value: "true"
       type: PROPERTY_TYPE_BOOLEAN
@@ -44,26 +39,6 @@ instances {
       id: "follow_target"
       value: "/hitman"
       type: PROPERTY_TYPE_HASH
-    }
-    properties {
-      id: "viewport_left"
-      value: "20.0"
-      type: PROPERTY_TYPE_NUMBER
-    }
-    properties {
-      id: "viewport_bottom"
-      value: "20.0"
-      type: PROPERTY_TYPE_NUMBER
-    }
-    properties {
-      id: "viewport_right"
-      value: "500.0"
-      type: PROPERTY_TYPE_NUMBER
-    }
-    properties {
-      id: "viewport_top"
-      value: "500.0"
-      type: PROPERTY_TYPE_NUMBER
     }
   }
   scale3 {

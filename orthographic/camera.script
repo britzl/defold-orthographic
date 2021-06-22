@@ -3,8 +3,7 @@ go.property("far_z", 1)
 go.property("zoom", 1)
 go.property("projection", hash("DEFAULT"))
 go.property("enabled", true)
-
-go.property("offset_gui", false)
+go.property("order", 1)
 
 go.property("follow", false)
 go.property("follow_horizontal", true)
@@ -47,8 +46,8 @@ end
 
 function init(self)
 	camera.init(go.get_id(), msg.url(), { zoom = self.zoom })
+	camera.update(go.get_id(), 0)
 	if self.enabled then
-		camera.update(go.get_id(), 0)
 		camera.send_view_projection(go.get_id())
 		if self.follow and self.follow_immediately then
 			position_on_follow(self)
@@ -63,21 +62,17 @@ end
 
 
 function update(self, dt)
-	if self.enabled then
-		-- update camera and view projection after all game objects have been updated
-		-- will jitter otherwise
-		msg.post("#", camera.MSG_UPDATE_CAMERA, { dt = dt })
-	end
+	-- update camera and view projection after all game objects have been updated
+	-- will jitter otherwise
+	msg.post("#", camera.MSG_UPDATE_CAMERA, { dt = dt })
 end
 
 
 function on_message(self, message_id, message, sender)
 	if message_id == camera.MSG_UPDATE_CAMERA then
 		camera.update(go.get_id(), message.dt)
-		camera.send_view_projection(go.get_id())
-		camera.send_viewport(go.get_id())
-		if self.offset_gui then
-			camera.send_camera_offset(go.get_id())
+		if self.enabled then
+			camera.send_view_projection(go.get_id())
 		end
 	elseif message_id == camera.MSG_ENABLE then
 		self.enabled = true

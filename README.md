@@ -30,6 +30,9 @@ Note that when using `go.animate()`, `go.get()` and `go.set()` you need to make 
 * `go.set("mycamera#camerascript", "zoom")`
 * `go.get("mycamera#camerascript", "zoom")`
 
+#### order (number)
+The order in which multiple cameras should be drawn, lower is drawn first.
+
 #### projection (hash)
 The camera can be configured to support different kinds of orthographic projections. The default projection (aptly named `DEFAULT`) uses the same orthographic projection matrix as in the default render script (ie aspect ratio isn't maintained and content is stretched). Other projections are available out-of-the box:
 
@@ -42,9 +45,6 @@ Additional custom projections can be added, see `camera.add_projector()` below.
 
 #### enabled (boolean)
 This controls if the camera is enabled by default or not. Send `enable` and `disable` messages to the script or use `go.set(id, "enable", true|false)` to toggle this value.
-
-#### offset_gui (boolean)
-This controls if the gui should be offset during a screen shake or a camera recoil. This will send the camera offset to the render script using the `send_camera_offset` message.
 
 #### follow (boolean)
 This controls if the camera should follow a target or not. See `camera.follow()` for details.
@@ -73,6 +73,9 @@ The camera bounds. See `camera.bounds()` for details.
 #### deadzone_left (number), deadzone_right (number), deadzone_top (number), deadzone_bottom (number)
 The camera deadzone. See `camera.deadzone()` for details.
 
+#### viewport_left (number), viewport_right (number), viewport_top (number), viewport_bottom (number)
+The camera viewport.
+
 
 ## Render script integration
 In order for the Orthographic camera to function properly you need to integrate it in your render script. You can do this in a number of different ways:
@@ -81,81 +84,27 @@ In order for the Orthographic camera to function properly you need to integrate 
 The Orthographic API comes with a ready to use render script in `orthographic/render/orthograpic.render_script`. Open `game.project` and make sure to reference `orthographic/render/orthograpic.render` in the `Render` field in the `Bootstrap` section.
 
 ### 2. Integrating in an existing render script
-While the camera is enabled it will send `set_view_projection` messages once per frame to the render script. The message is the same as that of the camera component, meaning that it contains `id`, `view` and `projection` values. Make sure that these values are handled and used properly in the render script.
+Get a list of active cameras and apply the camera viewport, view and projection before drawing:
 
-#### 2.1. Simplified integration
-The Orthographic API provides a helper module to easily update the camera and set screen and world view and projection. Integrate it in your own render script like this:
-
-	local render_helper = require "orthographic.render.helper"
-
-	function init(self)
-		...
-		render_helper.init()
-		...
-	end
-
-	function update(self)
-		render_helper.set_world_view_projection()
-		-- draw world
-		...
-
-		render_helper.set_screen_view_projection()
-		-- draw screen
-		...
-	end
-
-	function on_message(self, message_id, message)
-		render_helper.on_message(self, message_id, message)
-		...
-	end
-
-NOTE: In order for this to work you need to make sure that the `Shared State` setting in the `Script` section of `game.project` is checked (defaults to checked)
-
-#### 2.2. Manual integration
-If you prefer to manually setup the integration you need to make sure to handle the `set_view_projection` message:
+```
+	local camera = require "orthographic.camera"
 
 	function update(self)
 		...
-		render.set_view(self.view)
-		render.set_projection(self.projection)
-		-- draw using the view and projection
-		...
-	end
+		for _,camera_id in ipairs(camera.get_cameras()) do
+			local viewport = camera.get_viewport(camera_id)
+			local view = camera.get_view(camera_id)
+			local projection = camera.get_projection(camera_id)
 
-	function on_message(self, message_id, message, sender)
-		if message_id == hash("set_view_projection") then
-			self.camera_id = message.id
-			self.view = message.view
-			self.projection = message.projection
+			render.set_viewport(viewport.x, viewport.y, viewport.z, viewport.w)
+			render.set_view(view)
+			render.set_projection(projection)
+
+			-- draw using the viewport, view and projection
+			...
 		end
 	end
-
-An alternative approach is to ignore the `set_view_projection` message and directly read the view and projection from the camera in the render script:
-
-	local camera = require "orthographic.camera"
-
-	function update(self)
-		...
-		local camera_id = id of your camera
-		render.set_view(camera.get_view(camera_id))
-		render.set_projection(camera.get_projection(camera_id))
-		-- draw using the view and projection
-		...
-	end
-
-It is recommended to send the window width and height from the render script to the camera module. This is required if any of the projectors provided in `camera.lua` is used. It also allows custom projectors to get the current window size by calling `camera.get_window_size()`. Set the window size like this:
-
-	local camera = require "orthographic.camera"
-
-	function update(self)
-		...
-		local window_width = render.get_window_width()
-		local window_height = render.get_window_height()
-		camera.set_window_size(window_width, window_height)
-		...
-	end
-
-NOTE: In order for this to work you need to make sure that the `Shared State` setting in the `Script` section of `game.project` is checked (defaults to checked)
+```
 
 ### Example render script
 The `orthographic/render` folder contains a render script that does the above mentioned integration of the Orthographic Camera API. Use it as it is or copy it into your project and make whatever modifications that you need.
