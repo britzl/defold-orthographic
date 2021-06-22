@@ -1,9 +1,10 @@
-local render_helper = require "orthographic.render.helper"
 local camera = require "orthographic.camera"
 
 camera.ORTHOGRAPHIC_RENDER_SCRIPT_USED = true
 
 local CLEAR_COLOR = hash("clear_color")
+
+local IDENTITY = vmath.matrix4()
 
 function init(self)
 	self.tile_pred = render.predicate({"tile"})
@@ -16,48 +17,47 @@ function init(self)
 	self.clear_color.y = sys.get_config("render.clear_color_green", 0)
 	self.clear_color.z = sys.get_config("render.clear_color_blue", 0)
 	self.clear_color.w = sys.get_config("render.clear_color_alpha", 0)
-
-	render_helper.init()
 end
 
 function update(self)
+
 	-- clear color
 	render.set_depth_mask(true)
 	render.clear({[render.BUFFER_COLOR_BIT] = self.clear_color, [render.BUFFER_DEPTH_BIT] = 1, [render.BUFFER_STENCIL_BIT] = 0})
 
+	for _,camera_id in ipairs(camera.get_cameras()) do
+		local viewport = camera.get_viewport(camera_id)
+		render.set_viewport(viewport.x, viewport.y, viewport.z, viewport.w)
+		render.set_view(camera.get_view(camera_id))
+		render.set_projection(camera.get_projection(camera_id))
 
-	-- setup the viewport
-	render.set_viewport(0, 0, render.get_window_width(), render.get_window_height())
+		render.set_depth_mask(false)
+		render.disable_state(render.STATE_DEPTH_TEST)
+		render.disable_state(render.STATE_STENCIL_TEST)
+		render.enable_state(render.STATE_BLEND)
+		render.set_blend_func(render.BLEND_SRC_ALPHA, render.BLEND_ONE_MINUS_SRC_ALPHA)
+		render.disable_state(render.STATE_CULL_FACE)
 
-
-	-- draw world space using projection received from the camera in on_message
-	render_helper.set_world_view_projection(self)
-
-	render.set_depth_mask(false)
-	render.disable_state(render.STATE_DEPTH_TEST)
-	render.disable_state(render.STATE_STENCIL_TEST)
-	render.enable_state(render.STATE_BLEND)
-	render.set_blend_func(render.BLEND_SRC_ALPHA, render.BLEND_ONE_MINUS_SRC_ALPHA)
-	render.disable_state(render.STATE_CULL_FACE)
-
-	render.draw(self.tile_pred)
-	render.draw(self.particle_pred)
-	render.draw_debug3d()
+		render.draw(self.tile_pred)
+		render.draw(self.particle_pred)
+		render.draw_debug3d()
 
 
-	-- draw gui in screen space using an orthographic projection
-	render_helper.set_screen_view_projection(self)
+		-- draw gui in screen space using an orthographic projection
+		render.set_viewport(0, 0, render.get_window_width(), render.get_window_height())
+		render.set_view(IDENTITY)
+		render.set_projection(vmath.matrix4_orthographic(0, render.get_window_width(), 0, render.get_window_height(), -1, 1))
+		
+		render.enable_state(render.STATE_STENCIL_TEST)
+		render.draw(self.gui_pred)
+		render.draw(self.text_pred)
+		render.disable_state(render.STATE_STENCIL_TEST)
 
-	render.enable_state(render.STATE_STENCIL_TEST)
-	render.draw(self.gui_pred)
-	render.draw(self.text_pred)
-	render.disable_state(render.STATE_STENCIL_TEST)
-
-	render.set_depth_mask(false)
+		render.set_depth_mask(false)
+	end
 end
 
 function on_message(self, message_id, message)
-	render_helper.on_message(nil, message_id, message)
 	if message_id == CLEAR_COLOR then
 		self.clear_color = message.color
 	end

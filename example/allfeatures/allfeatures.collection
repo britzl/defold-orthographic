@@ -26,11 +26,6 @@ instances {
       type: PROPERTY_TYPE_HASH
     }
     properties {
-      id: "offset_gui"
-      value: "true"
-      type: PROPERTY_TYPE_BOOLEAN
-    }
-    properties {
       id: "follow"
       value: "true"
       type: PROPERTY_TYPE_BOOLEAN

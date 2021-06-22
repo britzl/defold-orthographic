@@ -18,6 +18,7 @@ M.MSG_BOUNDS = hash("bounds")
 M.MSG_UPDATE_CAMERA = hash("update_camera")
 M.MSG_ZOOM_TO = hash("zoom_to")
 M.MSG_USE_PROJECTION = hash("use_projection")
+M.MSG_VIEWPORT = hash("viewport")
 
 
 local HIGH_DPI = (sys.get_config("display.high_dpi", "0") == "1")
@@ -55,11 +56,15 @@ local VECTOR3_MINUS1_Z = vmath.vector3(0, 0, -1.0)
 local VECTOR3_UP = vmath.vector3(0, 1.0, 0)
 
 local MATRIX4 = vmath.matrix4()
+local VECTOR4 = vmath.vector4()
 
 local v4_tmp = vmath.vector4()
 local v3_tmp = vmath.vector3()
 
 local cameras = {}
+local camera_ids = {}
+-- track if the cameras list has changed or not
+local cameras_dirty = true
 
 --- projection providers (projectors)
 -- a mapping of id to function to calculate and return a projection matrix
@@ -205,7 +210,7 @@ local function calculate_projection(camera)
 	local projection_id = camera.projection_id
 	assert(projectors[projection_id], "Unknown projection id")
 	local projector_fn = projectors[projection_id] or projectors[M.PROJECTOR.DEFAULT]
-	return projector_fn(camera_id, camera.near_z, camera.far_z, camera.zoom)
+	return projector_fn(camera.id, camera.near_z, camera.far_z, camera.zoom)
 end
 
 
@@ -230,6 +235,7 @@ function M.init(camera_id, camera_script_url, settings)
 	assert(camera_id, "You must provide a camera id")
 	assert(camera_script_url, "You must provide a camera script url")
 	cameras[camera_id] = settings
+	cameras_dirty = true
 	local camera = cameras[camera_id]
 	camera.id = camera_id
 	camera.url = camera_script_url
@@ -238,6 +244,7 @@ function M.init(camera_id, camera_script_url, settings)
 	camera.far_z = go.get(camera_script_url, "far_z")
 	camera.view = calculate_view(camera, go.get_world_position(camera_id))
 	camera.projection = calculate_projection(camera)
+	camera.viewport = vmath.vector4(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT)
 
 	if not sys.get_engine_info().is_debug then
 		log = function() end
@@ -256,8 +263,9 @@ function M.final(camera_id)
 	-- check that a new camera with the same id but from a different go hasn't been
 	-- replacing the camera that is being unregistered
 	-- if this is the case we simply ignore the call to final()
-	if cameras[camera_id].url ~= msg.url() then
+	if cameras[camera_id].url == msg.url() then
 		cameras[camera_id] = nil
+		cameras_dirty = true
 	end
 end
 
@@ -278,8 +286,18 @@ function M.update(camera_id, dt)
 		return
 	end
 
-	update_window_size()
+	local enabled = go.get(camera.url, "enabled")
+	local order = go.get(camera.url, "order")
+	cameras_dirty = cameras_dirty or (camera.enabled ~= enabled)
+	cameras_dirty = cameras_dirty or (camera.order ~= order)
+	camera.enabled = enabled
+	camera.order = order
+	if not enabled then
+		return
+	end
 	
+	update_window_size()
+
 	local camera_world_pos = go.get_world_position(camera_id)
 	local camera_world_to_local_diff = camera_world_pos - go.get_position(camera_id)
 	local follow_enabled = go.get(camera.url, "follow")
@@ -360,6 +378,22 @@ function M.update(camera_id, dt)
 		camera_world_pos = M.screen_to_world(camera_id, cp)
 	end
 
+	local viewport_top = go.get(camera.url, "viewport_top")
+	local viewport_left = go.get(camera.url, "viewport_left")
+	local viewport_bottom = go.get(camera.url, "viewport_bottom")
+	local viewport_right = go.get(camera.url, "viewport_right")
+	if viewport_top ~= 0 or viewport_left ~= 0 or viewport_bottom ~= 0 or viewport_right ~= 0 then
+		camera.viewport.x = viewport_left
+		camera.viewport.y = viewport_bottom
+		camera.viewport.z = viewport_right - viewport_left
+		camera.viewport.w = viewport_top - viewport_bottom
+	else
+		camera.viewport.x = 0
+		camera.viewport.y = 0
+		camera.viewport.z = WINDOW_WIDTH
+		camera.viewport.w = WINDOW_HEIGHT
+	end
+	
 	go.set_position(camera_world_pos + camera_world_to_local_diff, camera_id)
 
 	
@@ -399,6 +433,7 @@ function M.update(camera_id, dt)
 		end
 	end
 	camera.offset = offset
+	
 	camera.projection_id = go.get(camera.url, "projection")
 	camera.near_z = go.get(camera.url, "near_z")
 	camera.far_z = go.get(camera.url, "far_z")
@@ -407,6 +442,27 @@ function M.update(camera_id, dt)
 	camera.projection = calculate_projection(camera)
 end
 
+--- Get list of camera ids
+-- @return List of camera ids
+function M.get_cameras()
+	if cameras_dirty then
+		cameras_dirty = false
+		local enabled_cameras = {}
+		for camera_id,camera in pairs(cameras) do
+			if camera.enabled then
+				enabled_cameras[#enabled_cameras + 1] = camera
+			end
+		end
+		table.sort(enabled_cameras, function(a, b)
+			return b.order > a.order
+		end)
+		camera_ids = {}
+		for i=1,#enabled_cameras do
+			camera_ids[i] = enabled_cameras[i].id
+		end
+	end
+	return camera_ids
+end
 
 --- Follow a game object
 -- @param camera_id
@@ -556,6 +612,15 @@ function M.get_projection(camera_id)
 end
 
 
+--- Get the projection id for a camera
+-- @param camera_id
+-- @return Projection id
+function M.get_projection_id(camera_id)
+	assert(camera_id, "You must provide a camera id")
+	return cameras[camera_id].projection_id
+end
+
+
 --- Get the view matrix for a specific camera, based on the camera position
 -- and rotation
 -- @param camera_id
@@ -563,6 +628,24 @@ end
 function M.get_view(camera_id)
 	assert(camera_id, "You must provide a camera id")
 	return cameras[camera_id].view
+end
+
+
+--- Get the viewport for a specific camera
+-- @param camera_id
+-- @return Viewport (vector4)
+function M.get_viewport(camera_id)
+	assert(camera_id, "You must provide a camera id")
+	return cameras[camera_id].viewport
+end
+
+
+--- Get the offset for a specific camera
+-- @param camera_id
+-- @return Offset (vector3)
+function M.get_offset(camera_id)
+	assert(camera_id, "You must provide a camera id")
+	return cameras[camera_id].offset
 end
 
 
@@ -577,15 +660,6 @@ function M.send_view_projection(camera_id)
 end
 
 
---- Send the camera offset to the render script
--- @param camera_id
-function M.send_camera_offset(camera_id)
-	assert(camera_id, "You must provide a camera id")
-	local camera = cameras[camera_id]
-	msg.post("@render:", "set_camera_offset", { id = camera_id, offset = camera.offset })
-end
-
-
 --- Convert screen coordinates to world coordinates based
 -- on a specific camera's view and projection
 -- Screen coordinates are the scaled coordinates provided by action.x and action.y
@@ -597,9 +671,20 @@ end
 function M.screen_to_world(camera_id, screen)
 	assert(camera_id, "You must provide a camera id")
 	assert(screen, "You must provide screen coordinates to convert")
-	local view = cameras[camera_id].view or MATRIX4
-	local projection = cameras[camera_id].projection or MATRIX4
-	return M.unproject(view, projection, vmath.vector3(screen))
+	local camera = cameras[camera_id]
+	local view = camera.view or MATRIX4
+	local projection = camera.projection or MATRIX4
+	local viewport = camera.viewport or VECTOR4
+	local viewport_width = viewport.z * DISPLAY_WIDTH / WINDOW_WIDTH
+	local viewport_height = viewport.w * DISPLAY_HEIGHT / WINDOW_HEIGHT
+	local viewport_left = viewport.x * DISPLAY_WIDTH / WINDOW_WIDTH
+	local viewport_bottom = viewport.y * DISPLAY_HEIGHT / WINDOW_HEIGHT
+
+	local s = vmath.vector3(screen)
+	s.x = (s.x - viewport_left) * (DISPLAY_WIDTH / viewport_width)
+	s.y = (s.y - viewport_bottom) * (DISPLAY_HEIGHT / viewport_height)
+	
+	return M.unproject(view, projection, s)
 end
 
 
@@ -613,11 +698,16 @@ end
 function M.window_to_world(camera_id, window)
 	assert(camera_id, "You must provide a camera id")
 	assert(window, "You must provide window coordinates to convert")
-	local view = cameras[camera_id].view or MATRIX4
-	local projection = cameras[camera_id].projection or MATRIX4
+	local camera = cameras[camera_id]
+	local view = camera.view or MATRIX4
+	local projection = camera.projection or MATRIX4
+	local viewport = camera.viewport or VECTOR4
 	local scale_x = window.x * dpi_ratio * DISPLAY_WIDTH / WINDOW_WIDTH
 	local scale_y = window.y * dpi_ratio * DISPLAY_HEIGHT / WINDOW_HEIGHT
+
 	local screen = vmath.vector3(scale_x, scale_y, 0)
+	screen.x = (screen.x - viewport_left) * (DISPLAY_WIDTH / viewport_width)
+	screen.y = (screen.y - viewport_bottom) * (DISPLAY_HEIGHT / viewport_height)
 	return M.unproject(view, projection, screen)
 end
 
@@ -630,9 +720,18 @@ end
 function M.world_to_screen(camera_id, world, adjust_mode)
 	assert(camera_id, "You must provide a camera id")
 	assert(world, "You must provide world coordinates to convert")
-	local view = cameras[camera_id].view or MATRIX4
-	local projection = cameras[camera_id].projection or MATRIX4
+	local camera = cameras[camera_id]
+	local view = camera.view or MATRIX4
+	local projection = camera.projection or MATRIX4
+	local viewport = camera.viewport or VECTOR4
+	local viewport_width = viewport.z * DISPLAY_WIDTH / WINDOW_WIDTH
+	local viewport_height = viewport.w * DISPLAY_HEIGHT / WINDOW_HEIGHT
+	local viewport_left = viewport.x * DISPLAY_WIDTH / WINDOW_WIDTH
+	local viewport_bottom = viewport.y * DISPLAY_HEIGHT / WINDOW_HEIGHT
+
 	local screen = M.project(view, projection, vmath.vector3(world))
+	screen.x = viewport_left + screen.x * (viewport_width / DISPLAY_WIDTH)
+	screen.y = viewport_bottom + screen.y * (viewport_height / DISPLAY_HEIGHT)
 	if adjust_mode then
 		screen.x = (screen.x / GUI_ADJUST[adjust_mode].sx) - GUI_ADJUST[adjust_mode].ox
 		screen.y = (screen.y / GUI_ADJUST[adjust_mode].sy) - GUI_ADJUST[adjust_mode].oy
@@ -694,8 +793,10 @@ end
 -- @return bounds Vector4 where x is left, y is top, z is right and w is bottom
 function M.screen_to_world_bounds(camera_id)
 	assert(camera_id, "You must provide a camera id")
-	local view = cameras[camera_id].view or MATRIX4
-	local projection = cameras[camera_id].projection or MATRIX4
+	local camera = cameras[camera_id]
+	local view = camera.view or MATRIX4
+	local projection = camera.projection or MATRIX4
+	local viewport = camera.viewport or VECTOR4
 	local inv = vmath.inv(projection * view)
 	local bl_x, bl_y = unproject_xyz(inv, 0, 0, 0)
 	local br_x, br_y = unproject_xyz(inv, DISPLAY_WIDTH, 0, 0)
