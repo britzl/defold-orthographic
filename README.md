@@ -10,12 +10,15 @@ https://github.com/britzl/defold-orthographic/archive/master.zip
 
 Or point to the ZIP file of a [specific release](https://github.com/britzl/defold-orthographic/releases).
 
-## Basic usage
-Add the `camera.go` to a collection. Depending on your use case you can either add the camera as a child of a game object to have the camera always follow that object or you could add the camera as a root game object and move or animate it manually using code or using the Orthographic Camera API (see below).
+## Quick Start
+Getting started with Orthographic is easy:
 
-The camera will send view projection messages to the render script while it is enabled. Make sure your render script handles this message! See the section on render script integration below.
+1. Add `camera.go` to your game.
+2. Open `game.project` and make sure to reference `orthographic/render/orthograpic.render` in the `Render` field in the `Bootstrap` section. 
 
-## Configuration
+Next step is to read read the section on "Camera Configuration" to learn how to change the behavior of the camera.
+
+## Camera Configuration
 Select the script component attached to the `camera.go` to modify the properties. The camera has the following configurable properties:
 
 #### near_z (number) and far_z (number)
