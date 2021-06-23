@@ -20,40 +20,41 @@ function init(self)
 end
 
 function update(self)
-
 	-- clear color
 	render.set_depth_mask(true)
 	render.clear({[render.BUFFER_COLOR_BIT] = self.clear_color, [render.BUFFER_DEPTH_BIT] = 1, [render.BUFFER_STENCIL_BIT] = 0})
+	render.set_depth_mask(false)
+	
+	-- set default blend state
+	render.enable_state(render.STATE_BLEND)
+	render.set_blend_func(render.BLEND_SRC_ALPHA, render.BLEND_ONE_MINUS_SRC_ALPHA)
 
-	for _,camera_id in ipairs(camera.get_cameras()) do
-		local viewport = camera.get_viewport(camera_id)
-		render.set_viewport(viewport.x, viewport.y, viewport.z, viewport.w)
-		render.set_view(camera.get_view(camera_id))
-		render.set_projection(camera.get_projection(camera_id))
-
-		render.set_depth_mask(false)
+	-- draw world per camera
+	local cameras = camera.get_cameras()
+	if #cameras > 0 then
 		render.disable_state(render.STATE_DEPTH_TEST)
-		render.disable_state(render.STATE_STENCIL_TEST)
-		render.enable_state(render.STATE_BLEND)
-		render.set_blend_func(render.BLEND_SRC_ALPHA, render.BLEND_ONE_MINUS_SRC_ALPHA)
 		render.disable_state(render.STATE_CULL_FACE)
-
-		render.draw(self.tile_pred)
-		render.draw(self.particle_pred)
-		render.draw_debug3d()
+		render.disable_state(render.STATE_STENCIL_TEST)
+		for _,camera_id in ipairs(cameras) do
+			local viewport = camera.get_viewport(camera_id)
+			render.set_viewport(viewport.x, viewport.y, viewport.z, viewport.w)
+			render.set_view(camera.get_view(camera_id))
+			render.set_projection(camera.get_projection(camera_id))
+			render.draw(self.tile_pred)
+			render.draw(self.particle_pred)
+			render.draw_debug3d()
+		end
 	end
-
+	
 	-- draw gui in screen space using an orthographic projection
+	render.disable_state(render.STATE_DEPTH_TEST)
+	render.disable_state(render.STATE_CULL_FACE)
+	render.enable_state(render.STATE_STENCIL_TEST)
 	render.set_viewport(0, 0, render.get_window_width(), render.get_window_height())
 	render.set_view(IDENTITY)
 	render.set_projection(vmath.matrix4_orthographic(0, render.get_window_width(), 0, render.get_window_height(), -1, 1))
-
-	render.enable_state(render.STATE_STENCIL_TEST)
 	render.draw(self.gui_pred)
 	render.draw(self.text_pred)
-	render.disable_state(render.STATE_STENCIL_TEST)
-
-	render.set_depth_mask(false)
 end
 
 function on_message(self, message_id, message)
