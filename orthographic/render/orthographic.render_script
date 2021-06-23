@@ -41,20 +41,19 @@ function update(self)
 		render.draw(self.tile_pred)
 		render.draw(self.particle_pred)
 		render.draw_debug3d()
-
-
-		-- draw gui in screen space using an orthographic projection
-		render.set_viewport(0, 0, render.get_window_width(), render.get_window_height())
-		render.set_view(IDENTITY)
-		render.set_projection(vmath.matrix4_orthographic(0, render.get_window_width(), 0, render.get_window_height(), -1, 1))
-		
-		render.enable_state(render.STATE_STENCIL_TEST)
-		render.draw(self.gui_pred)
-		render.draw(self.text_pred)
-		render.disable_state(render.STATE_STENCIL_TEST)
-
-		render.set_depth_mask(false)
 	end
+
+	-- draw gui in screen space using an orthographic projection
+	render.set_viewport(0, 0, render.get_window_width(), render.get_window_height())
+	render.set_view(IDENTITY)
+	render.set_projection(vmath.matrix4_orthographic(0, render.get_window_width(), 0, render.get_window_height(), -1, 1))
+
+	render.enable_state(render.STATE_STENCIL_TEST)
+	render.draw(self.gui_pred)
+	render.draw(self.text_pred)
+	render.disable_state(render.STATE_STENCIL_TEST)
+
+	render.set_depth_mask(false)
 end
 
 function on_message(self, message_id, message)
