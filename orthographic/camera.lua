@@ -382,17 +382,16 @@ function M.update(camera_id, dt)
 	local viewport_left = go.get(camera.url, "viewport_left")
 	local viewport_bottom = go.get(camera.url, "viewport_bottom")
 	local viewport_right = go.get(camera.url, "viewport_right")
-	if viewport_top ~= 0 or viewport_left ~= 0 or viewport_bottom ~= 0 or viewport_right ~= 0 then
-		camera.viewport.x = viewport_left
-		camera.viewport.y = viewport_bottom
-		camera.viewport.z = viewport_right - viewport_left
-		camera.viewport.w = viewport_top - viewport_bottom
-	else
-		camera.viewport.x = 0
-		camera.viewport.y = 0
-		camera.viewport.z = WINDOW_WIDTH
-		camera.viewport.w = WINDOW_HEIGHT
+	if viewport_top == 0 then
+		viewport_top = WINDOW_HEIGHT
 	end
+	if viewport_right == 0 then
+		viewport_right = WINDOW_WIDTH
+	end
+	camera.viewport.x = viewport_left
+	camera.viewport.y = viewport_bottom
+	camera.viewport.z = math.max(viewport_right - viewport_left, 1)
+	camera.viewport.w = math.max(viewport_top - viewport_bottom, 1)
 	
 	go.set_position(camera_world_pos + camera_world_to_local_diff, camera_id)
 
