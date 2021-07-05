@@ -14,7 +14,7 @@ Or point to the ZIP file of a [specific release](https://github.com/britzl/defol
 Getting started with Orthographic is easy:
 
 1. Add `camera.go` to your game.
-2. Open `game.project` and make sure to reference `orthographic/render/orthograpic.render` in the `Render` field in the `Bootstrap` section. 
+2. Open `game.project` and make sure to reference `orthographic/render/orthograpic.render` in the `Render` field in the `Bootstrap` section.
 
 Next step is to read read the section on "Camera Configuration" to learn how to change the behavior of the camera.
 
@@ -130,6 +130,48 @@ The API can be used in two ways:
 2. Sending messages to the `camera.script`
 
 
+
+### camera.get_view(camera_id)
+Get the current view of the camera.
+
+**PARAMETERS**
+* `camera_id` (hash|url|nil) nil for the first camera
+
+**RETURN**
+* `view` (matrix) The current view
+
+### camera.get_viewport(camera_id)
+Get the current viewport of the camera.
+
+**PARAMETERS**
+* `camera_id` (hash|url|nil) nil for the first camera
+
+**RETURN**
+* `x` (number) The viewport left position
+* `y` (number) The viewport bottom position
+* `w` (number) The viewport width
+* `h` (number) The viewport height
+
+### camera.get_projection(camera_id)
+Get the current projection of the camera.
+
+**PARAMETERS**
+* `camera_id` (hash|url|nil) nil for the first camera
+
+**RETURN**
+* `projection` (matrix) The current projection
+
+### camera.get_projection_D(camera_id)
+Get the current projection id of the camera.
+
+**PARAMETERS**
+* `camera_id` (hash|url|nil) nil for the first camera
+
+**RETURN**
+* `projection_id` (hash) The current projection id
+
+---
+
 ### camera.shake(camera_id, [intensity], [duration], [direction], [cb])
 Shake the camera.
 
@@ -139,7 +181,6 @@ Shake the camera.
 * `duration` (number) - Duration of the shake, in seconds. Defaults to 0.5
 * `direction` (hash) - Direction of the shake. Possible values: `both`, `horizontal`, `vertical`. Defaults to `both`.
 * `cb` (function) - Function to call when the shake has finished. Optional.
-
 
 ### camera.stop_shaking(camera_id)
 Stop shaking the camera.
@@ -155,12 +196,22 @@ Apply a recoil effect to the camera. The recoil will decay using linear interpol
 * `offset` (vector3) - Offset to apply to the camera. Defaults to 0.05
 * `duration` (number) - Duration of the recoil, in seconds. Defaults to 0.5
 
+### camera.get_offset(camera_id)
+Get the current offset of the camera (caused by shake or recoil)
+
+**PARAMETERS**
+* `camera_id` (hash|url|nil) nil for the first camera
+
+**RETURN**
+* `offset` (vector3) The current offset of the camera
+
+---
 
 ### camera.get_zoom(camera_id)
 Get the current zoom level of the camera.
 
 **PARAMETERS**
-* `camera_id` (hash|url)
+* `camera_id` (hash|url|nil) nil for the first camera
 
 **RETURN**
 * `zoom` (number) The current zoom of the camera
@@ -170,15 +221,16 @@ Get the current zoom level of the camera.
 Change the zoom level of the camera.
 
 **PARAMETERS**
-* `camera_id` (hash|url)
+* `camera_id` (hash|url|nil) nil for the first camera
 * `zoom` (number) The new zoom level of the camera
 
+---
 
 ### camera.follow(camera_id, target, [options])
 Follow a game object.
 
 **PARAMETERS**
-* `camera_id` (hash|url)
+* `camera_id` (hash|url|nil) nil for the first camera
 * `target` (hash|url) - Game object to follow
 * `options` (table) - Options (see below)
 
@@ -195,7 +247,7 @@ Acceptable values for the `options` table:
 Change the camera follow offset.
 
 **PARAMETERS**
-* `camera_id` (hash|url)
+* `camera_id` (hash|url|nil) nil for the first camera
 * `offset` (vector3) - Camera offset from target position.
 
 
@@ -203,14 +255,15 @@ Change the camera follow offset.
 Stop following a game object.
 
 **PARAMETERS**
-* `camera_id` (hash|url)
+* `camera_id` (hash|url|nil) nil for the first camera
 
+---
 
 ### camera.deadzone(camera_id, left, top, right, bottom)
 If following a game object this will add a deadzone around the camera position where the camera position will not update. If the target moves to the edge of the deadzone the camera will start to follow until the target returns within the bounds of the deadzone.
 
 **PARAMETERS**
-* `camera_id` (hash|url)
+* `camera_id` (hash|url|nil) nil for the first camera
 * `left` (number) - Number of pixels to the left of the camera
 * `top` (number) - Number of pixels above the camera
 * `right` (number) - Number of pixels to the right of the camera
@@ -221,18 +274,19 @@ If following a game object this will add a deadzone around the camera position w
 Limits the camera position to within the specified rectangle.
 
 **PARAMETERS**
-* `camera_id` (hash|url)
+* `camera_id` (hash|url|nil) nil for the first camera
 * `left` (number) - Left edge of the camera bounds
 * `top` (number) - Top edge of camera bounds
 * `right` (number) - Right edge of camera bounds
 * `bottom` (number) - Bottom edge of camera bounds
 
+---
 
 ### camera.screen_to_world(camera_id, screen)
 Translate [screen coordinates](#screen-coordinates) to world coordinates, based on the view and projection of the camera.
 
 **PARAMETERS**
-* `camera_id` (hash|url)
+* `camera_id` (hash|url|nil) nil for the first camera
 * `screen` (vector3) Screen coordinates to convert
 
 **RETURN**
@@ -243,7 +297,7 @@ Translate [screen coordinates](#screen-coordinates) to world coordinates, based 
 Translate [window coordinates](#window-coordinates) to world coordinates, based on the view and projection of the camera.
 
 **PARAMETERS**
-* `camera_id` (hash|url)
+* `camera_id` (hash|url|nil) nil for the first camera
 * `window` (vector3) Window coordinates to convert
 
 **RETURN**
@@ -254,7 +308,7 @@ Translate [window coordinates](#window-coordinates) to world coordinates, based 
 Translate [screen boundaries](#screen-coordinates) (corners) to world coordinates, based on the view and projection of the camera.
 
 **PARAMETERS**
-* `camera_id` (hash|url)
+* `camera_id` (hash|url|nil) nil for the first camera
 
 **RETURN**
 * `bounds` (vector4) Screen bounds (x = left, y = top, z = right, w = bottom)
@@ -264,7 +318,7 @@ Translate [screen boundaries](#screen-coordinates) (corners) to world coordinate
 Translate world coordinates to [screen coordinates](#screen-coordinates), based on the view and projection of the camera, optionally taking into account an adjust mode. This is useful when manually culling game objects and you need to determine if a world coordinate will be visible or not. It can also be used to position gui nodes on top of game objects.
 
 **PARAMETER**
-* `camera_id` (hash|url)
+* `camera_id` (hash|url|nil) nil for the first camera
 * `world` (vector3) World coordinates to convert
 * `adjust_mode` (number) One of gui.ADJUST_FIT, gui.ADJUST_ZOOM and gui.ADJUST_STRETCH, or nil to not take into account the adjust mode.
 
@@ -295,6 +349,7 @@ Translate world coordinates to [screen coordinates](#screen-coordinates) using t
 **RETURN**
 * `screen_coords` (vector3) Note: Same v3 object as passed in as argument
 
+---
 
 ### camera.add_projector(projector_id, projector_fn)
 Add a custom projector that can be used by cameras in your project (see configuration above).
@@ -308,17 +363,10 @@ Add a custom projector that can be used by cameras in your project (see configur
 Set a specific projector for a camera. This must be either one of the predefined projectors (see above) or a custom projector added using `camera.add_projector()`.
 
 **PARAMETERS**
-* `camera_id` (hash) - Id of the camera to set projector for.
+* `camera_id` (hash|url|nil) nil for the first camera
 * `projector_id` (hash) - Id of the projector.
 
-
-### camera.set_window_size(width, height)
-Set the current window size so that it is available to projectors via `camera.get_window_size()`. Set this via your render script.
-
-**PARAMETERS**
-* `width` (number) - Current window width.
-* `height` (number) - Current window height.
-
+---
 
 ### camera.set_window_scaling_factor(scaling_factor)
 Set window scaling factor (basically retina or no retina screen). There is no built-in way to detect if Defold is running on a retina or non retina screen. This information combined with the High DPI setting in game.project can be used to ensure that the zoom behaves the same way regardless of screen type and High DPI setting. You can use an extension such as [DefOS](https://github.com/subsoap/defos) to get the window scaling factor.
@@ -328,7 +376,7 @@ Set window scaling factor (basically retina or no retina screen). There is no bu
 
 
 ### camera.get_window_size()
-Get the current window size, as it was provided by `camera.set_window_size()`. The default values will be the ones specified in game.project.
+Get the current window size. The default values will be the ones specified in game.project.
 
 **RETURN**
 * `width` (number) - Current window width.
@@ -341,6 +389,8 @@ Get the display size, as specified in game.project.
 **RETURN**
 * `width` (number) - Display width.
 * `height` (number) - Display height.
+
+---
 
 ## The Orthographic Camera API - messages
 Most of the functions of the API have message equivalents that can be sent to the camera component.

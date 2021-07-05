@@ -126,9 +126,10 @@ function M.add_projector(projector_id, projector_fn)
 end
 
 --- Set the projector used by a camera
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @param projector_id The projector to use
 function M.use_projector(camera_id, projector_id)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	assert(projector_id, "You must provide a projector id")
 	assert(projectors[projector_id], "Unknown projection id")
@@ -295,7 +296,7 @@ function M.update(camera_id, dt)
 	if not enabled then
 		return
 	end
-	
+
 	update_window_size()
 
 	local camera_world_pos = go.get_world_position(camera_id)
@@ -392,10 +393,10 @@ function M.update(camera_id, dt)
 	camera.viewport.y = viewport_bottom
 	camera.viewport.z = math.max(viewport_right - viewport_left, 1)
 	camera.viewport.w = math.max(viewport_top - viewport_bottom, 1)
-	
+
 	go.set_position(camera_world_pos + camera_world_to_local_diff, camera_id)
 
-	
+
 	if camera.shake then
 		camera.shake.duration = camera.shake.duration - dt
 		if camera.shake.duration < 0 then
@@ -432,12 +433,12 @@ function M.update(camera_id, dt)
 		end
 	end
 	camera.offset = offset
-	
+
 	camera.projection_id = go.get(camera.url, "projection")
 	camera.near_z = go.get(camera.url, "near_z")
 	camera.far_z = go.get(camera.url, "far_z")
 	camera.zoom = go.get(camera.url, "zoom")
-	camera.view = calculate_view(camera, camera_world_pos, offset)	
+	camera.view = calculate_view(camera, camera_world_pos, offset)
 	camera.projection = calculate_projection(camera)
 end
 
@@ -464,7 +465,7 @@ function M.get_cameras()
 end
 
 --- Follow a game object
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @param target The game object to follow
 -- @param options Table with options
 --		lerp - lerp to smoothly move the camera towards the target (default: nil)
@@ -473,6 +474,7 @@ end
 --		vertical - true if following target along vertical axis (default: true)
 --		immediate - true if camera should be immediately positioned on the target
 function M.follow(camera_id, target, options)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	assert(target, "You must provide a target")
 
@@ -488,17 +490,19 @@ end
 
 
 --- Unfollow a game object
--- @param camera_id
+-- @param camera_id or nil for the first camera
 function M.unfollow(camera_id)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	msg.post(cameras[camera_id].url, M.MSG_UNFOLLOW)
 end
 
 
 --- Change the camera follow offset
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @param offset - Offset from target position
 function M.follow_offset(camera_id, offset)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	assert(offset, "You must provide an offset")
 	msg.post(cameras[camera_id].url, M.MSG_FOLLOW_OFFSET, { offset = offset })
@@ -506,12 +510,13 @@ end
 
 
 --- Set the camera deadzone
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @param left Left edge of deadzone. Pass nil to remove deadzone.
 -- @param top
 -- @param right
 -- @param bottom
 function M.deadzone(camera_id, left, top, right, bottom)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	local camera = cameras[camera_id]
 	if left and right and top and bottom then
@@ -523,12 +528,13 @@ end
 
 
 --- Set the camera bounds
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @param left Left edge of camera bounds. Pass nil to remove bounds.
 -- @param top
 -- @param right
 -- @param bottom
 function M.bounds(camera_id, left, top, right, bottom)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	local camera = cameras[camera_id]
 	if left and top and right and bottom then
@@ -540,12 +546,13 @@ end
 
 
 --- Shake a camera
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @param intensity Intensity of the shake in percent of screen width. Optional, default: 0.05.
 -- @param duration Duration of the shake. Optional, default: 0.5s.
 -- @param direction both|horizontal|vertical. Optional, default: both
 -- @param cb Function to call when shake has completed. Optional
 function M.shake(camera_id, intensity, duration, direction, cb)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	cameras[camera_id].shake = {
 		intensity = intensity or 0.05,
@@ -559,18 +566,20 @@ end
 
 
 --- Stop shaking a camera
--- @param camera_id
+-- @param camera_id or nil for the first camera
 function M.stop_shaking(camera_id)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	cameras[camera_id].shake = nil
 end
 
 
 --- Simulate a recoil effect
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @param offset Amount to offset the camera with
 -- @param duration Duration of the recoil. Optional, default: 0.5s.
 function M.recoil(camera_id, offset, duration)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a strength id")
 	cameras[camera_id].recoil = {
 		offset = offset,
@@ -581,9 +590,10 @@ end
 
 
 --- Set the zoom level of a camera
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @param zoom The zoom level of the camera
 function M.set_zoom(camera_id, zoom)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	assert(zoom, "You must provide a zoom level")
 	local camera = cameras[camera_id]
@@ -594,27 +604,30 @@ end
 
 
 --- Get the zoom level of a camera
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @return Current zoom level of the camera
 function M.get_zoom(camera_id)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	return cameras[camera_id].zoom
 end
 
 
 --- Get the projection matrix for a camera
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @return Projection matrix
 function M.get_projection(camera_id)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	return cameras[camera_id].projection
 end
 
 
 --- Get the projection id for a camera
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @return Projection id
 function M.get_projection_id(camera_id)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	return cameras[camera_id].projection_id
 end
@@ -622,27 +635,30 @@ end
 
 --- Get the view matrix for a specific camera, based on the camera position
 -- and rotation
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @return View matrix
 function M.get_view(camera_id)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	return cameras[camera_id].view
 end
 
 
 --- Get the viewport for a specific camera
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @return Viewport (vector4)
 function M.get_viewport(camera_id)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	return cameras[camera_id].viewport
 end
 
 
 --- Get the offset for a specific camera
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @return Offset (vector3)
 function M.get_offset(camera_id)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	return cameras[camera_id].offset
 end
@@ -663,11 +679,12 @@ end
 -- on a specific camera's view and projection
 -- Screen coordinates are the scaled coordinates provided by action.x and action.y
 -- in on_input()
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @param screen Screen coordinates as a vector3
 -- @return World coordinates
 -- http://webglfactory.blogspot.se/2011/05/how-to-convert-world-to-screen.html
 function M.screen_to_world(camera_id, screen)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	assert(screen, "You must provide screen coordinates to convert")
 	local camera = cameras[camera_id]
@@ -682,7 +699,7 @@ function M.screen_to_world(camera_id, screen)
 	local s = vmath.vector3(screen)
 	s.x = (s.x - viewport_left) * (DISPLAY_WIDTH / viewport_width)
 	s.y = (s.y - viewport_bottom) * (DISPLAY_HEIGHT / viewport_height)
-	
+
 	return M.unproject(view, projection, s)
 end
 
@@ -691,10 +708,11 @@ end
 -- on a specific camera's view and projection
 -- Window coordinates are the non-scaled coordinates provided by action.screen_x
 -- and action.screen_y in on_input()
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @param window Window coordinates as a vector3
 -- @return World coordinates
 function M.window_to_world(camera_id, window)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	assert(window, "You must provide window coordinates to convert")
 	local camera = cameras[camera_id]
@@ -712,11 +730,12 @@ end
 
 --- Convert world coordinates to screen coordinates based
 -- on a specific camera's view and projection.
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @param world World coordinates as a vector3
 -- @return Screen coordinates
 -- http://webglfactory.blogspot.se/2011/05/how-to-convert-world-to-screen.html
 function M.world_to_screen(camera_id, world, adjust_mode)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	assert(world, "You must provide world coordinates to convert")
 	local camera = cameras[camera_id]
@@ -771,7 +790,7 @@ local function unproject_xyz(inverse_view_projection, x, y, z)
 end
 
 --- Translate screen coordinates to world coordinates given a
--- view and projection matrix 
+-- view and projection matrix
 -- @param view View matrix
 -- @param projection Projection matrix
 -- @param screen Screen coordinates as a vector3
@@ -788,9 +807,10 @@ end
 
 --- Get the screen bounds as world coordinates, ie where in world space the
 -- screen corners are
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @return bounds Vector4 where x is left, y is top, z is right and w is bottom
 function M.screen_to_world_bounds(camera_id)
+	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	local camera = cameras[camera_id]
 	local view = camera.view or MATRIX4
