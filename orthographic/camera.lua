@@ -228,6 +228,27 @@ local function calculate_view(camera, camera_world_pos, offset)
 	return view
 end
 
+local function refresh_cameras()
+	if cameras_dirty then
+		cameras_dirty = false
+		local enabled_cameras = {}
+		for camera_id,camera in pairs(cameras) do
+			if camera.enabled then
+				enabled_cameras[#enabled_cameras + 1] = camera
+			end
+		end
+		table.sort(enabled_cameras, function(a, b)
+			return b.order > a.order
+		end)
+		if #enabled_cameras ~= #camera_ids then
+			camera_ids = {}
+		end
+		for i=1,#enabled_cameras do
+			camera_ids[i] = enabled_cameras[i].id
+		end
+	end
+end
+
 --- Initialize a camera
 -- Note: This is called automatically from the init() function of the camera.script
 -- @param camera_id
@@ -440,27 +461,14 @@ function M.update(camera_id, dt)
 	camera.zoom = go.get(camera.url, "zoom")
 	camera.view = calculate_view(camera, camera_world_pos, offset)
 	camera.projection = calculate_projection(camera)
+
+	refresh_cameras()
 end
 
 --- Get list of camera ids
 -- @return List of camera ids
 function M.get_cameras()
-	if cameras_dirty then
-		cameras_dirty = false
-		local enabled_cameras = {}
-		for camera_id,camera in pairs(cameras) do
-			if camera.enabled then
-				enabled_cameras[#enabled_cameras + 1] = camera
-			end
-		end
-		table.sort(enabled_cameras, function(a, b)
-			return b.order > a.order
-		end)
-		camera_ids = {}
-		for i=1,#enabled_cameras do
-			camera_ids[i] = enabled_cameras[i].id
-		end
-	end
+	refresh_cameras()
 	return camera_ids
 end
 
