@@ -17,7 +17,7 @@ instances {
     id: "script"
     properties {
       id: "zoom"
-      value: "5.0"
+      value: "7.0"
       type: PROPERTY_TYPE_NUMBER
     }
     properties {
@@ -85,7 +85,22 @@ embedded_instances {
 }
 embedded_instances {
   id: "player"
-  data: "embedded_components {\n"
+  data: "components {\n"
+  "  id: \"player\"\n"
+  "  component: \"/example/lowrezjam/player.script\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  "embedded_components {\n"
   "  id: \"sprite\"\n"
   "  type: \"sprite\"\n"
   "  data: \"tile_set: \\\"/example/lowrezjam/assets/lowrez.atlas\\\"\\n"
