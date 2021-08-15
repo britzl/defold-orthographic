@@ -827,7 +827,6 @@ function M.screen_to_world_bounds(camera_id)
 	local camera = cameras[camera_id]
 	local view = camera.view or MATRIX4
 	local projection = camera.projection or MATRIX4
-	local viewport = camera.viewport or VECTOR4
 	local inv = vmath.inv(projection * view)
 	local bl_x, bl_y = unproject_xyz(inv, 0, 0, 0)
 	local br_x, br_y = unproject_xyz(inv, DISPLAY_WIDTH, 0, 0)
