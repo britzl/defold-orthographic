@@ -727,6 +727,10 @@ function M.window_to_world(camera_id, window)
 	local view = camera.view or MATRIX4
 	local projection = camera.projection or MATRIX4
 	local viewport = camera.viewport or VECTOR4
+	local viewport_width = viewport.z * DISPLAY_WIDTH / WINDOW_WIDTH
+	local viewport_height = viewport.w * DISPLAY_HEIGHT / WINDOW_HEIGHT
+	local viewport_left = viewport.x * DISPLAY_WIDTH / WINDOW_WIDTH
+	local viewport_bottom = viewport.y * DISPLAY_HEIGHT / WINDOW_HEIGHT
 	local scale_x = window.x * dpi_ratio * DISPLAY_WIDTH / WINDOW_WIDTH
 	local scale_y = window.y * dpi_ratio * DISPLAY_HEIGHT / WINDOW_HEIGHT
 
