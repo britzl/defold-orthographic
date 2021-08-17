@@ -29,6 +29,8 @@ include_dirs = orthographic
 
 [graphics]
 max_debug_vertices = 50000
+default_texture_min_filter = nearest
+default_texture_mag_filter = nearest
 
 [label]
 subpixels = 0
