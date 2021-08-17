@@ -6,7 +6,6 @@ local DOWN = hash("down")
 local SPEED = 30
 
 function init(self)
-	defos.set_window_size(nil, nil, 448, 448)
 	msg.post(".", "acquire_input_focus")
 	self.actions = {}
 	print("player")

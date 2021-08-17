@@ -12,8 +12,8 @@ render = /orthographic/render/orthographic.renderc
 game_binding = /input/game.input_bindingc
 
 [display]
-width = 1280
-height = 720
+width = 448
+height = 448
 high_dpi = 1
 
 [physics]
