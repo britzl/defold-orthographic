@@ -6,8 +6,8 @@ function init(self)
 	local center = vmath.vector3(0, 0, 0)
 	window.set_listener(function(self, event, data)
 		if event == window.WINDOW_EVENT_RESIZED then
-			center.x = data.width / 2
-			center.y = data.height / 2
+			center.x = math.floor(data.width / 2)
+			center.y = math.floor(data.height / 2)
 			gui.set_position(root, center)
 			gui.set_position(blockout, center)
 		end
