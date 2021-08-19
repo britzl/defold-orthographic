@@ -1,0 +1,11 @@
+function init(self)
+	msg.post(".", "acquire_input_focus")
+end
+
+function on_input(self, action_id, action)
+	if action_id == hash("touch") and action.pressed then
+		if gui.pick_node(gui.get_node("button"), action.x, action.y) then
+			print("Hello!")
+		end
+	end
+end
