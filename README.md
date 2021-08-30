@@ -58,7 +58,7 @@ This controls if the camera should follow the target along the horizontal axis o
 #### follow_vertical (boolean)
 This controls if the camera should follow the target along the vertical axis or not. See `camera.follow()` for details.
 
-### follow_immediately (boolean)
+#### follow_immediately (boolean)
 This controls if the camera should immediately position itself on the follow target when initialized or if it should apply lerp (see below). See `camera.follow()` for details.
 
 #### follow_target (hash)
