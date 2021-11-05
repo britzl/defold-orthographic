@@ -161,7 +161,7 @@ Get the current projection of the camera.
 **RETURN**
 * `projection` (matrix) The current projection
 
-### camera.get_projection_D(camera_id)
+### camera.get_projection_id(camera_id)
 Get the current projection id of the camera.
 
 **PARAMETERS**
