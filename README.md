@@ -14,7 +14,7 @@ Or point to the ZIP file of a [specific release](https://github.com/britzl/defol
 Getting started with Orthographic is easy:
 
 1. Add `camera.go` to your game.
-2. Open `game.project` and make sure to reference `orthographic/render/orthograpic.render` in the `Render` field in the `Bootstrap` section.
+2. Open `game.project` and make sure to reference `orthographic/render/orthographic.render` in the `Render` field in the `Bootstrap` section.
 
 Next step is to read read the section on "Camera Configuration" to learn how to change the behavior of the camera.
 
