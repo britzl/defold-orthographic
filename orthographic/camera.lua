@@ -79,9 +79,13 @@ end
 -- setup a fixed aspect ratio projection that zooms in/out to fit the original viewport contents
 -- regardless of window size
 projectors[M.PROJECTOR.FIXED_AUTO] = function(camera_id, near_z, far_z, zoom)
-	local zoom_factor = math.min(WINDOW_WIDTH / DISPLAY_WIDTH, WINDOW_HEIGHT / DISPLAY_HEIGHT) * zoom * dpi_ratio
-	local projected_width = WINDOW_WIDTH / (zoom_factor / dpi_ratio)
-	local projected_height = WINDOW_HEIGHT / (zoom_factor / dpi_ratio)
+	local camera = cameras[camera_id]
+	local ww = camera.viewport and camera.viewport.z or WINDOW_WIDTH
+	local wh = camera.viewport and camera.viewport.w or WINDOW_HEIGHT
+	
+	local zoom_factor = math.min(ww / DISPLAY_WIDTH, wh / DISPLAY_HEIGHT) * zoom * dpi_ratio
+	local projected_width = ww / (zoom_factor / dpi_ratio)
+	local projected_height = wh / (zoom_factor / dpi_ratio)
 	local xoffset = -(projected_width - DISPLAY_WIDTH) / 2
 	local yoffset = -(projected_height - DISPLAY_HEIGHT) / 2
 	return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
@@ -89,8 +93,12 @@ end
 
 -- setup a fixed aspect ratio projection with a fixed zoom
 projectors[M.PROJECTOR.FIXED_ZOOM] = function(camera_id, near_z, far_z, zoom)
-	local projected_width = WINDOW_WIDTH / (zoom / dpi_ratio)
-	local projected_height = WINDOW_HEIGHT / (zoom / dpi_ratio)
+	local camera = cameras[camera_id]
+	local ww = camera.viewport and camera.viewport.z or WINDOW_WIDTH
+	local wh = camera.viewport and camera.viewport.w or WINDOW_HEIGHT
+
+	local projected_width = ww / (zoom / dpi_ratio)
+	local projected_height = wh / (zoom / dpi_ratio)
 	local xoffset = -(projected_width - DISPLAY_WIDTH) / 2
 	local yoffset = -(projected_height - DISPLAY_HEIGHT) / 2
 	return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
