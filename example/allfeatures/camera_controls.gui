@@ -1,11 +1,11 @@
 script: "/example/allfeatures/camera_controls.gui_script"
 fonts {
   name: "silkscreen"
-  font: "/example/assets/fonts/silkscreen.font"
+  font: "/example/shared/fonts/silkscreen.font"
 }
 textures {
   name: "examples"
-  texture: "/example/assets/examples.atlas"
+  texture: "/example/shared/examples.atlas"
 }
 background_color {
   x: 0.0
@@ -66,6 +66,7 @@ nodes {
   alpha: 1.0
   template_node_child: false
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -104,8 +105,9 @@ nodes {
   layer: ""
   inherit_alpha: true
   alpha: 1.0
-  template: "/example/assets/button.gui"
+  template: "/example/shared/button.gui"
   template_node_child: false
+  custom_type: 0
 }
 nodes {
   position {
@@ -161,6 +163,7 @@ nodes {
   alpha: 1.0
   template_node_child: true
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -225,6 +228,7 @@ nodes {
   template_node_child: true
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -263,8 +267,9 @@ nodes {
   layer: ""
   inherit_alpha: true
   alpha: 1.0
-  template: "/example/assets/button.gui"
+  template: "/example/shared/button.gui"
   template_node_child: false
+  custom_type: 0
 }
 nodes {
   position {
@@ -320,6 +325,7 @@ nodes {
   alpha: 1.0
   template_node_child: true
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -384,6 +390,7 @@ nodes {
   template_node_child: true
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -439,6 +446,7 @@ nodes {
   alpha: 1.0
   template_node_child: false
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -477,8 +485,9 @@ nodes {
   layer: ""
   inherit_alpha: true
   alpha: 1.0
-  template: "/example/assets/button.gui"
+  template: "/example/shared/button.gui"
   template_node_child: false
+  custom_type: 0
 }
 nodes {
   position {
@@ -534,6 +543,7 @@ nodes {
   alpha: 1.0
   template_node_child: true
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -598,6 +608,7 @@ nodes {
   template_node_child: true
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -636,8 +647,9 @@ nodes {
   layer: ""
   inherit_alpha: true
   alpha: 1.0
-  template: "/example/assets/button.gui"
+  template: "/example/shared/button.gui"
   template_node_child: false
+  custom_type: 0
 }
 nodes {
   position {
@@ -693,6 +705,7 @@ nodes {
   alpha: 1.0
   template_node_child: true
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -757,6 +770,7 @@ nodes {
   template_node_child: true
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -795,8 +809,9 @@ nodes {
   layer: ""
   inherit_alpha: true
   alpha: 1.0
-  template: "/example/assets/button.gui"
+  template: "/example/shared/button.gui"
   template_node_child: false
+  custom_type: 0
 }
 nodes {
   position {
@@ -852,6 +867,7 @@ nodes {
   alpha: 1.0
   template_node_child: true
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -916,6 +932,7 @@ nodes {
   template_node_child: true
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -954,8 +971,9 @@ nodes {
   layer: ""
   inherit_alpha: true
   alpha: 1.0
-  template: "/example/assets/button.gui"
+  template: "/example/shared/button.gui"
   template_node_child: false
+  custom_type: 0
 }
 nodes {
   position {
@@ -1011,6 +1029,7 @@ nodes {
   alpha: 1.0
   template_node_child: true
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -1075,6 +1094,7 @@ nodes {
   template_node_child: true
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -1130,6 +1150,7 @@ nodes {
   alpha: 1.0
   template_node_child: false
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -1168,8 +1189,9 @@ nodes {
   layer: ""
   inherit_alpha: true
   alpha: 1.0
-  template: "/example/assets/button.gui"
+  template: "/example/shared/button.gui"
   template_node_child: false
+  custom_type: 0
 }
 nodes {
   position {
@@ -1225,6 +1247,7 @@ nodes {
   alpha: 1.0
   template_node_child: true
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -1289,6 +1312,7 @@ nodes {
   template_node_child: true
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -1327,8 +1351,9 @@ nodes {
   layer: ""
   inherit_alpha: true
   alpha: 1.0
-  template: "/example/assets/button.gui"
+  template: "/example/shared/button.gui"
   template_node_child: false
+  custom_type: 0
 }
 nodes {
   position {
@@ -1384,6 +1409,7 @@ nodes {
   alpha: 1.0
   template_node_child: true
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -1448,6 +1474,7 @@ nodes {
   template_node_child: true
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -1486,8 +1513,9 @@ nodes {
   layer: ""
   inherit_alpha: true
   alpha: 1.0
-  template: "/example/assets/button.gui"
+  template: "/example/shared/button.gui"
   template_node_child: false
+  custom_type: 0
 }
 nodes {
   position {
@@ -1543,6 +1571,7 @@ nodes {
   alpha: 1.0
   template_node_child: true
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -1607,6 +1636,7 @@ nodes {
   template_node_child: true
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -1645,8 +1675,9 @@ nodes {
   layer: ""
   inherit_alpha: true
   alpha: 1.0
-  template: "/example/assets/button.gui"
+  template: "/example/shared/button.gui"
   template_node_child: false
+  custom_type: 0
 }
 nodes {
   position {
@@ -1702,6 +1733,7 @@ nodes {
   alpha: 1.0
   template_node_child: true
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -1766,6 +1798,7 @@ nodes {
   template_node_child: true
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -1804,8 +1837,9 @@ nodes {
   layer: ""
   inherit_alpha: true
   alpha: 1.0
-  template: "/example/assets/button.gui"
+  template: "/example/shared/button.gui"
   template_node_child: false
+  custom_type: 0
 }
 nodes {
   position {
@@ -1861,6 +1895,7 @@ nodes {
   alpha: 1.0
   template_node_child: true
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -1925,6 +1960,7 @@ nodes {
   template_node_child: true
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -1980,6 +2016,7 @@ nodes {
   alpha: 1.0
   template_node_child: false
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -2018,8 +2055,9 @@ nodes {
   layer: ""
   inherit_alpha: true
   alpha: 1.0
-  template: "/example/assets/button.gui"
+  template: "/example/shared/button.gui"
   template_node_child: false
+  custom_type: 0
 }
 nodes {
   position {
@@ -2075,6 +2113,7 @@ nodes {
   alpha: 1.0
   template_node_child: true
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -2139,6 +2178,7 @@ nodes {
   template_node_child: true
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -2202,6 +2242,7 @@ nodes {
   template_node_child: false
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -2240,8 +2281,9 @@ nodes {
   layer: ""
   inherit_alpha: true
   alpha: 1.0
-  template: "/example/assets/button.gui"
+  template: "/example/shared/button.gui"
   template_node_child: false
+  custom_type: 0
 }
 nodes {
   position {
@@ -2297,6 +2339,7 @@ nodes {
   alpha: 1.0
   template_node_child: true
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -2361,6 +2404,7 @@ nodes {
   template_node_child: true
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -2416,6 +2460,7 @@ nodes {
   alpha: 1.0
   template_node_child: false
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -2479,6 +2524,7 @@ nodes {
   template_node_child: false
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -2517,8 +2563,9 @@ nodes {
   layer: ""
   inherit_alpha: true
   alpha: 1.0
-  template: "/example/assets/button.gui"
+  template: "/example/shared/button.gui"
   template_node_child: false
+  custom_type: 0
 }
 nodes {
   position {
@@ -2574,6 +2621,7 @@ nodes {
   alpha: 1.0
   template_node_child: true
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -2638,6 +2686,7 @@ nodes {
   template_node_child: true
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -2692,6 +2741,7 @@ nodes {
   alpha: 0.16
   template_node_child: false
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -2754,6 +2804,7 @@ nodes {
   template_node_child: false
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -2816,6 +2867,7 @@ nodes {
   template_node_child: false
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -2878,6 +2930,7 @@ nodes {
   template_node_child: false
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -2940,6 +2993,7 @@ nodes {
   template_node_child: false
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -3002,6 +3056,7 @@ nodes {
   template_node_child: false
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -3064,6 +3119,7 @@ nodes {
   template_node_child: false
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 nodes {
   position {
@@ -3126,6 +3182,7 @@ nodes {
   template_node_child: false
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 layers {
   name: "below"

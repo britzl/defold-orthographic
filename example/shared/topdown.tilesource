@@ -1,9 +1,9 @@
-image: "/example/assets/images/tilesheet_topdown_complete.png"
+image: "/example/shared/images/tilesheet_topdown_complete.png"
 tile_width: 64
 tile_height: 64
 tile_margin: 0
 tile_spacing: 0
-collision: "/example/assets/images/tilesheet_topdown_complete.png"
+collision: "/example/shared/images/tilesheet_topdown_complete.png"
 material_tag: "tile"
 convex_hulls {
   index: 0
@@ -2717,3 +2717,4 @@ animations {
 }
 extrude_borders: 2
 inner_padding: 0
+sprite_trim_mode: SPRITE_TRIM_MODE_OFF

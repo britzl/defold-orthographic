@@ -1,6 +1,6 @@
 components {
   id: "script"
-  component: "/example/assets/objects/hitman.script"
+  component: "/example/shared/objects/hitman.script"
   position {
     x: 0.0
     y: 0.0
@@ -16,7 +16,7 @@ components {
 embedded_components {
   id: "sprite"
   type: "sprite"
-  data: "tile_set: \"/example/assets/examples.atlas\"\n"
+  data: "tile_set: \"/example/shared/examples.atlas\"\n"
   "default_animation: \"hitman1_gun\"\n"
   "material: \"/builtins/materials/sprite.material\"\n"
   "blend_mode: BLEND_MODE_ALPHA\n"

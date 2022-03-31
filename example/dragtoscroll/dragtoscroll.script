@@ -1,0 +1,43 @@
+local camera = require "orthographic.camera"
+
+local CAMERA_ID = hash("/camera")
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+end
+
+function on_input(self, action_id, action)
+	if action_id == hash("touch") then
+		-- store the position where the pressed action happened
+		-- also store the camera position at that time
+		if action.pressed then
+			self.pressed_pos = vmath.vector3(action.x, action.y, 0)
+			self.camera_pos = go.get_position(CAMERA_ID)
+		elseif action.released then
+			self.pressed_pos = nil
+		end
+	elseif action_id == hash("zoom_in") then
+		local zoom = camera.get_zoom(CAMERA_ID)
+		zoom = math.min(4, zoom + 0.05)
+		camera.set_zoom(CAMERA_ID, zoom)
+	elseif action_id == hash("zoom_out") then
+		local zoom = camera.get_zoom(CAMERA_ID)
+		zoom = math.max(0.2, zoom - 0.05)
+		camera.set_zoom(CAMERA_ID, zoom)
+	elseif action_id == nil and self.pressed_pos then
+		-- drag the camera
+		-- base all calculations on the current mouse/touch position
+		-- relative to the position when the pressed action happens
+		-- also take the zoom into account
+		local zoom = camera.get_zoom(CAMERA_ID)
+		local action_pos = vmath.vector3(action.x, action.y, 0)
+		local camera_pos = self.camera_pos + (self.pressed_pos - action_pos) / zoom
+		go.set_position(camera_pos, CAMERA_ID)
+	end
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Learn more: https://defold.com/manuals/hot-reload/
+	-- Remove this function if not needed
+end

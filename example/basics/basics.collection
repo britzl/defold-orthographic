@@ -1,10 +1,10 @@
-name: "allfeatures"
+name: "default"
 instances {
   id: "camera"
   prototype: "/orthographic/camera.go"
   position {
-    x: 199.937
-    y: 470.962
+    x: 0.0
+    y: 0.0
     z: 0.0
   }
   rotation {
@@ -16,22 +16,12 @@ instances {
   component_properties {
     id: "script"
     properties {
-      id: "zoom"
-      value: "1.0"
-      type: PROPERTY_TYPE_NUMBER
-    }
-    properties {
       id: "projection"
       value: "FIXED_ZOOM"
       type: PROPERTY_TYPE_HASH
     }
     properties {
       id: "follow"
-      value: "true"
-      type: PROPERTY_TYPE_BOOLEAN
-    }
-    properties {
-      id: "follow_immediately"
       value: "true"
       type: PROPERTY_TYPE_BOOLEAN
     }
@@ -47,64 +37,11 @@ instances {
     z: 1.0
   }
 }
-instances {
-  id: "crosshair"
-  prototype: "/example/shared/objects/crosshair.go"
-  position {
-    x: 0.0
-    y: 0.0
-    z: 1.0
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
-  }
-  scale3 {
-    x: 1.0
-    y: 1.0
-    z: 1.0
-  }
-}
-instances {
-  id: "hitman"
-  prototype: "/example/shared/objects/hitman.go"
-  position {
-    x: 344.0
-    y: 321.0
-    z: 1.0
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
-  }
-  component_properties {
-    id: "script"
-    properties {
-      id: "max_camera_offset"
-      value: "150.0, 250.0, 0.0"
-      type: PROPERTY_TYPE_VECTOR3
-    }
-    properties {
-      id: "camera_offset_lerp"
-      value: "0.01"
-      type: PROPERTY_TYPE_NUMBER
-    }
-  }
-  scale3 {
-    x: 1.0
-    y: 1.0
-    z: 1.0
-  }
-}
 scale_along_z: 0
 embedded_instances {
-  id: "map"
+  id: "level"
   data: "components {\n"
-  "  id: \"tilemap\"\n"
+  "  id: \"top_down\"\n"
   "  component: \"/example/allfeatures/top_down.tilemap\"\n"
   "  position {\n"
   "    x: 0.0\n"
@@ -122,7 +59,7 @@ embedded_instances {
   position {
     x: 0.0
     y: 0.0
-    z: -1.0
+    z: 0.0
   }
   rotation {
     x: 0.0
@@ -137,10 +74,30 @@ embedded_instances {
   }
 }
 embedded_instances {
-  id: "controls"
+  id: "hitman"
   data: "components {\n"
-  "  id: \"camera_controls\"\n"
-  "  component: \"/example/allfeatures/camera_controls.gui\"\n"
+  "  id: \"topdownmovement\"\n"
+  "  component: \"/example/shared/scripts/topdownmovement.script\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"tile_set: \\\"/example/shared/examples.atlas\\\"\\n"
+  "default_animation: \\\"hitman1_gun\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "blend_mode: BLEND_MODE_ALPHA\\n"
+  "\"\n"
   "  position {\n"
   "    x: 0.0\n"
   "    y: 0.0\n"
@@ -155,9 +112,9 @@ embedded_instances {
   "}\n"
   ""
   position {
-    x: 0.0
-    y: 0.0
-    z: 0.0
+    x: 248.0
+    y: 205.0
+    z: 1.0
   }
   rotation {
     x: 0.0

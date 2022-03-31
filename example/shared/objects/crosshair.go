@@ -1,6 +1,6 @@
 components {
   id: "crosshair"
-  component: "/example/assets/objects/crosshair.script"
+  component: "/example/shared/objects/crosshair.script"
   position {
     x: 0.0
     y: 0.0
@@ -52,7 +52,7 @@ embedded_components {
   "blend_mode: BLEND_MODE_ALPHA\n"
   "line_break: false\n"
   "text: \"\"\n"
-  "font: \"/example/assets/fonts/silkscreen.font\"\n"
+  "font: \"/example/shared/fonts/silkscreen.font\"\n"
   "material: \"/builtins/fonts/label.material\"\n"
   ""
   position {
@@ -70,7 +70,7 @@ embedded_components {
 embedded_components {
   id: "sprite"
   type: "sprite"
-  data: "tile_set: \"/example/assets/examples.atlas\"\n"
+  data: "tile_set: \"/example/shared/examples.atlas\"\n"
   "default_animation: \"crosshair_outline_large\"\n"
   "material: \"/builtins/materials/sprite.material\"\n"
   "blend_mode: BLEND_MODE_ALPHA\n"

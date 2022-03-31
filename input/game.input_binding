@@ -46,3 +46,11 @@ mouse_trigger {
   input: MOUSE_BUTTON_1
   action: "touch"
 }
+mouse_trigger {
+  input: MOUSE_WHEEL_UP
+  action: "zoom_in"
+}
+mouse_trigger {
+  input: MOUSE_WHEEL_DOWN
+  action: "zoom_out"
+}

@@ -1,11 +1,11 @@
 script: ""
 fonts {
   name: "silkscreen"
-  font: "/example/assets/fonts/silkscreen.font"
+  font: "/example/shared/fonts/silkscreen.font"
 }
 textures {
   name: "main"
-  texture: "/example/assets/examples.atlas"
+  texture: "/example/shared/examples.atlas"
 }
 background_color {
   x: 0.0
@@ -66,6 +66,7 @@ nodes {
   alpha: 1.0
   template_node_child: false
   size_mode: SIZE_MODE_MANUAL
+  custom_type: 0
 }
 nodes {
   position {
@@ -129,6 +130,7 @@ nodes {
   template_node_child: false
   text_leading: 1.0
   text_tracking: 0.0
+  custom_type: 0
 }
 layers {
   name: "below"
