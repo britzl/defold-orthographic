@@ -88,10 +88,13 @@ function on_message(self, message_id, message, sender)
 		self.follow = true
 		if message.horizontal == nil then message.horizontal = true end
 		if message.vertical == nil then message.vertical = true end
+		local lerp = message.lerp or 1
+		if lerp < 0 then lerp = 0 end
+		if lerp > 1 then lerp = 1 end
 		self.follow_horizontal = message.horizontal
 		self.follow_vertical = message.vertical
 		self.follow_target = type(message.target) == "string" and hash(message.target) or message.target
-		self.follow_lerp = message.lerp or 1
+		self.follow_lerp = lerp
 		self.follow_offset = message.offset or vmath.vector3()
 		self.follow_immediately = message.immediate
 		if self.follow and self.follow_immediately then
