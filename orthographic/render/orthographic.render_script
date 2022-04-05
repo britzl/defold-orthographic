@@ -31,6 +31,9 @@ function update(self)
 
 	-- draw world per camera
 	local cameras = camera.get_cameras()
+	local frustum = nil
+	local view = nil
+	local proj = nil
 	if #cameras > 0 then
 		render.disable_state(render.STATE_DEPTH_TEST)
 		render.disable_state(render.STATE_CULL_FACE)
@@ -38,10 +41,13 @@ function update(self)
 		for _,camera_id in ipairs(cameras) do
 			local viewport = camera.get_viewport(camera_id)
 			render.set_viewport(viewport.x, viewport.y, viewport.z, viewport.w)
-			render.set_view(camera.get_view(camera_id))
-			render.set_projection(camera.get_projection(camera_id))
-			render.draw(self.tile_pred)
-			render.draw(self.particle_pred)
+			view = camera.get_view(camera_id)
+			render.set_view(view)
+			proj = camera.get_projection(camera_id)
+			render.set_projection(proj)
+			frustum = proj * view
+			render.draw(self.tile_pred, {frustum = frustum})
+			render.draw(self.particle_pred, {frustum = frustum})
 			render.draw_debug3d()
 		end
 	end
@@ -51,10 +57,13 @@ function update(self)
 	render.disable_state(render.STATE_CULL_FACE)
 	render.enable_state(render.STATE_STENCIL_TEST)
 	render.set_viewport(0, 0, render.get_window_width(), render.get_window_height())
-	render.set_view(IDENTITY)
-	render.set_projection(vmath.matrix4_orthographic(0, render.get_window_width(), 0, render.get_window_height(), -1, 1))
-	render.draw(self.gui_pred)
-	render.draw(self.text_pred)
+	view = IDENTITY
+	render.set_view(view)
+	proj = vmath.matrix4_orthographic(0, render.get_window_width(), 0, render.get_window_height(), -1, 1)
+	render.set_projection(proj)
+	frustum = proj * view
+	render.draw(self.gui_pred, {frustum = frustum})
+	render.draw(self.text_pred, {frustum = frustum})
 	render.disable_state(render.STATE_STENCIL_TEST)
 end
 
