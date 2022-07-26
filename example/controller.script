@@ -1,0 +1,24 @@
+local function show(self, proxy)
+	if self.current_proxy then
+		msg.post(self.current_proxy, "unload")
+	end
+	msg.post(proxy, "async_load")
+end
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+	msg.post("#", "show", { id = "menu" })
+	msg.post("@render:", "clear_color", { color = vmath.vector4(0.15, 0.15, 0.15, 1.0) })
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("proxy_loaded") then
+		self.current_proxy = sender
+		msg.post(sender, "enable")
+	elseif message_id == hash("show") then
+		local id = message.id
+		show(self, "#" .. id)
+	else
+		print(message_id)
+	end
+end

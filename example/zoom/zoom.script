@@ -1,0 +1,45 @@
+local camera = require "orthographic.camera"
+
+local CAMERA_ID = hash("/camera")
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+end
+
+function on_input(self, action_id, action)
+
+	local action_pos = vmath.vector3(action.x, action.y, 0)
+	local action_world_pos = camera.screen_to_world(CAMERA_ID, action_pos)
+	local camera_pos = go.get_position(CAMERA_ID)
+	local zoom = camera.get_zoom(CAMERA_ID)
+
+	go.set_position(action_world_pos, "zoom")
+
+	if not action_id then
+		local delta = vmath.vector3(action.dx, action.dy, 0)
+		delta = delta / zoom
+		camera_pos = camera_pos + delta
+		go.set_position(camera_pos, CAMERA_ID)
+	else
+		if action_id == hash("zoom_in") then
+			zoom = math.min(4, zoom + 0.05)
+			camera.set_zoom(CAMERA_ID, zoom)
+		elseif action_id == hash("zoom_out") then
+			zoom = math.max(0.2, zoom - 0.05)
+			camera.set_zoom(CAMERA_ID, zoom)
+		end
+		
+		local new_action_pos = camera.world_to_screen(CAMERA_ID, action_world_pos)
+		local diff = new_action_pos - action_pos
+		diff = diff / zoom	
+		camera_pos = camera_pos + diff
+		go.set_position(camera_pos, CAMERA_ID)
+	end
+
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Learn more: https://defold.com/manuals/hot-reload/
+	-- Remove this function if not needed
+end

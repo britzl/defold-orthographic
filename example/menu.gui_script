@@ -1,0 +1,30 @@
+local gooey = require "gooey.gooey"
+
+function init(self)
+	gooey.acquire_input()
+end
+
+local BUTTONS = {
+	"basics",
+	"bounds",
+	"dragtoscroll",
+	"multicamera",
+	"allfeatures",
+	"zoom",
+}
+
+function on_input(self, action_id, action)
+	local group = gooey.group("group1", function()
+		for _,id in ipairs(BUTTONS) do
+			gooey.button(id .. "button", action_id, action, function()
+				msg.post("controller:/go", "show" , { id = id })
+			end)
+		end
+	end)
+	return group.consumed
+end
+
+function on_reload(self)
+	-- Add input-handling code here
+	-- Remove this function if not needed
+end

@@ -1,0 +1,19 @@
+local gooey = require "gooey.gooey"
+
+function init(self)
+	gooey.acquire_input()
+end
+
+function on_input(self, action_id, action)
+	local group = gooey.group("controller", function()
+		gooey.button("backbutton", action_id, action, function()
+			msg.post("controller:/go", "show" , { id = "menu" })
+		end)
+	end)
+	return group.consumed
+end
+
+function on_reload(self)
+	-- Add input-handling code here
+	-- Remove this function if not needed
+end
