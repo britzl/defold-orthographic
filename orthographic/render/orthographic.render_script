@@ -22,6 +22,7 @@ end
 function update(self)
 	-- clear color
 	render.set_depth_mask(true)
+	render.set_stencil_mask(0xff)
 	render.clear({[render.BUFFER_COLOR_BIT] = self.clear_color, [render.BUFFER_DEPTH_BIT] = 1, [render.BUFFER_STENCIL_BIT] = 0})
 	render.set_depth_mask(false)
 	
