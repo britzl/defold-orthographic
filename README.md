@@ -42,7 +42,7 @@ The camera can be configured to support different kinds of orthographic projecti
 * `FIXED_AUTO` - A fixed aspect ratio projection that automatically zooms in/out to fit the original viewport contents regardless of window size.
 * `FIXED_ZOOM` - A fixed aspect ratio projection with zoom.
 
-Note: For the above projections to work you need to pass the window dimensions from your render script to the camera. See [the section on render script integration](#render_script_integration).
+Note: For the above projections to work you need to pass the window dimensions from your render script to the camera. See [the section on render script integration](#render-script-integration).
 
 Additional custom projections can be added, see `camera.add_projector()` below.
 
