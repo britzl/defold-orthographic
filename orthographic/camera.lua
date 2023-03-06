@@ -493,14 +493,21 @@ function M.follow(camera_id, target, options)
 	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
 	assert(target, "You must provide a target")
-
+	local lerp = options and options.lerp
+	local offset = options and options.offset
+	local horizontal = options and options.horizontal
+	local vertical = options and options.vertical
+	local immediate = options and options.immediate
+	if horizontal == nil then horizontal = true end
+	if vertical == nil then vertical = true end
+	
 	msg.post(cameras[camera_id].url, M.MSG_FOLLOW, {
 		target = target,
-		lerp = options.lerp,
-		offset = options.offset,
-		horizontal = options.horizontal,
-		vertical = options.vertical,
-		immediate = options.immediate,
+		lerp = lerp,
+		offset = offset,
+		horizontal = horizontal,
+		vertical = vertical,
+		immediate = immediate,
 	})
 end
 
