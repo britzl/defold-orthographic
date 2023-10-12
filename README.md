@@ -16,7 +16,7 @@ Getting started with Orthographic is easy:
 1. Add `camera.go` to your game.
 2. Open `game.project` and make sure to reference `orthographic/render/orthographic.render` in the `Render` field in the `Bootstrap` section.
 
-Next step is to read read the section on "Camera Configuration" to learn how to change the behavior of the camera.
+Next step is to read the section on "Camera Configuration" to learn how to change the behavior of the camera.
 
 ## Camera Configuration
 Select the script component attached to the `camera.go` to modify the properties. The camera has the following configurable properties:
