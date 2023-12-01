@@ -325,6 +325,16 @@ Translate world coordinates to [screen coordinates](#screen-coordinates), based 
 **RETURN**
 * `screen_coords` (vector3) Screen coordinates
 
+### camera.world_to_window(camera_id, world)
+Translate world coordinates to [window coordinates](#window-coordinates), based on the view and projection of the camera. 
+
+**PARAMETER**
+* `camera_id` (hash|url|nil) nil for the first camera
+* `world` (vector3) World coordinates to convert
+
+**RETURN**
+* `window_coords` (vector3) Window coordinates
+
 
 ### camera.unproject(view, projection, screen)
 Translate [screen coordinates](#screen-coordinates) to world coordinates using the specified view and projection.

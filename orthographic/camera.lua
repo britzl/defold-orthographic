@@ -784,6 +784,21 @@ function M.world_to_screen(camera_id, world, adjust_mode)
 	return vmath.vector3(screen.x, screen.y, screen.z)
 end
 
+--- Convert world coordinates to window coordinates based
+-- on a specific camera's view and projection
+-- Window coordinates are the non-scaled coordinates provided by action.screen_x
+-- and action.screen_y in on_input()
+-- @param camera_id
+-- @param world World coordinates as a vector3
+-- @return window coordinates
+function M.world_to_window(camera_id, world)
+	local view = cameras[camera_id].view or MATRIX4
+	local projection = cameras[camera_id].projection or MATRIX4
+	local screen = M.project(view, projection, vmath.vector3(world))
+	local scale_x = screen.x / (dpi_ratio * DISPLAY_WIDTH / WINDOW_WIDTH)
+	local scale_y = screen.y / (dpi_ratio * DISPLAY_HEIGHT / WINDOW_HEIGHT)
+	return vmath.vector3(scale_x, scale_y, 0)
+end
 
 --- Translate world coordinates to screen coordinates given a
 -- view and projection matrix
