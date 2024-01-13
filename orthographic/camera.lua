@@ -792,12 +792,16 @@ end
 -- @param world World coordinates as a vector3
 -- @return window coordinates
 function M.world_to_window(camera_id, world)
-	local view = cameras[camera_id].view or MATRIX4
-	local projection = cameras[camera_id].projection or MATRIX4
-	local screen = M.project(view, projection, vmath.vector3(world))
-	local scale_x = screen.x / (dpi_ratio * DISPLAY_WIDTH / WINDOW_WIDTH)
-	local scale_y = screen.y / (dpi_ratio * DISPLAY_HEIGHT / WINDOW_HEIGHT)
-	return vmath.vector3(scale_x, scale_y, 0)
+    camera_id = camera_id or camera_ids[1]
+    assert(camera_id, "You must provide a camera id")
+    assert(world, "You must provide world coordinates to convert")
+    local camera = cameras[camera_id]
+    local view = camera.view or MATRIX4
+    local projection = camera.projection or MATRIX4
+    local screen = M.project(view, projection, vmath.vector3(world))
+    local scale_x = screen.x / (dpi_ratio * DISPLAY_WIDTH / WINDOW_WIDTH)
+    local scale_y = screen.y / (dpi_ratio * DISPLAY_HEIGHT / WINDOW_HEIGHT)
+    return vmath.vector3(scale_x, scale_y, 0)
 end
 
 --- Translate world coordinates to screen coordinates given a
