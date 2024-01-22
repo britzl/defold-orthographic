@@ -788,7 +788,7 @@ end
 -- on a specific camera's view and projection
 -- Window coordinates are the non-scaled coordinates provided by action.screen_x
 -- and action.screen_y in on_input()
--- @param camera_id
+-- @param camera_id or nil for the first camera
 -- @param world World coordinates as a vector3
 -- @return window coordinates
 function M.world_to_window(camera_id, world)
