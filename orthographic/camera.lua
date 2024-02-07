@@ -603,7 +603,7 @@ end
 -- @param duration Duration of the recoil. Optional, default: 0.5s.
 function M.recoil(camera_id, offset, duration)
 	camera_id = camera_id or camera_ids[1]
-	assert(camera_id, "You must provide a strength id")
+	assert(camera_id, "You must provide a camera id")
 	cameras[camera_id].recoil = {
 		offset = offset,
 		duration = duration or 0.5,
