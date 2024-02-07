@@ -78,6 +78,11 @@ instances {
       value: "0.0"
       type: PROPERTY_TYPE_NUMBER
     }
+    properties {
+      id: "crosshair"
+      value: "false"
+      type: PROPERTY_TYPE_BOOLEAN
+    }
   }
   scale3 {
     x: 1.0
