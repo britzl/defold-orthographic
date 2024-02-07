@@ -64,13 +64,14 @@ end
 function update(self, dt)
 	-- update camera and view projection after all game objects have been updated
 	-- will jitter otherwise
-	msg.post("#", camera.MSG_UPDATE_CAMERA, { dt = dt })
+	self.last_dt = dt
+	msg.post("#", camera.MSG_UPDATE_CAMERA)
 end
 
 
 function on_message(self, message_id, message, sender)
 	if message_id == camera.MSG_UPDATE_CAMERA then
-		camera.update(go.get_id(), message.dt)
+		camera.update(go.get_id(), message.dt or self.last_dt)
 		if self.enabled then
 			camera.send_view_projection(go.get_id())
 		end
