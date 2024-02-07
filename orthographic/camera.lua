@@ -490,32 +490,34 @@ function M.update(camera_id, dt)
 	go.set_position(v3_tmp, camera_id)
 
 
-	if camera.shake then
-		camera.shake.duration = camera.shake.duration - dt
-		if camera.shake.duration < 0 then
-			if camera.shake.cb then camera.shake.cb() end
-			camera.shake = nil
+	local shake = camera.shake
+	if shake then
+		shake.duration = shake.duration - dt
+		if shake.duration < 0 then
+			if shake.cb then shake.cb() end
+			camera.shake, shake = nil, nil
 		else
-			if camera.shake.horizontal then
-				camera.shake.offset.x = (DISPLAY_WIDTH * camera.shake.intensity) * (math.random() - 0.5)
+			if shake.horizontal then
+				shake.offset.x = (DISPLAY_WIDTH * shake.intensity) * (math.random() - 0.5)
 			end
-			if camera.shake.vertical then
-				camera.shake.offset.y = (DISPLAY_WIDTH * camera.shake.intensity) * (math.random() - 0.5)
+			if shake.vertical then
+				shake.offset.y = (DISPLAY_WIDTH * shake.intensity) * (math.random() - 0.5)
 			end
 		end
 	end
 
-	if camera.recoil then
-		camera.recoil.time_left = camera.recoil.time_left - dt
-		if camera.recoil.time_left < 0 then
-			camera.recoil = nil
+	local recoil = camera.recoil
+	if recoil then
+		recoil.time_left = recoil.time_left - dt
+		if recoil.time_left < 0 then
+			camera.recoil, recoil = nil, nil
 		else
-			local t = camera.recoil.time_left / camera.recoil.duration
-			camera.recoil.offset = vmath.lerp(t, VECTOR3_ZERO, camera.recoil.offset)
+			local t = recoil.time_left / recoil.duration
+			recoil.offset = vmath.lerp(t, VECTOR3_ZERO, recoil.offset)
 		end
 	end
 
-	if camera.shake or camera.recoil then
+	if shake or recoil then
 		local offset = camera.offset
 		if offset then
 			offset.x = 0
@@ -525,15 +527,15 @@ function M.update(camera_id, dt)
 			offset = vmath.vector3()
 			camera.offset = offset
 		end
-		if camera.shake then
-			offset.x = offset.x + camera.shake.offset.x
-			offset.y = offset.y + camera.shake.offset.y
-			offset.z = offset.z + camera.shake.offset.z
+		if shake then
+			offset.x = offset.x + shake.offset.x
+			offset.y = offset.y + shake.offset.y
+			offset.z = offset.z + shake.offset.z
 		end
-		if camera.recoil then
-			offset.x = offset.x + camera.recoil.offset.x
-			offset.y = offset.y + camera.recoil.offset.y
-			offset.z = offset.z + camera.recoil.offset.z
+		if recoil then
+			offset.x = offset.x + recoil.offset.x
+			offset.y = offset.y + recoil.offset.y
+			offset.z = offset.z + recoil.offset.z
 		end
 	else
 		camera.offset = nil
