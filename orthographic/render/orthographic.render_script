@@ -12,29 +12,33 @@ function init(self)
 	self.text_pred = render.predicate({"text"})
 	self.particle_pred = render.predicate({"particle"})
 
-	self.clear_color = vmath.vector4(0, 0, 0, 0)
-	self.clear_color.x = sys.get_config("render.clear_color_red", 0)
-	self.clear_color.y = sys.get_config("render.clear_color_green", 0)
-	self.clear_color.z = sys.get_config("render.clear_color_blue", 0)
-	self.clear_color.w = sys.get_config("render.clear_color_alpha", 0)
+	local clear_color = vmath.vector4()
+	clear_color.x = sys.get_config("render.clear_color_red", 0)
+	clear_color.y = sys.get_config("render.clear_color_green", 0)
+	clear_color.z = sys.get_config("render.clear_color_blue", 0)
+	clear_color.w = sys.get_config("render.clear_color_alpha", 0)
+	self.clear_buffers = {[render.BUFFER_COLOR_BIT] = clear_color, [render.BUFFER_DEPTH_BIT] = 1, [render.BUFFER_STENCIL_BIT] = 0}
+
+	self.camera_draw_options = {frustum = vmath.matrix4()}
+	self.gui_draw_options = {frustum = vmath.matrix4_orthographic(0, render.get_window_width(), 0, render.get_window_height(), -1, 1)}
 end
 
 function update(self)
 	-- clear color
 	render.set_depth_mask(true)
 	render.set_stencil_mask(0xff)
-	render.clear({[render.BUFFER_COLOR_BIT] = self.clear_color, [render.BUFFER_DEPTH_BIT] = 1, [render.BUFFER_STENCIL_BIT] = 0})
+	render.clear(self.clear_buffers)
 	render.set_depth_mask(false)
-	
+
 	-- set default blend state
 	render.enable_state(render.STATE_BLEND)
 	render.set_blend_func(render.BLEND_SRC_ALPHA, render.BLEND_ONE_MINUS_SRC_ALPHA)
 
 	-- draw world per camera
+	local camera_draw_options = self.camera_draw_options
+	local tile_pred = self.tile_pred
+	local particle_pred = self.particle_pred
 	local cameras = camera.get_cameras()
-	local frustum = nil
-	local view = nil
-	local proj = nil
 	if #cameras > 0 then
 		render.disable_state(render.STATE_DEPTH_TEST)
 		render.disable_state(render.STATE_CULL_FACE)
@@ -42,34 +46,37 @@ function update(self)
 		for _,camera_id in ipairs(cameras) do
 			local viewport = camera.get_viewport(camera_id)
 			render.set_viewport(viewport.x, viewport.y, viewport.z, viewport.w)
-			view = camera.get_view(camera_id)
+			local view = camera.get_view(camera_id)
 			render.set_view(view)
-			proj = camera.get_projection(camera_id)
+			local proj = camera.get_projection(camera_id)
 			render.set_projection(proj)
-			frustum = proj * view
-			render.draw(self.tile_pred, {frustum = frustum})
-			render.draw(self.particle_pred, {frustum = frustum})
+			camera_draw_options.frustum = proj * view
+			render.draw(tile_pred, camera_draw_options)
+			render.draw(particle_pred, camera_draw_options)
 			render.draw_debug3d()
 		end
 	end
-	
+
 	-- draw gui in screen space using an orthographic projection
 	render.disable_state(render.STATE_DEPTH_TEST)
 	render.disable_state(render.STATE_CULL_FACE)
 	render.enable_state(render.STATE_STENCIL_TEST)
-	render.set_viewport(0, 0, render.get_window_width(), render.get_window_height())
-	view = IDENTITY
-	render.set_view(view)
-	proj = vmath.matrix4_orthographic(0, render.get_window_width(), 0, render.get_window_height(), -1, 1)
-	render.set_projection(proj)
-	frustum = proj * view
-	render.draw(self.gui_pred, {frustum = frustum})
-	render.draw(self.text_pred, {frustum = frustum})
+	local window_width = render.get_window_width()
+	local window_height = render.get_window_height()
+	render.set_viewport(0, 0, window_width, window_height)
+	render.set_view(IDENTITY)
+	local gui_draw_options = self.gui_draw_options
+	local gui_proj = gui_draw_options.frustum
+	gui_proj.m00 = 2 / window_width
+	gui_proj.m11 = 2 / window_height
+	render.set_projection(gui_proj)
+	render.draw(self.gui_pred, gui_draw_options)
+	render.draw(self.text_pred, gui_draw_options)
 	render.disable_state(render.STATE_STENCIL_TEST)
 end
 
 function on_message(self, message_id, message)
 	if message_id == CLEAR_COLOR then
-		self.clear_color = message.color
+		self.clear_buffers[render.BUFFER_COLOR_BIT] = message.color
 	end
 end

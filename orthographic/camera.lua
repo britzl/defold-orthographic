@@ -63,6 +63,7 @@ local v3_tmp = vmath.vector3()
 
 local cameras = {}
 local camera_ids = {}
+local enabled_cameras = {}
 -- track if the cameras list has changed or not
 local cameras_dirty = true
 
@@ -225,36 +226,74 @@ end
 
 local function calculate_view(camera, camera_world_pos, offset)
 	local rot = go.get_world_rotation(camera.id)
-	local pos = camera_world_pos - vmath.rotate(rot, OFFSET)
+	local pos = vmath.rotate(rot, OFFSET)
 	if offset then
-		pos = pos + offset
+		pos.x = camera_world_pos.x - pos.x + offset.x
+		pos.y = camera_world_pos.y - pos.y + offset.y
+		pos.z = camera_world_pos.z - pos.z + offset.z
+	else
+		pos.x = camera_world_pos.x - pos.x
+		pos.y = camera_world_pos.y - pos.y
+		pos.z = camera_world_pos.z - pos.z
 	end
 
-	local look_at = pos + vmath.rotate(rot, VECTOR3_MINUS1_Z)
+	local look_at = vmath.rotate(rot, VECTOR3_MINUS1_Z)
+	look_at.x = look_at.x + pos.x
+	look_at.y = look_at.y + pos.y
+	look_at.z = look_at.z + pos.z
 	local up = vmath.rotate(rot, VECTOR3_UP)
 	local view = vmath.matrix4_look_at(pos, look_at, up)
 	return view
 end
 
+local function is_lesser_order(a, b)
+	return a.order < b.order
+end
+
 local function refresh_cameras()
 	if cameras_dirty then
 		cameras_dirty = false
-		local enabled_cameras = {}
-		for camera_id,camera in pairs(cameras) do
+		local old_cam_count = #enabled_cameras
+		local new_cam_count = 0
+		for _, camera in pairs(cameras) do
 			if camera.enabled then
-				enabled_cameras[#enabled_cameras + 1] = camera
+				new_cam_count = new_cam_count + 1
+				enabled_cameras[new_cam_count] = camera
 			end
 		end
-		table.sort(enabled_cameras, function(a, b)
-			return b.order > a.order
-		end)
-		if #enabled_cameras ~= #camera_ids then
-			camera_ids = {}
+		for i = new_cam_count + 1, old_cam_count do
+			enabled_cameras[i] = nil
+			camera_ids[i] = nil
 		end
-		for i=1,#enabled_cameras do
+		table.sort(enabled_cameras, is_lesser_order)
+		for i = 1, new_cam_count do
 			camera_ids[i] = enabled_cameras[i].id
 		end
 	end
+end
+
+local function world_to_screen_mutable(viewport_w, viewport_h, viewport_l, viewport_b, view_projection, world)
+	v4_tmp.x, v4_tmp.y, v4_tmp.z, v4_tmp.w = world.x, world.y, world.z, 1
+	local wvp = view_projection * v4_tmp
+	world.x = ((wvp.x + 1) / 2) * DISPLAY_WIDTH
+	world.y = ((wvp.y + 1) / 2) * DISPLAY_HEIGHT
+	world.z = ((wvp.z + 0) / 2)
+
+	world.x = viewport_l + world.x * (viewport_w / DISPLAY_WIDTH)
+	world.y = viewport_b + world.y * (viewport_h / DISPLAY_HEIGHT)
+end
+
+local function screen_to_world_mutable(viewport_w, viewport_h, viewport_l, viewport_b, inverse_view_projection, screen)
+	local x = (screen.x - viewport_l) * (DISPLAY_WIDTH / viewport_w)
+	local y = (screen.y - viewport_b) * (DISPLAY_HEIGHT / viewport_h)
+
+	local x = (2 * x / DISPLAY_WIDTH) - 1
+	local y = (2 * y / DISPLAY_HEIGHT) - 1
+	local z = (2 * screen.z)
+	local ivp = inverse_view_projection
+	screen.x = x * ivp.m00 + y * ivp.m01 + z * ivp.m02 + ivp.m03
+	screen.y = x * ivp.m10 + y * ivp.m11 + z * ivp.m12 + ivp.m13
+	screen.z = x * ivp.m20 + y * ivp.m21 + z * ivp.m22 + ivp.m23
 end
 
 --- Initialize a camera
@@ -316,8 +355,9 @@ function M.update(camera_id, dt)
 		return
 	end
 
-	local enabled = go.get(camera.url, "enabled")
-	local order = go.get(camera.url, "order")
+	local camera_url = camera.url
+	local enabled = go.get(camera_url, "enabled")
+	local order = go.get(camera_url, "order")
 	cameras_dirty = cameras_dirty or (camera.enabled ~= enabled)
 	cameras_dirty = cameras_dirty or (camera.order ~= order)
 	camera.enabled = enabled
@@ -326,92 +366,15 @@ function M.update(camera_id, dt)
 		return
 	end
 
-	update_window_size()
+	camera.projection_id = go.get(camera_url, "projection")
+	camera.near_z = go.get(camera_url, "near_z")
+	camera.far_z = go.get(camera_url, "far_z")
+	camera.zoom = go.get(camera_url, "zoom")
 
-	local camera_world_pos = go.get_world_position(camera_id)
-	local camera_world_to_local_diff = camera_world_pos - go.get_position(camera_id)
-	local follow_enabled = go.get(camera.url, "follow")
-	if follow_enabled then
-		local follow = go.get(camera.url, "follow_target")
-		if not check_game_object(follow) then
-			log("Camera '%s' has a follow target '%s' that does not exist", tostring(camera_id), tostring(follow))
-		else
-			local follow_horizontal = go.get(camera.url, "follow_horizontal")
-			local follow_vertical = go.get(camera.url, "follow_vertical")
-			local follow_offset = go.get(camera.url, "follow_offset")
-			local target_world_pos = go.get_world_position(follow) + follow_offset
-			local new_pos
-			local deadzone_top = go.get(camera.url, "deadzone_top")
-			local deadzone_left = go.get(camera.url, "deadzone_left")
-			local deadzone_right = go.get(camera.url, "deadzone_right")
-			local deadzone_bottom = go.get(camera.url, "deadzone_bottom")
-			if deadzone_top ~= 0 or deadzone_left ~= 0 or deadzone_right ~= 0 or deadzone_bottom ~= 0 then
-				new_pos = vmath.vector3(camera_world_pos)
-				local left_edge = camera_world_pos.x - deadzone_left
-				local right_edge = camera_world_pos.x + deadzone_right
-				local top_edge = camera_world_pos.y + deadzone_top
-				local bottom_edge = camera_world_pos.y - deadzone_bottom
-				if target_world_pos.x < left_edge then
-					new_pos.x = new_pos.x - (left_edge - target_world_pos.x)
-				elseif target_world_pos.x > right_edge then
-					new_pos.x = new_pos.x + (target_world_pos.x - right_edge)
-				end
-				if target_world_pos.y > top_edge then
-					new_pos.y = new_pos.y + (target_world_pos.y - top_edge)
-				elseif target_world_pos.y < bottom_edge then
-					new_pos.y = new_pos.y - (bottom_edge - target_world_pos.y)
-				end
-			else
-				new_pos = target_world_pos
-			end
-			new_pos.z = camera_world_pos.z
-			if not follow_vertical then
-				new_pos.y = camera_world_pos.y
-			end
-			if not follow_horizontal then
-				new_pos.x = camera_world_pos.x
-			end
-			local follow_lerp = go.get(camera.url, "follow_lerp")
-			camera_world_pos = lerp_with_dt(follow_lerp, dt, camera_world_pos, new_pos)
-			camera_world_pos.z = new_pos.z
-		end
-	end
-
-	local bounds_top = go.get(camera.url, "bounds_top")
-	local bounds_left = go.get(camera.url, "bounds_left")
-	local bounds_bottom = go.get(camera.url, "bounds_bottom")
-	local bounds_right = go.get(camera.url, "bounds_right")
-	if bounds_top ~= 0 or bounds_left ~= 0 or bounds_bottom ~= 0 or bounds_right ~= 0 then
-		local cp = M.world_to_screen(camera_id, vmath.vector3(camera_world_pos))
-		local tr = M.world_to_screen(camera_id, vmath.vector3(bounds_right, bounds_top, 0))
-		local bl = M.world_to_screen(camera_id, vmath.vector3(bounds_left, bounds_bottom, 0))
-
-		local tr_offset = tr - OFFSET
-		local bl_offset = bl + OFFSET
-
-		local bounds_width = tr.x - bl.x
-		if bounds_width < DISPLAY_WIDTH then
-			cp.x = bl.x + bounds_width / 2
-		else
-			cp.x = math.max(cp.x, bl_offset.x)
-			cp.x = math.min(cp.x, tr_offset.x)
-		end
-
-		local bounds_height = tr.y - bl.y
-		if bounds_height < DISPLAY_HEIGHT then
-			cp.y = bl.y + bounds_height / 2
-		else
-			cp.y = math.max(cp.y, bl_offset.y)
-			cp.y = math.min(cp.y, tr_offset.y)
-		end
-
-		camera_world_pos = M.screen_to_world(camera_id, cp)
-	end
-
-	local viewport_top = go.get(camera.url, "viewport_top")
-	local viewport_left = go.get(camera.url, "viewport_left")
-	local viewport_bottom = go.get(camera.url, "viewport_bottom")
-	local viewport_right = go.get(camera.url, "viewport_right")
+	local viewport_top = go.get(camera_url, "viewport_top")
+	local viewport_left = go.get(camera_url, "viewport_left")
+	local viewport_bottom = go.get(camera_url, "viewport_bottom")
+	local viewport_right = go.get(camera_url, "viewport_right")
 	if viewport_top == 0 then
 		viewport_top = WINDOW_HEIGHT
 	end
@@ -423,51 +386,163 @@ function M.update(camera_id, dt)
 	camera.viewport.z = math.max(viewport_right - viewport_left, 1)
 	camera.viewport.w = math.max(viewport_top - viewport_bottom, 1)
 
-	go.set_position(camera_world_pos + camera_world_to_local_diff, camera_id)
+	update_window_size()
 
-
-	if camera.shake then
-		camera.shake.duration = camera.shake.duration - dt
-		if camera.shake.duration < 0 then
-			if camera.shake.cb then camera.shake.cb() end
-			camera.shake = nil
+	local camera_world_pos = go.get_world_position(camera_id)
+	local camera_world_to_local_diff = go.get_position(camera_id)
+	camera_world_to_local_diff.x = camera_world_to_local_diff.x - camera_world_pos.x
+	camera_world_to_local_diff.y = camera_world_to_local_diff.y - camera_world_pos.y
+	camera_world_to_local_diff.z = camera_world_to_local_diff.z - camera_world_pos.z
+	local follow_enabled = go.get(camera_url, "follow")
+	if follow_enabled then
+		local follow = go.get(camera_url, "follow_target")
+		if not check_game_object(follow) then
+			log("Camera '%s' has a follow target '%s' that does not exist", tostring(camera_id), tostring(follow))
 		else
-			if camera.shake.horizontal then
-				camera.shake.offset.x = (DISPLAY_WIDTH * camera.shake.intensity) * (math.random() - 0.5)
+			local follow_horizontal = go.get(camera_url, "follow_horizontal")
+			local follow_vertical = go.get(camera_url, "follow_vertical")
+			local follow_offset = go.get(camera_url, "follow_offset")
+			local new_pos = go.get_world_position(follow)
+			new_pos.x = new_pos.x + follow_offset.x
+			new_pos.y = new_pos.y + follow_offset.y
+			new_pos.z = camera_world_pos.z
+			local deadzone_top = go.get(camera_url, "deadzone_top")
+			local deadzone_left = go.get(camera_url, "deadzone_left")
+			local deadzone_right = go.get(camera_url, "deadzone_right")
+			local deadzone_bottom = go.get(camera_url, "deadzone_bottom")
+			if deadzone_top ~= 0 or deadzone_left ~= 0 or deadzone_right ~= 0 or deadzone_bottom ~= 0 then
+				local left_edge = camera_world_pos.x - deadzone_left
+				local right_edge = camera_world_pos.x + deadzone_right
+				local top_edge = camera_world_pos.y + deadzone_top
+				local bottom_edge = camera_world_pos.y - deadzone_bottom
+				if new_pos.x < left_edge then
+					new_pos.x = camera_world_pos.x - (left_edge - new_pos.x)
+				elseif new_pos.x > right_edge then
+					new_pos.x = camera_world_pos.x + (new_pos.x - right_edge)
+				else
+					new_pos.x = camera_world_pos.x
+				end
+				if new_pos.y > top_edge then
+					new_pos.y = camera_world_pos.y + (new_pos.y - top_edge)
+				elseif new_pos.y < bottom_edge then
+					new_pos.y = camera_world_pos.y - (bottom_edge - new_pos.y)
+				else
+					new_pos.y = camera_world_pos.y
+				end
 			end
-			if camera.shake.vertical then
-				camera.shake.offset.y = (DISPLAY_WIDTH * camera.shake.intensity) * (math.random() - 0.5)
+			if not follow_vertical then
+				new_pos.y = camera_world_pos.y
 			end
+			if not follow_horizontal then
+				new_pos.x = camera_world_pos.x
+			end
+			local follow_lerp = go.get(camera_url, "follow_lerp")
+			camera_world_pos = lerp_with_dt(follow_lerp, dt, camera_world_pos, new_pos)
+			camera_world_pos.z = new_pos.z
 		end
 	end
 
-	if camera.recoil then
-		camera.recoil.time_left = camera.recoil.time_left - dt
-		if camera.recoil.time_left < 0 then
-			camera.recoil = nil
+	local bounds_top = go.get(camera_url, "bounds_top")
+	local bounds_left = go.get(camera_url, "bounds_left")
+	local bounds_bottom = go.get(camera_url, "bounds_bottom")
+	local bounds_right = go.get(camera_url, "bounds_right")
+	if bounds_top ~= 0 or bounds_left ~= 0 or bounds_bottom ~= 0 or bounds_right ~= 0 then
+		local viewport = camera.viewport
+		local viewport_w = viewport.z * DISPLAY_WIDTH / WINDOW_WIDTH
+		local viewport_h = viewport.w * DISPLAY_HEIGHT / WINDOW_HEIGHT
+		local viewport_l = viewport.x * DISPLAY_WIDTH / WINDOW_WIDTH
+		local viewport_b = viewport.y * DISPLAY_HEIGHT / WINDOW_HEIGHT
+		local view = camera.view or MATRIX4
+		local projection = camera.projection or MATRIX4
+		local view_projection = view * projection
+
+		world_to_screen_mutable(viewport_w, viewport_h, viewport_l, viewport_b, view_projection, camera_world_pos)
+
+		v3_tmp.x, v3_tmp.y, v3_tmp.z = bounds_right, bounds_top, 0
+		world_to_screen_mutable(viewport_w, viewport_h, viewport_l, viewport_b, view_projection, v3_tmp)
+		local tr_x, tr_y = v3_tmp.x, v3_tmp.y
+
+		v3_tmp.x, v3_tmp.y, v3_tmp.z = bounds_left, bounds_bottom, 0
+		world_to_screen_mutable(viewport_w, viewport_h, viewport_l, viewport_b, view_projection, v3_tmp)
+		local bl_x, bl_y = v3_tmp.x, v3_tmp.y
+
+		local bounds_width = tr_x - bl_x
+		if bounds_width < DISPLAY_WIDTH then
+			camera_world_pos.x = bl_x + bounds_width / 2
 		else
-			local t = camera.recoil.time_left / camera.recoil.duration
-			camera.recoil.offset = vmath.lerp(t, VECTOR3_ZERO, camera.recoil.offset)
+			camera_world_pos.x = math.max(camera_world_pos.x, bl_x + OFFSET.x)
+			camera_world_pos.x = math.min(camera_world_pos.x, tr_x - OFFSET.x)
+		end
+
+		local bounds_height = tr_y - bl_y
+		if bounds_height < DISPLAY_HEIGHT then
+			camera_world_pos.y = bl_y + bounds_height / 2
+		else
+			camera_world_pos.y = math.max(camera_world_pos.y, bl_y + OFFSET.y)
+			camera_world_pos.y = math.min(camera_world_pos.y, tr_y - OFFSET.y)
+		end
+
+		screen_to_world_mutable(viewport_w, viewport_h, viewport_l, viewport_b, vmath.inv(view_projection), camera_world_pos)
+	end
+
+	v3_tmp.x = camera_world_pos.x + camera_world_to_local_diff.x
+	v3_tmp.y = camera_world_pos.y + camera_world_to_local_diff.y
+	v3_tmp.z = camera_world_pos.z + camera_world_to_local_diff.z
+	go.set_position(v3_tmp, camera_id)
+
+
+	local shake = camera.shake
+	if shake then
+		shake.duration = shake.duration - dt
+		if shake.duration < 0 then
+			if shake.cb then shake.cb() end
+			camera.shake, shake = nil, nil
+		else
+			if shake.horizontal then
+				shake.offset.x = (DISPLAY_WIDTH * shake.intensity) * (math.random() - 0.5)
+			end
+			if shake.vertical then
+				shake.offset.y = (DISPLAY_WIDTH * shake.intensity) * (math.random() - 0.5)
+			end
 		end
 	end
 
-	local offset
-	if camera.shake or camera.recoil then
-		offset = VECTOR3_ZERO
-		if camera.shake then
-			offset = offset + camera.shake.offset
-		end
-		if camera.recoil then
-			offset = offset + camera.recoil.offset
+	local recoil = camera.recoil
+	if recoil then
+		recoil.time_left = recoil.time_left - dt
+		if recoil.time_left < 0 then
+			camera.recoil, recoil = nil, nil
+		else
+			local t = recoil.time_left / recoil.duration
+			recoil.offset = vmath.lerp(t, VECTOR3_ZERO, recoil.offset)
 		end
 	end
-	camera.offset = offset
 
-	camera.projection_id = go.get(camera.url, "projection")
-	camera.near_z = go.get(camera.url, "near_z")
-	camera.far_z = go.get(camera.url, "far_z")
-	camera.zoom = go.get(camera.url, "zoom")
-	camera.view = calculate_view(camera, camera_world_pos, offset)
+	if shake or recoil then
+		local offset = camera.offset
+		if offset then
+			offset.x = 0
+			offset.y = 0
+			offset.z = 0
+		else
+			offset = vmath.vector3()
+			camera.offset = offset
+		end
+		if shake then
+			offset.x = offset.x + shake.offset.x
+			offset.y = offset.y + shake.offset.y
+			offset.z = offset.z + shake.offset.z
+		end
+		if recoil then
+			offset.x = offset.x + recoil.offset.x
+			offset.y = offset.y + recoil.offset.y
+			offset.z = offset.z + recoil.offset.z
+		end
+	else
+		camera.offset = nil
+	end
+
+	camera.view = calculate_view(camera, camera_world_pos, camera.offset)
 	camera.projection = calculate_projection(camera)
 
 	refresh_cameras()
@@ -603,7 +678,7 @@ end
 -- @param duration Duration of the recoil. Optional, default: 0.5s.
 function M.recoil(camera_id, offset, duration)
 	camera_id = camera_id or camera_ids[1]
-	assert(camera_id, "You must provide a strength id")
+	assert(camera_id, "You must provide a camera id")
 	cameras[camera_id].recoil = {
 		offset = offset,
 		duration = duration or 0.5,
