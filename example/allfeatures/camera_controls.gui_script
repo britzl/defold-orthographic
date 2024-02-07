@@ -21,7 +21,6 @@ function init(self)
 	self.deadzone_enabled = false
 	self.current_projection = 1
 	self.lerp = 0
-	msg.post("#", "use_projector")
 end
 
 local function get_scaling_factor()
@@ -151,8 +150,6 @@ function on_input(self, action_id, action)
 			camera.use_projector(CAMERA_ID, PROJECTIONS[self.current_projection])
 			return true
 		end
-	elseif message_id == hash("use_projector") then
-		camera.use_projector(CAMERA_ID, PROJECTIONS[self.current_projection])
 	end
 end
 
