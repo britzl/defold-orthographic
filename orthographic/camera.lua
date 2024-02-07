@@ -326,6 +326,11 @@ function M.update(camera_id, dt)
 		return
 	end
 
+	camera.projection_id = go.get(camera.url, "projection")
+	camera.near_z = go.get(camera.url, "near_z")
+	camera.far_z = go.get(camera.url, "far_z")
+	camera.zoom = go.get(camera.url, "zoom")
+
 	local viewport_top = go.get(camera.url, "viewport_top")
 	local viewport_left = go.get(camera.url, "viewport_left")
 	local viewport_bottom = go.get(camera.url, "viewport_bottom")
@@ -463,10 +468,6 @@ function M.update(camera_id, dt)
 	end
 	camera.offset = offset
 
-	camera.projection_id = go.get(camera.url, "projection")
-	camera.near_z = go.get(camera.url, "near_z")
-	camera.far_z = go.get(camera.url, "far_z")
-	camera.zoom = go.get(camera.url, "zoom")
 	camera.view = calculate_view(camera, camera_world_pos, offset)
 	camera.projection = calculate_projection(camera)
 
