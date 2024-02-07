@@ -326,6 +326,21 @@ function M.update(camera_id, dt)
 		return
 	end
 
+	local viewport_top = go.get(camera.url, "viewport_top")
+	local viewport_left = go.get(camera.url, "viewport_left")
+	local viewport_bottom = go.get(camera.url, "viewport_bottom")
+	local viewport_right = go.get(camera.url, "viewport_right")
+	if viewport_top == 0 then
+		viewport_top = WINDOW_HEIGHT
+	end
+	if viewport_right == 0 then
+		viewport_right = WINDOW_WIDTH
+	end
+	camera.viewport.x = viewport_left
+	camera.viewport.y = viewport_bottom
+	camera.viewport.z = math.max(viewport_right - viewport_left, 1)
+	camera.viewport.w = math.max(viewport_top - viewport_bottom, 1)
+
 	update_window_size()
 
 	local camera_world_pos = go.get_world_position(camera_id)
@@ -407,21 +422,6 @@ function M.update(camera_id, dt)
 
 		camera_world_pos = M.screen_to_world(camera_id, cp)
 	end
-
-	local viewport_top = go.get(camera.url, "viewport_top")
-	local viewport_left = go.get(camera.url, "viewport_left")
-	local viewport_bottom = go.get(camera.url, "viewport_bottom")
-	local viewport_right = go.get(camera.url, "viewport_right")
-	if viewport_top == 0 then
-		viewport_top = WINDOW_HEIGHT
-	end
-	if viewport_right == 0 then
-		viewport_right = WINDOW_WIDTH
-	end
-	camera.viewport.x = viewport_left
-	camera.viewport.y = viewport_bottom
-	camera.viewport.z = math.max(viewport_right - viewport_left, 1)
-	camera.viewport.w = math.max(viewport_top - viewport_bottom, 1)
 
 	go.set_position(camera_world_pos + camera_world_to_local_diff, camera_id)
 
