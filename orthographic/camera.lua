@@ -355,8 +355,9 @@ function M.update(camera_id, dt)
 		return
 	end
 
-	local enabled = go.get(camera.url, "enabled")
-	local order = go.get(camera.url, "order")
+	local camera_url = camera.url
+	local enabled = go.get(camera_url, "enabled")
+	local order = go.get(camera_url, "order")
 	cameras_dirty = cameras_dirty or (camera.enabled ~= enabled)
 	cameras_dirty = cameras_dirty or (camera.order ~= order)
 	camera.enabled = enabled
@@ -365,15 +366,15 @@ function M.update(camera_id, dt)
 		return
 	end
 
-	camera.projection_id = go.get(camera.url, "projection")
-	camera.near_z = go.get(camera.url, "near_z")
-	camera.far_z = go.get(camera.url, "far_z")
-	camera.zoom = go.get(camera.url, "zoom")
+	camera.projection_id = go.get(camera_url, "projection")
+	camera.near_z = go.get(camera_url, "near_z")
+	camera.far_z = go.get(camera_url, "far_z")
+	camera.zoom = go.get(camera_url, "zoom")
 
-	local viewport_top = go.get(camera.url, "viewport_top")
-	local viewport_left = go.get(camera.url, "viewport_left")
-	local viewport_bottom = go.get(camera.url, "viewport_bottom")
-	local viewport_right = go.get(camera.url, "viewport_right")
+	local viewport_top = go.get(camera_url, "viewport_top")
+	local viewport_left = go.get(camera_url, "viewport_left")
+	local viewport_bottom = go.get(camera_url, "viewport_bottom")
+	local viewport_right = go.get(camera_url, "viewport_right")
 	if viewport_top == 0 then
 		viewport_top = WINDOW_HEIGHT
 	end
@@ -392,23 +393,23 @@ function M.update(camera_id, dt)
 	camera_world_to_local_diff.x = camera_world_to_local_diff.x - camera_world_pos.x
 	camera_world_to_local_diff.y = camera_world_to_local_diff.y - camera_world_pos.y
 	camera_world_to_local_diff.z = camera_world_to_local_diff.z - camera_world_pos.z
-	local follow_enabled = go.get(camera.url, "follow")
+	local follow_enabled = go.get(camera_url, "follow")
 	if follow_enabled then
-		local follow = go.get(camera.url, "follow_target")
+		local follow = go.get(camera_url, "follow_target")
 		if not check_game_object(follow) then
 			log("Camera '%s' has a follow target '%s' that does not exist", tostring(camera_id), tostring(follow))
 		else
-			local follow_horizontal = go.get(camera.url, "follow_horizontal")
-			local follow_vertical = go.get(camera.url, "follow_vertical")
-			local follow_offset = go.get(camera.url, "follow_offset")
+			local follow_horizontal = go.get(camera_url, "follow_horizontal")
+			local follow_vertical = go.get(camera_url, "follow_vertical")
+			local follow_offset = go.get(camera_url, "follow_offset")
 			local new_pos = go.get_world_position(follow)
 			new_pos.x = new_pos.x + follow_offset.x
 			new_pos.y = new_pos.y + follow_offset.y
 			new_pos.z = camera_world_pos.z
-			local deadzone_top = go.get(camera.url, "deadzone_top")
-			local deadzone_left = go.get(camera.url, "deadzone_left")
-			local deadzone_right = go.get(camera.url, "deadzone_right")
-			local deadzone_bottom = go.get(camera.url, "deadzone_bottom")
+			local deadzone_top = go.get(camera_url, "deadzone_top")
+			local deadzone_left = go.get(camera_url, "deadzone_left")
+			local deadzone_right = go.get(camera_url, "deadzone_right")
+			local deadzone_bottom = go.get(camera_url, "deadzone_bottom")
 			if deadzone_top ~= 0 or deadzone_left ~= 0 or deadzone_right ~= 0 or deadzone_bottom ~= 0 then
 				local left_edge = camera_world_pos.x - deadzone_left
 				local right_edge = camera_world_pos.x + deadzone_right
@@ -435,16 +436,16 @@ function M.update(camera_id, dt)
 			if not follow_horizontal then
 				new_pos.x = camera_world_pos.x
 			end
-			local follow_lerp = go.get(camera.url, "follow_lerp")
+			local follow_lerp = go.get(camera_url, "follow_lerp")
 			camera_world_pos = lerp_with_dt(follow_lerp, dt, camera_world_pos, new_pos)
 			camera_world_pos.z = new_pos.z
 		end
 	end
 
-	local bounds_top = go.get(camera.url, "bounds_top")
-	local bounds_left = go.get(camera.url, "bounds_left")
-	local bounds_bottom = go.get(camera.url, "bounds_bottom")
-	local bounds_right = go.get(camera.url, "bounds_right")
+	local bounds_top = go.get(camera_url, "bounds_top")
+	local bounds_left = go.get(camera_url, "bounds_left")
+	local bounds_bottom = go.get(camera_url, "bounds_bottom")
+	local bounds_right = go.get(camera_url, "bounds_right")
 	if bounds_top ~= 0 or bounds_left ~= 0 or bounds_bottom ~= 0 or bounds_right ~= 0 then
 		local viewport = camera.viewport
 		local viewport_w = viewport.z * DISPLAY_WIDTH / WINDOW_WIDTH
