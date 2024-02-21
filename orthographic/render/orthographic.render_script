@@ -52,20 +52,24 @@ function update(self)
 			render.draw_debug3d()
 		end
 	end
-	
-	-- draw gui in screen space using an orthographic projection
-	render.disable_state(render.STATE_DEPTH_TEST)
-	render.disable_state(render.STATE_CULL_FACE)
-	render.enable_state(render.STATE_STENCIL_TEST)
-	render.set_viewport(0, 0, render.get_window_width(), render.get_window_height())
-	view = IDENTITY
-	render.set_view(view)
-	proj = vmath.matrix4_orthographic(0, render.get_window_width(), 0, render.get_window_height(), -1, 1)
-	render.set_projection(proj)
-	frustum = proj * view
-	render.draw(self.gui_pred, {frustum = frustum})
-	render.draw(self.text_pred, {frustum = frustum})
-	render.disable_state(render.STATE_STENCIL_TEST)
+
+	local window_width = render.get_window_width()
+	local window_height = render.get_window_height()
+	if window_width > 0 and window_height > 0 then
+		-- draw gui in screen space using an orthographic projection
+		render.disable_state(render.STATE_DEPTH_TEST)
+		render.disable_state(render.STATE_CULL_FACE)
+		render.enable_state(render.STATE_STENCIL_TEST)
+		render.set_viewport(0, 0, window_width, window_height)
+		view = IDENTITY
+		render.set_view(view)
+		proj = vmath.matrix4_orthographic(0, window_width, 0, window_height, -1, 1)
+		render.set_projection(proj)
+		frustum = proj * view
+		render.draw(self.gui_pred, {frustum = frustum})
+		render.draw(self.text_pred, {frustum = frustum})
+		render.disable_state(render.STATE_STENCIL_TEST)
+	end
 end
 
 function on_message(self, message_id, message)
