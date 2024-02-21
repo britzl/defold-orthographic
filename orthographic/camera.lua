@@ -33,9 +33,9 @@ M.PROJECTOR.DEFAULT = hash("DEFAULT")
 M.PROJECTOR.FIXED_AUTO = hash("FIXED_AUTO")
 M.PROJECTOR.FIXED_ZOOM = hash("FIXED_ZOOM")
 
-local DISPLAY_WIDTH = tonumber(sys.get_config("display.width")) or 960
-local DISPLAY_HEIGHT = tonumber(sys.get_config("display.height")) or 640
-local UPDATE_FREQUENCY = tonumber(sys.get_config("display.update_frequency") or sys.get_config("display.frame_cap"))
+local DISPLAY_WIDTH = sys.get_config_number("display.width") or 960
+local DISPLAY_HEIGHT = sys.get_config_number("display.height") or 640
+local UPDATE_FREQUENCY = sys.get_config_number("display.update_frequency") or sys.get_config_number("display.frame_cap")
 if UPDATE_FREQUENCY == 0 then UPDATE_FREQUENCY = 60 end
 
 local WINDOW_WIDTH = DISPLAY_WIDTH

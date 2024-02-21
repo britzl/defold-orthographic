@@ -2,8 +2,8 @@ local deftest = require "deftest.deftest"
 local telescope = require "deftest.telescope"
 local camera = require "orthographic.camera"
 
-local WIDTH = tonumber(sys.get_config("display.width"))
-local HEIGHT = tonumber(sys.get_config("display.height"))
+local WIDTH = sys.get_config_number("display.width")
+local HEIGHT = sys.get_config_number("display.height")
 local DISPLAY_CENTER = vmath.vector3(WIDTH / 2, HEIGHT / 2, 0)
 local HIGHDPI = (sys.get_config("display.high_dpi", "0") == "1")
 
