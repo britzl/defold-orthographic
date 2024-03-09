@@ -59,6 +59,7 @@ function on_input(self, action_id, action)
 		if self.crosshair and action_id == hash("touch") and action.released then
 			local crosshair_world = go.get_position("crosshair")
 			local player_world = go.get_position()
+			msg.post("@render:", "draw_line", { start_point = player_world, end_point = crosshair_world, color = vmath.vector4(0, 1, 0, 1) } )
 			local offset = (crosshair_world - player_world) * 0.1
 			camera.recoil(CAMERA_ID, offset, 0.5)
 		end
