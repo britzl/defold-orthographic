@@ -9,7 +9,7 @@ local IDENTITY = vmath.matrix4()
 function init(self)
 	self.tile_pred = render.predicate({"tile"})
 	self.gui_pred = render.predicate({"gui"})
-	self.text_pred = render.predicate({"text"})
+	self.text_pred = render.predicate({"debug_text"})
 	self.particle_pred = render.predicate({"particle"})
 
 	self.clear_color = vmath.vector4(0, 0, 0, 0)
