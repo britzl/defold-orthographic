@@ -436,7 +436,7 @@ function M.update(camera_id, dt)
 				camera.shake.offset.x = (DISPLAY_WIDTH * camera.shake.intensity) * (math.random() - 0.5)
 			end
 			if camera.shake.vertical then
-				camera.shake.offset.y = (DISPLAY_WIDTH * camera.shake.intensity) * (math.random() - 0.5)
+				camera.shake.offset.y = (DISPLAY_HEIGHT * camera.shake.intensity) * (math.random() - 0.5)
 			end
 		end
 	end
