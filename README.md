@@ -11,15 +11,7 @@ https://github.com/britzl/defold-orthographic/archive/master.zip
 Or point to the ZIP file of a [specific release](https://github.com/britzl/defold-orthographic/releases).
 
 ## Quick Start
-Getting started with Orthographic is easy:
-
-1. Add `camera.go` to your game.
-2. Open `game.project` and make sure to reference `orthographic/render/orthographic.render` in the `Render` field in the `Bootstrap` section.
-
-Next step is to read the section on "Camera Configuration" to learn how to change the behavior of the camera.
-
-## Camera Configuration
-Select the script component attached to the `camera.go` to modify the properties. The camera has the following configurable properties:
+Getting started with Orthographic is easy. Just add a `camera.go` to your game and configure the script properties of the `camera.script` attached to `camera.go`. The camera has the following configurable properties:
 
 #### near_z (number) and far_z (number)
 This is the near and far z-values used in the projection matrix, ie the near and far clipping plane. Anything with a z-value inside this range will be drawn by the render script.
@@ -33,18 +25,11 @@ Note that when using `go.animate()`, `go.get()` and `go.set()` you need to make 
 * `go.set("mycamera#camerascript", "zoom")`
 * `go.get("mycamera#camerascript", "zoom")`
 
+#### auto_zoom (boolean)
+Check this property if you wish the camera to automatically adjust the zoom to fit the area covered by the display width and height defined in game.project on the screen regardless of actual physical screen resolution. This means that the camera will zoom out when the content is viewed on a screen with a lower resolution, and zoom in when the content is viewed on a higher resolution screen.
+
 #### order (number)
-The order in which multiple cameras should be drawn, lower is drawn first.
-
-#### projection (hash)
-The camera can be configured to support different kinds of orthographic projections. The default projection (aptly named `DEFAULT`) uses the same orthographic projection matrix as in the default render script (ie aspect ratio isn't maintained and content is stretched). Other projections are available out-of-the box:
-
-* `FIXED_AUTO` - A fixed aspect ratio projection that automatically zooms in/out to fit the original viewport contents regardless of window size.
-* `FIXED_ZOOM` - A fixed aspect ratio projection with zoom.
-
-Note: For the above projections to work you need to pass the window dimensions from your render script to the camera. See [the section on render script integration](#render-script-integration).
-
-Additional custom projections can be added, see `camera.add_projector()` below.
+This value is used to sort the cameras in the list returned by `camera.get_cameras()`, from low to high values. In a multi-camera scenario the order can be used to control which camera to render first. This is for instance used in `orthographic/render/orthographic.render_script`.
 
 #### enabled (boolean)
 This controls if the camera is enabled by default or not. Send `enable` and `disable` messages to the script or use `go.set(id, "enable", true|false)` to toggle this value.
@@ -80,37 +65,8 @@ The camera deadzone. See `camera.deadzone()` for details.
 The camera viewport.
 
 
-## Render script integration
-In order for the Orthographic camera to function properly you need to integrate it in your render script. You can do this in a number of different ways:
-
-### 1. Using the provided render script
-The Orthographic API comes with a ready to use render script in `orthographic/render/orthograpic.render_script`. Open `game.project` and make sure to reference `orthographic/render/orthograpic.render` in the `Render` field in the `Bootstrap` section.
-
-### 2. Integrating in an existing render script
-Get a list of active cameras and apply the camera viewport, view and projection before drawing:
-
-```
-	local camera = require "orthographic.camera"
-
-	function update(self)
-		...
-		for _,camera_id in ipairs(camera.get_cameras()) do
-			local viewport = camera.get_viewport(camera_id)
-			local view = camera.get_view(camera_id)
-			local projection = camera.get_projection(camera_id)
-
-			render.set_viewport(viewport.x, viewport.y, viewport.z, viewport.w)
-			render.set_view(view)
-			render.set_projection(projection)
-
-			-- draw using the viewport, view and projection
-			...
-		end
-	end
-```
-
-### Example render script
-The `orthographic/render` folder contains a render script that does the above mentioned integration of the Orthographic Camera API. Use it as it is or copy it into your project and make whatever modifications that you need.
+### Using multiple cameras or custom viewports
+The default render script will always only render a single camera with a viewport covering the entire screen. In order to use multiple cameras or render the camera using a custom viewport you need to modify the render script or use the render script included in `orthographic/render/orthographic.render_script`
 
 
 ## Window vs Screen coordinates
@@ -160,15 +116,6 @@ Get the current projection of the camera.
 
 **RETURN**
 * `projection` (matrix) The current projection
-
-### camera.get_projection_id(camera_id)
-Get the current projection id of the camera.
-
-**PARAMETERS**
-* `camera_id` (hash|url|nil) nil for the first camera
-
-**RETURN**
-* `projection_id` (hash) The current projection id
 
 ---
 
@@ -223,6 +170,20 @@ Change the zoom level of the camera.
 **PARAMETERS**
 * `camera_id` (hash|url|nil) nil for the first camera
 * `zoom` (number) The new zoom level of the camera
+
+
+### camera.get_automatic_zoom(camera_id)
+Get if the camera is configured to use automatic zoom level.
+
+**RETURN**
+* `auto_zoom` (boolean) True if automatic zoom is enabled
+
+
+### camera.set_automatic_zoom(camera_id, enabled)
+Set if the camera should use automatic zoom level.
+
+**PARAM**
+* `enabled` (boolean) True if automatic zoom should be enabled
 
 ---
 
@@ -361,23 +322,6 @@ Translate world coordinates to [screen coordinates](#screen-coordinates) using t
 
 ---
 
-### camera.add_projector(projector_id, projector_fn)
-Add a custom projector that can be used by cameras in your project (see configuration above).
-
-**PARAMETERS**
-* `projector_id` (hash) - Id of the projector. Used as a value in the `projection` field of the camera script.
-* `projector_fn` (function) - The function to call when a projection matrix is needed for the camera. The function will receive the id, near_z and far_z values of the camera.
-
-
-### camera.use_projector(camera_id, projector_id)
-Set a specific projector for a camera. This must be either one of the predefined projectors (see above) or a custom projector added using `camera.add_projector()`.
-
-**PARAMETERS**
-* `camera_id` (hash|url|nil) nil for the first camera
-* `projector_id` (hash) - Id of the projector.
-
----
-
 ### camera.set_window_scaling_factor(scaling_factor)
 Set window scaling factor (basically retina or no retina screen). There is no built-in way to detect if Defold is running on a retina or non retina screen. This information combined with the High DPI setting in game.project can be used to ensure that the zoom behaves the same way regardless of screen type and High DPI setting. You can use an extension such as [DefOS](https://github.com/subsoap/defos) to get the window scaling factor.
 
@@ -452,6 +396,11 @@ Message equivalent to `camera.bounds()`. Accepted message keys: `left`, `right`,
 Message equivalent to `camera.zoom_to()`. Accepted message keys: `zoom`.
 
 	msg.post("camera", "zoom_to", { zoom = 2.5 })
+
+### set_automatic_zoom
+Message equivalent to `camera.set_automatic_zoom()`. Accepted message keys: `enabled`.
+
+	msg.post("camera", "set_automatic_zoom", { enabled = true })
 
 ### enable
 Enable the camera. While the camera is enabled it will update it's view and projection and send these to the render script.

@@ -5,21 +5,9 @@ instances {
   position {
     x: 199.937
     y: 470.962
-    z: 0.0
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
   }
   component_properties {
     id: "script"
-    properties {
-      id: "projection"
-      value: "FIXED_ZOOM"
-      type: PROPERTY_TYPE_HASH
-    }
     properties {
       id: "follow"
       value: "true"
@@ -36,29 +24,11 @@ instances {
       type: PROPERTY_TYPE_HASH
     }
   }
-  scale3 {
-    x: 1.0
-    y: 1.0
-    z: 1.0
-  }
 }
 instances {
   id: "crosshair"
   prototype: "/example/shared/objects/crosshair.go"
   position {
-    x: 0.0
-    y: 0.0
-    z: 1.0
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
-  }
-  scale3 {
-    x: 1.0
-    y: 1.0
     z: 1.0
   }
 }
@@ -69,12 +39,6 @@ instances {
     x: 344.0
     y: 321.0
     z: 0.5
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
   }
   component_properties {
     id: "script"
@@ -89,11 +53,6 @@ instances {
       type: PROPERTY_TYPE_NUMBER
     }
   }
-  scale3 {
-    x: 1.0
-    y: 1.0
-    z: 1.0
-  }
 }
 scale_along_z: 0
 embedded_instances {
@@ -101,36 +60,10 @@ embedded_instances {
   data: "components {\n"
   "  id: \"tilemap\"\n"
   "  component: \"/example/allfeatures/top_down.tilemap\"\n"
-  "  position {\n"
-  "    x: 0.0\n"
-  "    y: 0.0\n"
-  "    z: 0.0\n"
-  "  }\n"
-  "  rotation {\n"
-  "    x: 0.0\n"
-  "    y: 0.0\n"
-  "    z: 0.0\n"
-  "    w: 1.0\n"
-  "  }\n"
-  "  property_decls {\n"
-  "  }\n"
   "}\n"
   ""
   position {
-    x: 0.0
-    y: 0.0
     z: -1.0
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
-  }
-  scale3 {
-    x: 1.0
-    y: 1.0
-    z: 1.0
   }
 }
 embedded_instances {
@@ -138,35 +71,6 @@ embedded_instances {
   data: "components {\n"
   "  id: \"camera_controls\"\n"
   "  component: \"/example/allfeatures/camera_controls.gui\"\n"
-  "  position {\n"
-  "    x: 0.0\n"
-  "    y: 0.0\n"
-  "    z: 0.0\n"
-  "  }\n"
-  "  rotation {\n"
-  "    x: 0.0\n"
-  "    y: 0.0\n"
-  "    z: 0.0\n"
-  "    w: 1.0\n"
-  "  }\n"
-  "  property_decls {\n"
-  "  }\n"
   "}\n"
   ""
-  position {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
-  }
-  scale3 {
-    x: 1.0
-    y: 1.0
-    z: 1.0
-  }
 }

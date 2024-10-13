@@ -1,15 +1,14 @@
 components {
   id: "script"
   component: "/orthographic/camera.script"
-  position {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
-  }
+}
+embedded_components {
+  id: "camera"
+  type: "camera"
+  data: "aspect_ratio: 0.0\n"
+  "fov: 0.0\n"
+  "near_z: -1.0\n"
+  "far_z: 1.0\n"
+  "orthographic_projection: 1\n"
+  ""
 }

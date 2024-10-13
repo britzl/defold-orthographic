@@ -18,7 +18,5 @@ function on_message(self, message_id, message, sender)
 	elseif message_id == hash("show") then
 		local id = message.id
 		show(self, "#" .. id)
-	else
-		print(message_id)
 	end
 end
