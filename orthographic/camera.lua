@@ -213,13 +213,13 @@ end
 
 local function update_from_properties(camera)
 	-- from camera component
-	camera.near_z = go.get(camera.component_url, "near_z")
-	camera.far_z = go.get(camera.component_url, "far_z")
-	camera.zoom = go.get(camera.component_url, "orthographic_zoom")
 	camera.view = go.get(camera.component_url, "view")
 	camera.projection = go.get(camera.component_url, "projection")
 
 	-- from script component
+	camera.near_z = go.get(camera.url, "near_z")
+	camera.far_z = go.get(camera.url, "far_z")
+	camera.zoom = go.get(camera.url, "zoom")
 	camera.automatic_zoom = go.get(camera.url, "automatic_zoom")
 	if camera.automatic_zoom then
 		local zoom = calculate_auto_zoom(camera)
@@ -438,7 +438,6 @@ function M.update(camera_id, dt)
 
 
 	local new_camera_position = camera_world_pos + camera_world_to_local_diff + camera.offset - previous_offset
-	--local new_camera_position = camera.offset - previous_offset
 	go.set_position(new_camera_position, camera_id)
 	
 	refresh_cameras()

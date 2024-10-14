@@ -51,9 +51,10 @@ end
 
 function init(self)
 	msg.post("@render:", "use_camera_projection")
+	self.id = go.get_id()
 	set_camera_properties(self)
-	camera.init(go.get_id(), nil, { zoom = self.zoom })
-	camera.update(go.get_id(), 0)
+	camera.init(self.id, nil, { zoom = self.zoom })
+	camera.update(self.id, 0)
 	if self.enabled then
 		if self.follow and self.follow_immediately then
 			position_on_follow(self)
@@ -62,11 +63,11 @@ function init(self)
 end
 
 function final(self)
-	camera.final(go.get_id())
+	camera.final(self.id)
 end
 
 function update(self, dt)
-	camera.update(go.get_id(), dt)
+	camera.update(self.id, dt)
 	set_camera_properties(self)
 end
 
@@ -116,13 +117,13 @@ function on_message(self, message_id, message, sender)
 		self.viewport_left = message.left or 0
 		self.viewport_bottom = message.bottom or 0
 	elseif message_id == camera.MSG_SHAKE then
-		camera.shake(go.get_id(), message.intensity, message.duration, message.direction, function()
+		camera.shake(self.id, message.intensity, message.duration, message.direction, function()
 			msg.post(sender, camera.MSG_SHAKE_COMPLETED)
 		end)
 	elseif message_id == camera.MSG_RECOIL then
-		camera.recoil(go.get_id(), message.offset, message.duration)
+		camera.recoil(self.id, message.offset, message.duration)
 	elseif message_id == camera.MSG_STOP_SHAKING then
-		camera.stop_shaking(go.get_id())
+		camera.stop_shaking(self.id)
 	elseif message_id == camera.MSG_ZOOM_TO then
 		assert(message.zoom, "You must provide a zoom level")
 		self.zoom = message.zoom
