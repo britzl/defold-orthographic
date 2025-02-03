@@ -20,8 +20,6 @@ M.MSG_ZOOM_TO = hash("zoom_to")
 M.MSG_SET_AUTOMATIC_ZOOM = hash("set_automatic_zoom")
 M.MSG_VIEWPORT = hash("viewport")
 
-
-local HIGH_DPI = (sys.get_config("display.high_dpi", "0") == "1")
 local dpi_ratio = nil
 
 M.SHAKE_BOTH = hash("both")
@@ -86,32 +84,28 @@ end
 
 
 function M.add_projector()
-	error("add_projector is deprecated")
+	error("add_projector() is deprecated")
 end
 function M.use_projector()
-	error("use_projector is deprecated")
+	error("use_projector() is deprecated")
 end
 function M.get_projection_id()
-	error("get_projection_id is deprecated")
+	error("get_projection_id() is deprecated")
 end
 function M.send_view_projection()
-	error("send_view_projection is deprecated")
+	error("send_view_projection() is deprecated")
+end
+function M.set_window_scaling_factor(scaling_factor)
+	error("set_window_scaling_factor() is deprecated")
 end
 
---- Set window scaling factor (basically retina or no retina screen)
--- There is no built-in way to detect if Defold is running on a retina or
--- non retina screen. This information combined with the High DPI setting
--- in game.project can be used to ensure that the zoom behaves the same way
--- regardless of screen type and High DPI setting.
--- You can use an extension such as DefOS to get the window scaling factor.
--- @param scaling_factor Scaling factor of the display (1=normal, 2=retina)
-function M.set_window_scaling_factor(scaling_factor)
-	assert(scaling_factor, "You must provide a scaling factor")
-	if HIGH_DPI then
-		dpi_ratio = 1 / scaling_factor
-	else
-		dpi_ratio = 1
-	end
+--- Set the DPI ratio of the screen.
+-- This is calculcated as the minimum ratio between game.project
+-- width/height and actual width/height
+-- @param dpi_ratio
+function M.set_dpi_ratio(ratio)
+	assert(ratio)
+	dpi_ratio = ratio
 end
 
 --- Update the window size
@@ -121,10 +115,6 @@ local function update_window_size()
 	local width, height = window.get_size()
 	if width == 0 or height == 0 then
 		return
-	end
-	-- calculate an initial dpi_ratio
-	if not dpi_ratio then
-		dpi_ratio = width / DISPLAY_WIDTH
 	end
 	if width == WINDOW_WIDTH and height == WINDOW_HEIGHT then
 		return
@@ -233,6 +223,12 @@ end
 -- @param camera_id
 -- @param camera_script_url
 function M.init(camera_id, _, settings)
+	if not dpi_ratio then
+		local ww,wh = window.get_size()
+		local dw,dh = sys.get_config_int("display.width"), sys.get_config_int("display.height")
+		dpi_ratio = math.min(ww / dw, wh / dh)
+	end
+
 	assert(camera_id, "You must provide a camera id")
 	cameras[camera_id] = settings
 	cameras_dirty = true
