@@ -2,8 +2,6 @@
 
 local M = {}
 
-M.ORTHOGRAPHIC_RENDER_SCRIPT_USED = false
-
 M.MSG_ENABLE = hash("enable")
 M.MSG_DISABLE = hash("disable")
 M.MSG_UNFOLLOW = hash("unfollow")

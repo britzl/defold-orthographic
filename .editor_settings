@@ -1,8 +1,14 @@
 {
   :code {
     :find {
-      :term "dpi_ratio"
+      :term "frust"
     }
+  }
+  :open-assets {
+    :term "default"
+  }
+  :search-in-files {
+    :term "ORTHOGRAPHIC_RENDER_SCRIPT_USED"
   }
   :workflow {
     :recent-files [
@@ -43,10 +49,6 @@
         :code
       ]
       [
-        "/builtins/render/default.render_script"
-        :code
-      ]
-      [
         "/example/dragtoscroll/dragtoscroll.collection"
         :scene
       ]
@@ -83,10 +85,6 @@
         :scene
       ]
       [
-        "/orthographic/render/orthographic.render_script"
-        :code
-      ]
-      [
         "/example/multicamera/multicamera.collection"
         :scene
       ]
@@ -115,15 +113,23 @@
         :scene
       ]
       [
-        "/game.project"
-        :cljfx-form-view
-      ]
-      [
         "/orthographic/camera.script"
         :code
       ]
       [
+        "/game.project"
+        :cljfx-form-view
+      ]
+      [
         "/orthographic/camera.lua"
+        :code
+      ]
+      [
+        "/builtins/render/default.render_script"
+        :code
+      ]
+      [
+        "/orthographic/render/orthographic.render_script"
         :code
       ]
     ]
