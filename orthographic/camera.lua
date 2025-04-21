@@ -47,14 +47,11 @@ local GUI_ADJUST = {
 local OFFSET = vmath.vector3(DISPLAY_WIDTH / 2, DISPLAY_HEIGHT / 2, 0)
 
 local VECTOR3_ZERO = vmath.vector3(0)
-local VECTOR3_MINUS1_Z = vmath.vector3(0, 0, -1.0)
-local VECTOR3_UP = vmath.vector3(0, 1.0, 0)
 
 local MATRIX4 = vmath.matrix4()
 local VECTOR4 = vmath.vector4()
 
 local v4_tmp = vmath.vector4()
-local v3_tmp = vmath.vector3()
 
 local cameras = {}
 local camera_ids = {}
