@@ -1,7 +1,7 @@
 go.property("near_z", -1)
 go.property("far_z", 1)
 go.property("zoom", 1)
-go.property("projection", hash("DEFAULT"))
+go.property("automatic_zoom", false)
 go.property("enabled", true)
 go.property("order", 1)
 
@@ -31,8 +31,7 @@ go.property("viewport_top", 0)
 local camera = require "orthographic.camera"
 
 local function has_active_follow_target(follow_id)
-	local ok, err = pcall(go.get_position, follow_id)
-	return ok
+	return go.exists(follow_id)
 end
 
 local function position_on_follow(self)
@@ -44,37 +43,36 @@ local function position_on_follow(self)
 	end
 end
 
+local function set_camera_properties(self)
+	go.set("#camera", "far_z", self.far_z + 0.0001)
+	go.set("#camera", "near_z", self.near_z - 0.0001)
+	go.set("#camera", "orthographic_zoom", self.zoom)
+end
+
 function init(self)
-	camera.init(go.get_id(), msg.url(), { zoom = self.zoom })
-	camera.update(go.get_id(), 0)
+	msg.post("@render:", "use_camera_projection")
+	self.id = go.get_id()
+	set_camera_properties(self)
+	camera.init(self.id, nil, { zoom = self.zoom })
+	camera.update(self.id, 0)
 	if self.enabled then
-		camera.send_view_projection(go.get_id())
 		if self.follow and self.follow_immediately then
 			position_on_follow(self)
 		end
 	end
 end
 
-
 function final(self)
-	camera.final(go.get_id())
+	camera.final(self.id)
 end
-
 
 function update(self, dt)
-	-- update camera and view projection after all game objects have been updated
-	-- will jitter otherwise
-	msg.post("#", camera.MSG_UPDATE_CAMERA, { dt = dt })
+	camera.update(self.id, dt)
+	set_camera_properties(self)
 end
 
-
 function on_message(self, message_id, message, sender)
-	if message_id == camera.MSG_UPDATE_CAMERA then
-		camera.update(go.get_id(), message.dt)
-		if self.enabled then
-			camera.send_view_projection(go.get_id())
-		end
-	elseif message_id == camera.MSG_ENABLE then
+	if message_id == camera.MSG_ENABLE then
 		self.enabled = true
 	elseif message_id == camera.MSG_DISABLE then
 		self.enabled = false
@@ -119,15 +117,17 @@ function on_message(self, message_id, message, sender)
 		self.viewport_left = message.left or 0
 		self.viewport_bottom = message.bottom or 0
 	elseif message_id == camera.MSG_SHAKE then
-		camera.shake(go.get_id(), message.intensity, message.duration, message.direction, function()
+		camera.shake(self.id, message.intensity, message.duration, message.direction, function()
 			msg.post(sender, camera.MSG_SHAKE_COMPLETED)
 		end)
 	elseif message_id == camera.MSG_RECOIL then
-		camera.recoil(go.get_id(), message.offset, message.duration)
+		camera.recoil(self.id, message.offset, message.duration)
 	elseif message_id == camera.MSG_STOP_SHAKING then
-		camera.stop_shaking(go.get_id())
+		camera.stop_shaking(self.id)
 	elseif message_id == camera.MSG_ZOOM_TO then
 		assert(message.zoom, "You must provide a zoom level")
 		self.zoom = message.zoom
+	elseif message_id == camera.MSG_SET_AUTOMATIC_ZOOM then
+		self.automatic_zoom = message.enabled
 	end
 end

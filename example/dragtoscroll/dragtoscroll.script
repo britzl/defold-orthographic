@@ -11,6 +11,7 @@ function on_input(self, action_id, action)
 		-- store the position where the pressed action happened
 		-- also store the camera position at that time
 		if action.pressed then
+			print("pressed")
 			self.pressed_pos = vmath.vector3(action.x, action.y, 0)
 			self.camera_pos = go.get_position(CAMERA_ID)
 		elseif action.released then
@@ -31,7 +32,8 @@ function on_input(self, action_id, action)
 		-- also take the zoom into account
 		local zoom = camera.get_zoom(CAMERA_ID)
 		local action_pos = vmath.vector3(action.x, action.y, 0)
-		local camera_pos = self.camera_pos + (self.pressed_pos - action_pos) / zoom
+		local diff = (action_pos - self.pressed_pos) / zoom
+		local camera_pos = self.camera_pos - diff
 		go.set_position(camera_pos, CAMERA_ID)
 	end
 end

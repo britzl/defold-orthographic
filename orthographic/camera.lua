@@ -2,8 +2,6 @@
 
 local M = {}
 
-M.ORTHOGRAPHIC_RENDER_SCRIPT_USED = false
-
 M.MSG_ENABLE = hash("enable")
 M.MSG_DISABLE = hash("disable")
 M.MSG_UNFOLLOW = hash("unfollow")
@@ -17,19 +15,16 @@ M.MSG_DEADZONE = hash("deadzone")
 M.MSG_BOUNDS = hash("bounds")
 M.MSG_UPDATE_CAMERA = hash("update_camera")
 M.MSG_ZOOM_TO = hash("zoom_to")
-M.MSG_USE_PROJECTION = hash("use_projection")
+M.MSG_SET_AUTOMATIC_ZOOM = hash("set_automatic_zoom")
 M.MSG_VIEWPORT = hash("viewport")
 
-
-local HIGH_DPI = (sys.get_config("display.high_dpi", "0") == "1")
-local dpi_ratio = 1
+local dpi_ratio = nil
 
 M.SHAKE_BOTH = hash("both")
 M.SHAKE_HORIZONTAL = hash("horizontal")
 M.SHAKE_VERTICAL = hash("vertical")
 
 M.PROJECTOR = {}
-M.PROJECTOR.DEFAULT = hash("DEFAULT")
 M.PROJECTOR.FIXED_AUTO = hash("FIXED_AUTO")
 M.PROJECTOR.FIXED_ZOOM = hash("FIXED_ZOOM")
 
@@ -66,51 +61,13 @@ local camera_ids = {}
 -- track if the cameras list has changed or not
 local cameras_dirty = true
 
---- projection providers (projectors)
--- a mapping of id to function to calculate and return a projection matrix
-local projectors = {}
-
--- the default projector from the default render script
--- will stretch content
-projectors[M.PROJECTOR.DEFAULT] = function(camera_id, near_z, far_z, zoom)
-	return vmath.matrix4_orthographic(0, DISPLAY_WIDTH, 0, DISPLAY_HEIGHT, near_z, far_z)
-end
-
--- setup a fixed aspect ratio projection that zooms in/out to fit the original viewport contents
--- regardless of window size
-projectors[M.PROJECTOR.FIXED_AUTO] = function(camera_id, near_z, far_z, zoom)
-	local camera = cameras[camera_id]
-	local ww = camera.viewport and camera.viewport.z or WINDOW_WIDTH
-	local wh = camera.viewport and camera.viewport.w or WINDOW_HEIGHT
-	
-	local zoom_factor = math.min(ww / DISPLAY_WIDTH, wh / DISPLAY_HEIGHT) * zoom * dpi_ratio
-	local projected_width = ww / (zoom_factor / dpi_ratio)
-	local projected_height = wh / (zoom_factor / dpi_ratio)
-	local xoffset = -(projected_width - DISPLAY_WIDTH) / 2
-	local yoffset = -(projected_height - DISPLAY_HEIGHT) / 2
-	return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
-end
-
--- setup a fixed aspect ratio projection with a fixed zoom
-projectors[M.PROJECTOR.FIXED_ZOOM] = function(camera_id, near_z, far_z, zoom)
-	local camera = cameras[camera_id]
-	local ww = camera.viewport and camera.viewport.z or WINDOW_WIDTH
-	local wh = camera.viewport and camera.viewport.w or WINDOW_HEIGHT
-
-	local projected_width = ww / (zoom / dpi_ratio)
-	local projected_height = wh / (zoom / dpi_ratio)
-	local xoffset = -(projected_width - DISPLAY_WIDTH) / 2
-	local yoffset = -(projected_height - DISPLAY_HEIGHT) / 2
-	return vmath.matrix4_orthographic(xoffset, xoffset + projected_width, yoffset, yoffset + projected_height, near_z, far_z)
-end
 
 local function log(s, ...)
 	if s then print(s:format(...)) end
 end
 
 local function check_game_object(id)
-	local ok, err = pcall(go.get_position, id)
-	return ok
+	return go.exists(id)
 end
 
 -- http://www.rorydriscoll.com/2016/03/07/frame-rate-independent-damping-using-lerp/
@@ -123,42 +80,30 @@ local function lerp_with_dt(t, dt, v1, v2)
 	--return vmath.lerp(t, v1, v2)
 end
 
---- Add a custom projector
--- @param projector_id Unique id of the projector (hash)
--- @param projector_fn The function to call when the projection matrix needs to be calculated
--- The function will receive near_z and far_z as arguments
-function M.add_projector(projector_id, projector_fn)
-	assert(projector_id, "You must provide a projector id")
-	assert(projector_fn, "You must provide a projector function")
-	projectors[projector_id] = projector_fn
-end
 
---- Set the projector used by a camera
--- @param camera_id or nil for the first camera
--- @param projector_id The projector to use
-function M.use_projector(camera_id, projector_id)
-	camera_id = camera_id or camera_ids[1]
-	assert(camera_id, "You must provide a camera id")
-	assert(projector_id, "You must provide a projector id")
-	assert(projectors[projector_id], "Unknown projection id")
-	local camera = cameras[camera_id]
-	msg.post(camera.url, "use_projection", { projection = projector_id })
+function M.add_projector()
+	error("add_projector() is deprecated")
 end
-
---- Set window scaling factor (basically retina or no retina screen)
--- There is no built-in way to detect if Defold is running on a retina or
--- non retina screen. This information combined with the High DPI setting
--- in game.project can be used to ensure that the zoom behaves the same way
--- regardless of screen type and High DPI setting.
--- You can use an extension such as DefOS to get the window scaling factor.
--- @param scaling_factor Scaling factor of the display (1=normal, 2=retina)
+function M.use_projector()
+	error("use_projector() is deprecated")
+end
+function M.get_projection_id()
+	error("get_projection_id() is deprecated")
+end
+function M.send_view_projection()
+	error("send_view_projection() is deprecated")
+end
 function M.set_window_scaling_factor(scaling_factor)
-	assert(scaling_factor, "You must provide a scaling factor")
-	if HIGH_DPI then
-		dpi_ratio = 1 / scaling_factor
-	else
-		dpi_ratio = 1
-	end
+	error("set_window_scaling_factor() is deprecated")
+end
+
+--- Set the DPI ratio of the screen.
+-- This is calculcated as the minimum ratio between game.project
+-- width/height and actual width/height
+-- @param dpi_ratio
+function M.set_dpi_ratio(ratio)
+	assert(ratio)
+	dpi_ratio = ratio
 end
 
 --- Update the window size
@@ -215,27 +160,6 @@ function M.get_display_size()
 	return DISPLAY_WIDTH, DISPLAY_HEIGHT
 end
 
-local function calculate_projection(camera)
-	local projection_id = camera.projection_id
-	assert(projectors[projection_id], "Unknown projection id")
-	local projector_fn = projectors[projection_id] or projectors[M.PROJECTOR.DEFAULT]
-	return projector_fn(camera.id, camera.near_z, camera.far_z, camera.zoom)
-end
-
-
-local function calculate_view(camera, camera_world_pos, offset)
-	local rot = go.get_world_rotation(camera.id)
-	local pos = camera_world_pos - vmath.rotate(rot, OFFSET)
-	if offset then
-		pos = pos + offset
-	end
-
-	local look_at = pos + vmath.rotate(rot, VECTOR3_MINUS1_Z)
-	local up = vmath.rotate(rot, VECTOR3_UP)
-	local view = vmath.matrix4_look_at(pos, look_at, up)
-	return view
-end
-
 local function refresh_cameras()
 	if cameras_dirty then
 		cameras_dirty = false
@@ -257,31 +181,64 @@ local function refresh_cameras()
 	end
 end
 
+local world_position = nil
+world_position = function(id)
+	local pos = go.get_position(id)
+	local parent = go.get_parent(id)
+	if parent then
+		pos = pos + world_position(parent)
+	end
+	return pos
+end
+
+local function calculate_auto_zoom(camera)
+	local viewport = camera.viewport
+	local ww = (viewport.z or WINDOW_WIDTH) / dpi_ratio
+	local wh = (viewport.w or WINDOW_HEIGHT) / dpi_ratio
+
+	return math.min(ww / DISPLAY_WIDTH, wh / DISPLAY_HEIGHT)
+end
+
+local function update_from_properties(camera)
+	-- from camera component
+	camera.view = go.get(camera.component_url, "view")
+	camera.projection = go.get(camera.component_url, "projection")
+
+	-- from script component
+	camera.near_z = go.get(camera.url, "near_z")
+	camera.far_z = go.get(camera.url, "far_z")
+	camera.zoom = go.get(camera.url, "zoom")
+	camera.automatic_zoom = go.get(camera.url, "automatic_zoom")
+	if camera.automatic_zoom then
+		local zoom = calculate_auto_zoom(camera)
+		camera.zoom = zoom
+		msg.post(camera.url, M.MSG_ZOOM_TO, { zoom = zoom })
+	end
+end
+
 --- Initialize a camera
 -- Note: This is called automatically from the init() function of the camera.script
 -- @param camera_id
 -- @param camera_script_url
-function M.init(camera_id, camera_script_url, settings)
+function M.init(camera_id, _, settings)
+	if not dpi_ratio then
+		local ww,wh = window.get_size()
+		local dw,dh = sys.get_config_int("display.width"), sys.get_config_int("display.height")
+		dpi_ratio = math.min(ww / dw, wh / dh)
+	end
+
 	assert(camera_id, "You must provide a camera id")
-	assert(camera_script_url, "You must provide a camera script url")
 	cameras[camera_id] = settings
 	cameras_dirty = true
 	local camera = cameras[camera_id]
 	camera.id = camera_id
-	camera.url = camera_script_url
-	camera.projection_id = go.get(camera_script_url, "projection")
-	camera.near_z = go.get(camera_script_url, "near_z")
-	camera.far_z = go.get(camera_script_url, "far_z")
-	camera.view = calculate_view(camera, go.get_world_position(camera_id))
-	camera.projection = calculate_projection(camera)
+	camera.url = msg.url(nil, camera_id, "script")
+	camera.component_url = msg.url(nil, camera_id, "camera")
 	camera.viewport = vmath.vector4(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT)
+	update_from_properties(camera)
 
 	if not sys.get_engine_info().is_debug then
 		log = function() end
-	end
-
-	if not M.ORTHOGRAPHIC_RENDER_SCRIPT_USED then
-		log("WARNING: orthographic.render_script not used. Did you forget to change render file in game.project?")
 	end
 end
 
@@ -326,9 +283,10 @@ function M.update(camera_id, dt)
 		return
 	end
 
+	update_from_properties(camera)
 	update_window_size()
 
-	local camera_world_pos = go.get_world_position(camera_id)
+	local camera_world_pos = world_position(camera_id)
 	local camera_world_to_local_diff = camera_world_pos - go.get_position(camera_id)
 	local follow_enabled = go.get(camera.url, "follow")
 	if follow_enabled then
@@ -414,17 +372,24 @@ function M.update(camera_id, dt)
 	local viewport_right = go.get(camera.url, "viewport_right")
 	if viewport_top == 0 then
 		viewport_top = WINDOW_HEIGHT
+	else
+		viewport_top = viewport_top * dpi_ratio
 	end
 	if viewport_right == 0 then
 		viewport_right = WINDOW_WIDTH
+	else
+		viewport_right = viewport_right * dpi_ratio
+	end
+	if viewport_left ~= 0 then
+		viewport_left = viewport_left * dpi_ratio
+	end
+	if viewport_bottom ~= 0 then
+		viewport_bottom = viewport_bottom * dpi_ratio
 	end
 	camera.viewport.x = viewport_left
 	camera.viewport.y = viewport_bottom
 	camera.viewport.z = math.max(viewport_right - viewport_left, 1)
 	camera.viewport.w = math.max(viewport_top - viewport_bottom, 1)
-
-	go.set_position(camera_world_pos + camera_world_to_local_diff, camera_id)
-
 
 	if camera.shake then
 		camera.shake.duration = camera.shake.duration - dt
@@ -448,28 +413,27 @@ function M.update(camera_id, dt)
 		else
 			local t = camera.recoil.time_left / camera.recoil.duration
 			camera.recoil.offset = vmath.lerp(t, VECTOR3_ZERO, camera.recoil.offset)
+			camera.recoil.offset.z = 0
 		end
 	end
 
-	local offset
+	local offset = VECTOR3_ZERO
+	local previous_offset = camera.offset or VECTOR3_ZERO
 	if camera.shake or camera.recoil then
-		offset = VECTOR3_ZERO
 		if camera.shake then
 			offset = offset + camera.shake.offset
 		end
 		if camera.recoil then
 			offset = offset + camera.recoil.offset
 		end
+		offset.z = 0
 	end
 	camera.offset = offset
 
-	camera.projection_id = go.get(camera.url, "projection")
-	camera.near_z = go.get(camera.url, "near_z")
-	camera.far_z = go.get(camera.url, "far_z")
-	camera.zoom = go.get(camera.url, "zoom")
-	camera.view = calculate_view(camera, camera_world_pos, offset)
-	camera.projection = calculate_projection(camera)
 
+	local new_camera_position = camera_world_pos + camera_world_to_local_diff + camera.offset - previous_offset
+	go.set_position(new_camera_position, camera_id)
+	
 	refresh_cameras()
 end
 
@@ -500,7 +464,7 @@ function M.follow(camera_id, target, options)
 	local immediate = options and options.immediate
 	if horizontal == nil then horizontal = true end
 	if vertical == nil then vertical = true end
-	
+
 	msg.post(cameras[camera_id].url, M.MSG_FOLLOW, {
 		target = target,
 		lerp = lerp,
@@ -611,6 +575,19 @@ function M.recoil(camera_id, offset, duration)
 	}
 end
 
+function M.get_automatic_zoom(camera_id)
+	camera_id = camera_id or camera_ids[1]
+	assert(camera_id, "You must provide a camera id")
+	local camera = cameras[camera_id]
+	return camera.automatic_zoom
+end
+
+function M.set_automatic_zoom(camera_id, enabled)
+	camera_id = camera_id or camera_ids[1]
+	assert(camera_id, "You must provide a camera id")
+	local camera = cameras[camera_id]
+	msg.post(camera.url, M.MSG_SET_AUTOMATIC_ZOOM, { enabled = enabled})
+end
 
 --- Set the zoom level of a camera
 -- @param camera_id or nil for the first camera
@@ -621,10 +598,7 @@ function M.set_zoom(camera_id, zoom)
 	assert(zoom, "You must provide a zoom level")
 	local camera = cameras[camera_id]
 	msg.post(camera.url, M.MSG_ZOOM_TO, { zoom = zoom })
-	camera.zoom = zoom
-	camera.projection = calculate_projection(camera)
 end
-
 
 --- Get the zoom level of a camera
 -- @param camera_id or nil for the first camera
@@ -635,7 +609,6 @@ function M.get_zoom(camera_id)
 	return cameras[camera_id].zoom
 end
 
-
 --- Get the projection matrix for a camera
 -- @param camera_id or nil for the first camera
 -- @return Projection matrix
@@ -644,17 +617,6 @@ function M.get_projection(camera_id)
 	assert(camera_id, "You must provide a camera id")
 	return cameras[camera_id].projection
 end
-
-
---- Get the projection id for a camera
--- @param camera_id or nil for the first camera
--- @return Projection id
-function M.get_projection_id(camera_id)
-	camera_id = camera_id or camera_ids[1]
-	assert(camera_id, "You must provide a camera id")
-	return cameras[camera_id].projection_id
-end
-
 
 --- Get the view matrix for a specific camera, based on the camera position
 -- and rotation
@@ -685,18 +647,6 @@ function M.get_offset(camera_id)
 	assert(camera_id, "You must provide a camera id")
 	return cameras[camera_id].offset
 end
-
-
---- Send the view and projection matrix for a camera to the render script
--- @param camera_id
-function M.send_view_projection(camera_id)
-	assert(camera_id, "You must provide a camera id")
-	local camera = cameras[camera_id]
-	local view = camera.view or MATRIX4
-	local projection = camera.projection or MATRIX4
-	msg.post("@render:", "set_view_projection", { id = camera_id, view = view, projection = projection })
-end
-
 
 --- Convert screen coordinates to world coordinates based
 -- on a specific camera's view and projection

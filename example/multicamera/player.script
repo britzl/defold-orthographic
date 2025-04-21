@@ -8,7 +8,6 @@ local SPEED = 300
 function init(self)
 	msg.post(".", "acquire_input_focus")
 	self.actions = {}
-	print("player")
 end
 
 function final(self)
