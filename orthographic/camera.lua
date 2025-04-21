@@ -93,14 +93,8 @@ end
 function M.set_window_scaling_factor(scaling_factor)
 	error("set_window_scaling_factor() is deprecated")
 end
-
---- Set the DPI ratio of the screen.
--- This is calculcated as the minimum ratio between game.project
--- width/height and actual width/height
--- @param dpi_ratio
 function M.set_dpi_ratio(ratio)
-	assert(ratio)
-	dpi_ratio = ratio
+	error("set_dpi_ratio is deprecated")
 end
 
 --- Update the window size
@@ -219,9 +213,14 @@ end
 -- @param camera_script_url
 function M.init(camera_id, _, settings)
 	if not dpi_ratio then
-		local ww,wh = window.get_size()
-		local dw,dh = sys.get_config_int("display.width"), sys.get_config_int("display.height")
-		dpi_ratio = math.min(ww / dw, wh / dh)
+		-- from defold 1.10.0
+		if window.get_display_scale then
+			dpi_ratio = window.get_display_scale()
+		else
+			local ww,wh = window.get_size()
+			local dw,dh = sys.get_config_int("display.width"), sys.get_config_int("display.height")
+			dpi_ratio = math.min(ww / dw, wh / dh)
+		end
 	end
 
 	assert(camera_id, "You must provide a camera id")
