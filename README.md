@@ -322,13 +322,6 @@ Translate world coordinates to [screen coordinates](#screen-coordinates) using t
 
 ---
 
-### camera.set_window_scaling_factor(scaling_factor)
-Set window scaling factor (basically retina or no retina screen). There is no built-in way to detect if Defold is running on a retina or non retina screen. This information combined with the High DPI setting in game.project can be used to ensure that the zoom behaves the same way regardless of screen type and High DPI setting. You can use an extension such as [DefOS](https://github.com/subsoap/defos) to get the window scaling factor.
-
-**PARAMETERS**
-* `scaling_factor` (number) - Current window scaling factor
-
-
 ### camera.get_window_size()
 Get the current window size. The default values will be the ones specified in game.project.
 
