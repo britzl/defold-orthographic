@@ -118,7 +118,9 @@ function on_message(self, message_id, message, sender)
 		self.viewport_bottom = message.bottom or 0
 	elseif message_id == camera.MSG_SHAKE then
 		camera.shake(self.id, message.intensity, message.duration, message.direction, function()
-			msg.post(sender, camera.MSG_SHAKE_COMPLETED)
+			if go.exists(sender) then
+				msg.post(sender, camera.MSG_SHAKE_COMPLETED)
+			end
 		end)
 	elseif message_id == camera.MSG_RECOIL then
 		camera.recoil(self.id, message.offset, message.duration)
