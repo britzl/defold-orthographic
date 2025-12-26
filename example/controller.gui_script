@@ -5,7 +5,7 @@ function init(self)
 end
 
 function on_input(self, action_id, action)
-	local group = gooey.group("controller", function()
+	local group = gooey.group("controller", action_id, action, function()
 		gooey.button("backbutton", action_id, action, function()
 			msg.post("controller:/go", "show" , { id = "menu" })
 		end)

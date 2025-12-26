@@ -15,8 +15,10 @@ function update(self, dt)
 end
 
 function on_input(self, action_id, action)
-	self.crosshair.x = action.x
-	self.crosshair.y = action.y
+	if action.x then
+		self.crosshair.x = action.screen_x
+		self.crosshair.y = action.screen_y
+	end
 end
 
 function on_reload(self)

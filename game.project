@@ -2,7 +2,7 @@
 title = Orthographic
 version = 0.9
 dependencies#0 = https://github.com/britzl/deftest/archive/2.7.0.zip
-dependencies#1 = https://github.com/britzl/gooey/archive/refs/tags/10.4.0.zip
+dependencies#1 = https://github.com/britzl/gooey/archive/refs/tags/10.5.2.zip
 
 [bootstrap]
 main_collection = /example/controller.collectionc
