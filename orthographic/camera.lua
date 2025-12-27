@@ -389,6 +389,7 @@ end
 -- * Follow target game object (if any)
 -- * Limit camera to camera bounds (if any)
 -- * Shake the camera (if enabled)
+-- * Recoil the camera (if enabled)
 --
 -- Note: This is called automatically from the camera.script
 -- @param camera_id
