@@ -1,7 +1,7 @@
 {
   :code {
     :find {
-      :term "frust"
+      :term "set_camera_properties"
     }
   }
   :open-assets {
@@ -11,27 +11,43 @@
     :term "ORTHOGRAPHIC_RENDER_SCRIPT_USED"
   }
   :workflow {
+    :open-tabs [
+      [
+        [
+          "/orthographic/camera.script"
+          :code
+        ]
+        [
+          "/orthographic/camera.lua"
+          :code
+        ]
+        [
+          "/example/allfeatures/camera_controls.gui_script"
+          :code
+        ]
+        [
+          "/example/allfeatures/allfeatures.collection"
+          :scene
+        ]
+        [
+          "/example/shared/objects/crosshair.script"
+          :code
+        ]
+        [
+          "/example/basics/basics.collection"
+          :scene
+        ]
+        [
+          "/example/shared/scripts/topdownmovement.script"
+          :code
+        ]
+        [
+          "/game.project"
+          :cljfx-form-view
+        ]
+      ]
+    ]
     :recent-files [
-      [
-        "/test/test.collection"
-        :scene
-      ]
-      [
-        "/deftest/telescope.lua"
-        :code
-      ]
-      [
-        "/test/test_camera.lua"
-        :code
-      ]
-      [
-        "/input/game.input_binding"
-        :cljfx-form-view
-      ]
-      [
-        "/example/zoom/zoom.script"
-        :code
-      ]
       [
         "/example/allfeatures/camera_controls.gui"
         :scene
@@ -57,23 +73,11 @@
         :code
       ]
       [
-        "/example/menu.gui_script"
-        :code
-      ]
-      [
         "/example/menu.gui"
         :scene
       ]
       [
         "/example/controller.collection"
-        :scene
-      ]
-      [
-        "/example/allfeatures/camera_controls.gui_script"
-        :code
-      ]
-      [
-        "/example/basics/basics.collection"
         :scene
       ]
       [
@@ -101,28 +105,8 @@
         :code
       ]
       [
-        "/orthographic/camera.go"
-        :scene
-      ]
-      [
         "/example/controller.gui"
         :scene
-      ]
-      [
-        "/example/allfeatures/allfeatures.collection"
-        :scene
-      ]
-      [
-        "/orthographic/camera.script"
-        :code
-      ]
-      [
-        "/game.project"
-        :cljfx-form-view
-      ]
-      [
-        "/orthographic/camera.lua"
-        :code
       ]
       [
         "/builtins/render/default.render_script"
@@ -131,6 +115,66 @@
       [
         "/orthographic/render/orthographic.render_script"
         :code
+      ]
+      [
+        "/gooey/internal/core.lua"
+        :code
+      ]
+      [
+        "/example/menu.gui_script"
+        :code
+      ]
+      [
+        "/example/controller.gui_script"
+        :code
+      ]
+      [
+        "/gooey/gooey.lua"
+        :code
+      ]
+      [
+        "/example/allfeatures/camera_controls.gui_script"
+        :code
+      ]
+      [
+        "/example/shared/objects/hitman.script"
+        :code
+      ]
+      [
+        "/orthographic/camera.go"
+        :scene
+      ]
+      [
+        "/example/shared/fonts/pixelfont.material"
+        :cljfx-form-view
+      ]
+      [
+        "/example/allfeatures/allfeatures.collection"
+        :scene
+      ]
+      [
+        "/orthographic/camera.lua"
+        :code
+      ]
+      [
+        "/orthographic/camera.script"
+        :code
+      ]
+      [
+        "/example/shared/scripts/topdownmovement.script"
+        :code
+      ]
+      [
+        "/game.project"
+        :cljfx-form-view
+      ]
+      [
+        "/example/shared/objects/crosshair.script"
+        :code
+      ]
+      [
+        "/example/basics/basics.collection"
+        :scene
       ]
     ]
   }
