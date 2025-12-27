@@ -14,7 +14,7 @@ local BUTTONS = {
 }
 
 function on_input(self, action_id, action)
-	local group = gooey.group("group1", function()
+	local group = gooey.group("group1", action_id, action, function()
 		for _,id in ipairs(BUTTONS) do
 			gooey.button(id .. "button", action_id, action, function()
 				msg.post("controller:/go", "show" , { id = id })
