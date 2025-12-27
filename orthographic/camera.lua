@@ -245,6 +245,7 @@ local function update_offset(camera)
 	camera.offset = offset
 end
 
+local follow_tmp_v3 = vmath.vector3()
 local function follow(camera, dt, camera_world_pos)
 	local follow_enabled = go.get(camera.url, "follow")
 	if follow_enabled then
@@ -262,36 +263,38 @@ local function follow(camera, dt, camera_world_pos)
 			local deadzone_right = go.get(camera.url, "deadzone_right")
 			local deadzone_bottom = go.get(camera.url, "deadzone_bottom")
 			if deadzone_top ~= 0 or deadzone_left ~= 0 or deadzone_right ~= 0 or deadzone_bottom ~= 0 then
-				new_pos = vmath.vector3(camera_world_pos)
+				follow_tmp_v3.x = camera_world_pos.x
+				follow_tmp_v3.y = camera_world_pos.y
 				local left_edge = camera_world_pos.x - deadzone_left
 				local right_edge = camera_world_pos.x + deadzone_right
 				local top_edge = camera_world_pos.y + deadzone_top
 				local bottom_edge = camera_world_pos.y - deadzone_bottom
 				if target_world_pos.x < left_edge then
-					new_pos.x = new_pos.x - (left_edge - target_world_pos.x)
+					follow_tmp_v3.x = follow_tmp_v3.x - (left_edge - target_world_pos.x)
 				elseif target_world_pos.x > right_edge then
-					new_pos.x = new_pos.x + (target_world_pos.x - right_edge)
+					follow_tmp_v3.x = follow_tmp_v3.x + (target_world_pos.x - right_edge)
 				end
 				if target_world_pos.y > top_edge then
-					new_pos.y = new_pos.y + (target_world_pos.y - top_edge)
+					follow_tmp_v3.y = follow_tmp_v3.y + (target_world_pos.y - top_edge)
 				elseif target_world_pos.y < bottom_edge then
-					new_pos.y = new_pos.y - (bottom_edge - target_world_pos.y)
+					follow_tmp_v3.y = follow_tmp_v3.y - (bottom_edge - target_world_pos.y)
 				end
 			else
-				new_pos = target_world_pos
+				follow_tmp_v3.x = target_world_pos.x
+				follow_tmp_v3.y = target_world_pos.y
 			end
-			new_pos.z = camera_world_pos.z
+			follow_tmp_v3.z = camera_world_pos.z
 			if not follow_vertical then
-				new_pos.y = camera_world_pos.y
+				follow_tmp_v3.y = camera_world_pos.y
 			end
 			if not follow_horizontal then
-				new_pos.x = camera_world_pos.x
+				follow_tmp_v3.x = camera_world_pos.x
 			end
 			local follow_lerp = go.get(camera.url, "follow_lerp")
-			local lerped_pos = lerp_with_dt(follow_lerp, dt, camera_world_pos, new_pos)
+			local lerped_pos = lerp_with_dt(follow_lerp, dt, camera_world_pos, follow_tmp_v3)
 			camera_world_pos.x = lerped_pos.x
 			camera_world_pos.y = lerped_pos.y
-			camera_world_pos.z = new_pos.z
+			camera_world_pos.z = follow_tmp_v3.z
 		end
 	end
 end
