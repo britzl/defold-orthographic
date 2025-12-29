@@ -66,7 +66,7 @@ function final(self)
 	camera.final(self.id)
 end
 
-function update(self, dt)
+function late_update(self, dt)
 	camera.update(self.id, dt)
 	set_camera_properties(self)
 end

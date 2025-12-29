@@ -16,8 +16,8 @@ end
 
 function on_input(self, action_id, action)
 	if action.x then
-		self.crosshair.x = action.x
-		self.crosshair.y = action.y
+		self.crosshair.x = action.screen_x
+		self.crosshair.y = action.screen_y
 	end
 end
 

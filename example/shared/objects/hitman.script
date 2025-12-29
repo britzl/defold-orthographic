@@ -15,7 +15,6 @@ function init(self)
 end
 
 function update(self, dt)
-
 	-- rotate towards cursor
 	if self.crosshair then
 		local crosshair_world = go.get_world_position("crosshair")

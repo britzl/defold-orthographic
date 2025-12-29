@@ -1,5 +1,5 @@
 # defold-orthographic
-Orthographic camera API for the [Defold game engine](https://www.defold.com). The API makes it super easy to convert screen to world coordinates, smoothly follow a game object and create a screen shake effect. This project is inspired by the camera component of the Phaser engine.
+Orthographic camera API for the [Defold game engine](https://www.defold.com). The API wraps the Defold camera API and provides additional functionality to follow other game objects and to make camera effects such as screen shake and recoil.
 
 The project is shipped with an example that shows all the features of the orthographic camera. [Test the example app in your browser](http://britzl.github.io/Orthographic/index.html).
 
@@ -69,14 +69,8 @@ The camera viewport.
 The default render script will always only render a single camera with a viewport covering the entire screen. In order to use multiple cameras or render the camera using a custom viewport you need to modify the render script or use the render script included in `orthographic/render/orthographic.render_script`
 
 
-## Window vs Screen coordinates
-The camera API allows you to convert to and from world coordinates. This is useful when positioning a game object at the position of the mouse or knowing where in a game world a mouse click was made. The API supports conversion from both window and screen coordinates.
-
-### Screen coordinates
-This refers to the actual mouse pixel position within the window, scaled to the display size specified in game.project. These are the values from `action.x` and `action.y` in `on_input()`.
-
-### Window coordinates
-This refers to the actual mouse pixel position within the window. These are the values from `action.screen_x` and `action.screen_y` in `on_input()`. Window coordinates should be provided as is, without compensation for High DPI (this will be done automatically).
+## World vs Screen coordinates
+The camera API allows you to convert from screen to world coordinates and vice versa. Screen coordinates are the `screen_x` and `screen_y` values of an input and the values returned from `camera.get_size()`. 
 
 
 ## The Orthographic Camera API - functions
@@ -244,7 +238,7 @@ Limits the camera position to within the specified rectangle.
 ---
 
 ### camera.screen_to_world(camera_id, screen)
-Translate [screen coordinates](#screen-coordinates) to world coordinates, based on the view and projection of the camera.
+Translate screen coordinates to world coordinates, based on the view and projection of the camera.
 
 **PARAMETERS**
 * `camera_id` (hash|url|nil) nil for the first camera
@@ -254,19 +248,9 @@ Translate [screen coordinates](#screen-coordinates) to world coordinates, based 
 * `world_coords` (vector3) World coordinates
 
 
-### camera.window_to_world(camera_id, window)
-Translate [window coordinates](#window-coordinates) to world coordinates, based on the view and projection of the camera.
-
-**PARAMETERS**
-* `camera_id` (hash|url|nil) nil for the first camera
-* `window` (vector3) Window coordinates to convert
-
-**RETURN**
-* `world_coords` (vector3) World coordinates
-
 
 ### camera.screen_to_world_bounds(camera_id)
-Translate [screen boundaries](#screen-coordinates) (corners) to world coordinates, based on the view and projection of the camera.
+Translate screen boundaries (corners) to world coordinates, based on the view and projection of the camera.
 
 **PARAMETERS**
 * `camera_id` (hash|url|nil) nil for the first camera
@@ -276,49 +260,14 @@ Translate [screen boundaries](#screen-coordinates) (corners) to world coordinate
 
 
 ### camera.world_to_screen(camera_id, world, [adjust_mode])
-Translate world coordinates to [screen coordinates](#screen-coordinates), based on the view and projection of the camera, optionally taking into account an adjust mode. This is useful when manually culling game objects and you need to determine if a world coordinate will be visible or not. It can also be used to position gui nodes on top of game objects.
+Translate world coordinates to screen coordinates, based on the view and projection of the camera. This is useful when manually culling game objects and you need to determine if a world coordinate will be visible or not. It can also be used to position gui nodes on top of game objects.
 
 **PARAMETER**
 * `camera_id` (hash|url|nil) nil for the first camera
 * `world` (vector3) World coordinates to convert
-* `adjust_mode` (number) One of gui.ADJUST_FIT, gui.ADJUST_ZOOM and gui.ADJUST_STRETCH, or nil to not take into account the adjust mode.
 
 **RETURN**
 * `screen_coords` (vector3) Screen coordinates
-
-### camera.world_to_window(camera_id, world)
-Translate world coordinates to [window coordinates](#window-coordinates), based on the view and projection of the camera. 
-
-**PARAMETER**
-* `camera_id` (hash|url|nil) nil for the first camera
-* `world` (vector3) World coordinates to convert
-
-**RETURN**
-* `window_coords` (vector3) Window coordinates
-
-
-### camera.unproject(view, projection, screen)
-Translate [screen coordinates](#screen-coordinates) to world coordinates using the specified view and projection.
-
-**PARAMETERS**
-* `view` (matrix4)
-* `projection` (matrix4)
-* `screen` (vector3) Screen coordinates to convert
-
-**RETURN**
-* `world_coords` (vector3) Note: Same v3 object as passed in as argument
-
-
-### camera.project(view, projection, world)
-Translate world coordinates to [screen coordinates](#screen-coordinates) using the specified view and projection.
-
-**PARAMETERS**
-* `view` (matrix4)
-* `projection` (matrix4)
-* `world` (vector3) World coordinates to convert
-
-**RETURN**
-* `screen_coords` (vector3) Note: Same v3 object as passed in as argument
 
 ---
 

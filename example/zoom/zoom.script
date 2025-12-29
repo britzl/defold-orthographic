@@ -7,8 +7,9 @@ function init(self)
 end
 
 function on_input(self, action_id, action)
+	if not action.screen_x then return end
 
-	local action_pos = vmath.vector3(action.x, action.y, 0)
+	local action_pos = vmath.vector3(action.screen_x or 0, action.screen_y or 0, 0)
 	local action_world_pos = camera.screen_to_world(CAMERA_ID, action_pos)
 	local camera_pos = go.get_position(CAMERA_ID)
 	local zoom = camera.get_zoom(CAMERA_ID)
