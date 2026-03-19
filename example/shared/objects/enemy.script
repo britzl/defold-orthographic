@@ -1,0 +1,24 @@
+local function walk_random_direction(self)
+	local pos = go.get_position()
+	local target_pos = vmath.vector3(math.random(0, 1000), math.random(1, 1000), 1)
+	local distance = vmath.length(target_pos - pos)
+	local duration = distance / 100
+
+
+	local angle = math.atan2(pos.x - target_pos.x, target_pos.y - pos.y)
+	go.set_rotation(vmath.quat_rotation_z(angle))
+
+	go.animate(".", "position", go.PLAYBACK_ONCE_FORWARD, target_pos, go.EASING_LINEAR, duration, 0, function()
+		msg.post("#", "target_reached")
+	end)
+end
+
+function init(self)
+	walk_random_direction(self)
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("target_reached") then
+		walk_random_direction(self)
+	end
+end

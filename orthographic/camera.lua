@@ -245,58 +245,89 @@ local function update_offset(camera)
 	camera.offset = offset
 end
 
+
+local function calculate_world_center(ids)
+	local count = 0
+	local target_position = nil
+	for i=1,#ids do
+		local id = ids[i]
+		if go.exists(id) then
+			local pos = go.get_world_position(id)
+			if not target_position then
+				target_position = pos
+			else
+				target_position = target_position + pos
+			end
+			count = count + 1
+		end
+	end
+	if count > 0 then
+		target_position = target_position / count
+	end
+	return target_position
+end
+
 local follow_tmp_v3 = vmath.vector3()
 local function follow(camera, dt, camera_world_pos)
 	local follow_enabled = go.get(camera.url, "follow")
-	if follow_enabled then
+	if not follow_enabled then
+		return
+	end
+
+	local follow_horizontal = go.get(camera.url, "follow_horizontal")
+	local follow_vertical = go.get(camera.url, "follow_vertical")
+	local follow_offset = go.get(camera.url, "follow_offset")
+	
+	local target_world_pos
+	if camera.targets then
+		target_world_pos = calculate_world_center(camera.targets)
+	else
 		local follow_target = go.get(camera.url, "follow_target")
 		if not check_game_object(follow_target) then
 			log("Camera '%s' has a follow target '%s' that does not exist", tostring(camera.id), tostring(follow_target))
-		else
-			local follow_horizontal = go.get(camera.url, "follow_horizontal")
-			local follow_vertical = go.get(camera.url, "follow_vertical")
-			local follow_offset = go.get(camera.url, "follow_offset")
-			local target_world_pos = go.get_world_position(follow_target) + follow_offset
-			local new_pos
-			local deadzone_top = go.get(camera.url, "deadzone_top")
-			local deadzone_left = go.get(camera.url, "deadzone_left")
-			local deadzone_right = go.get(camera.url, "deadzone_right")
-			local deadzone_bottom = go.get(camera.url, "deadzone_bottom")
-			if deadzone_top ~= 0 or deadzone_left ~= 0 or deadzone_right ~= 0 or deadzone_bottom ~= 0 then
-				follow_tmp_v3.x = camera_world_pos.x
-				follow_tmp_v3.y = camera_world_pos.y
-				local left_edge = camera_world_pos.x - deadzone_left
-				local right_edge = camera_world_pos.x + deadzone_right
-				local top_edge = camera_world_pos.y + deadzone_top
-				local bottom_edge = camera_world_pos.y - deadzone_bottom
-				if target_world_pos.x < left_edge then
-					follow_tmp_v3.x = follow_tmp_v3.x - (left_edge - target_world_pos.x)
-				elseif target_world_pos.x > right_edge then
-					follow_tmp_v3.x = follow_tmp_v3.x + (target_world_pos.x - right_edge)
-				end
-				if target_world_pos.y > top_edge then
-					follow_tmp_v3.y = follow_tmp_v3.y + (target_world_pos.y - top_edge)
-				elseif target_world_pos.y < bottom_edge then
-					follow_tmp_v3.y = follow_tmp_v3.y - (bottom_edge - target_world_pos.y)
-				end
-			else
-				follow_tmp_v3.x = target_world_pos.x
-				follow_tmp_v3.y = target_world_pos.y
-			end
-			follow_tmp_v3.z = camera_world_pos.z
-			if not follow_vertical then
-				follow_tmp_v3.y = camera_world_pos.y
-			end
-			if not follow_horizontal then
-				follow_tmp_v3.x = camera_world_pos.x
-			end
-			local follow_lerp = go.get(camera.url, "follow_lerp")
-			local lerped_pos = lerp_with_dt(follow_lerp, dt, camera_world_pos, follow_tmp_v3)
-			camera_world_pos.x = lerped_pos.x
-			camera_world_pos.y = lerped_pos.y
-			camera_world_pos.z = follow_tmp_v3.z
+			return
 		end
+		target_world_pos = go.get_world_position(follow_target)
 	end
+	target_world_pos = target_world_pos + follow_offset
+	
+	local deadzone_top = go.get(camera.url, "deadzone_top")
+	local deadzone_left = go.get(camera.url, "deadzone_left")
+	local deadzone_right = go.get(camera.url, "deadzone_right")
+	local deadzone_bottom = go.get(camera.url, "deadzone_bottom")
+	if deadzone_top ~= 0 or deadzone_left ~= 0 or deadzone_right ~= 0 or deadzone_bottom ~= 0 then
+		follow_tmp_v3.x = camera_world_pos.x
+		follow_tmp_v3.y = camera_world_pos.y
+		local left_edge = camera_world_pos.x - deadzone_left
+		local right_edge = camera_world_pos.x + deadzone_right
+		local top_edge = camera_world_pos.y + deadzone_top
+		local bottom_edge = camera_world_pos.y - deadzone_bottom
+		if target_world_pos.x < left_edge then
+			follow_tmp_v3.x = follow_tmp_v3.x - (left_edge - target_world_pos.x)
+		elseif target_world_pos.x > right_edge then
+			follow_tmp_v3.x = follow_tmp_v3.x + (target_world_pos.x - right_edge)
+		end
+		if target_world_pos.y > top_edge then
+			follow_tmp_v3.y = follow_tmp_v3.y + (target_world_pos.y - top_edge)
+		elseif target_world_pos.y < bottom_edge then
+			follow_tmp_v3.y = follow_tmp_v3.y - (bottom_edge - target_world_pos.y)
+		end
+	else
+		follow_tmp_v3.x = target_world_pos.x
+		follow_tmp_v3.y = target_world_pos.y
+	end
+	follow_tmp_v3.z = camera_world_pos.z
+	if not follow_vertical then
+		follow_tmp_v3.y = camera_world_pos.y
+	end
+	if not follow_horizontal then
+		follow_tmp_v3.x = camera_world_pos.x
+	end
+	local follow_lerp = go.get(camera.url, "follow_lerp")
+	local lerped_pos = lerp_with_dt(follow_lerp, dt, camera_world_pos, follow_tmp_v3)
+	camera_world_pos.x = lerped_pos.x
+	camera_world_pos.y = lerped_pos.y
+	camera_world_pos.z = follow_tmp_v3.z
 end
 
 local function apply_bounds(camera, camera_world_pos)
@@ -437,19 +468,20 @@ function M.get_cameras()
 	return camera_ids
 end
 
---- Follow a game object
+--- Follow one or more game objects
 -- @param camera_id or nil for the first camera
--- @param target The game object to follow
+-- @param targets A single game object or list of game objects to follow
 -- @param options Table with options
 --		lerp - lerp to smoothly move the camera towards the target (default: nil)
 -- 		offset - Offset from target position (default: nil)
 --		horizontal - true if following target along horizontal axis (default: true)
 --		vertical - true if following target along vertical axis (default: true)
 --		immediate - true if camera should be immediately positioned on the target
-function M.follow(camera_id, target, options)
+function M.follow(camera_id, targets, options)
 	camera_id = camera_id or camera_ids[1]
 	assert(camera_id, "You must provide a camera id")
-	assert(target, "You must provide a target")
+	assert(targets, "You must provide a target")
+	local camera = cameras[camera_id]
 	local lerp = options and options.lerp
 	local offset = options and options.offset
 	local horizontal = options and options.horizontal
@@ -458,14 +490,18 @@ function M.follow(camera_id, target, options)
 	if horizontal == nil then horizontal = true end
 	if vertical == nil then vertical = true end
 
-	msg.post(cameras[camera_id].url, M.MSG_FOLLOW, {
-		target = target,
-		lerp = lerp,
-		offset = offset,
-		horizontal = horizontal,
-		vertical = vertical,
-		immediate = immediate,
-	})
+	if type(targets) == "table" then
+		camera.targets = targets
+	else
+		msg.post(cameras[camera_id].url, M.MSG_FOLLOW, {
+			target = targets,
+			lerp = lerp,
+			offset = offset,
+			horizontal = horizontal,
+			vertical = vertical,
+			immediate = immediate,
+		})
+	end
 end
 
 

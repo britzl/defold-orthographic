@@ -54,6 +54,10 @@ instances {
     }
   }
 }
+instances {
+  id: "enemy"
+  prototype: "/example/shared/objects/enemy.go"
+}
 scale_along_z: 0
 embedded_instances {
   id: "map"

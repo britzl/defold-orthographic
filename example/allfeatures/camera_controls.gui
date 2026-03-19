@@ -294,6 +294,30 @@ nodes {
 }
 nodes {
   position {
+    y: 201.0
+  }
+  type: TYPE_TEMPLATE
+  id: "follow_multiple"
+  parent: "follow"
+  inherit_alpha: true
+  template: "/example/shared/button.gui"
+}
+nodes {
+  type: TYPE_BOX
+  id: "follow_multiple/button"
+  parent: "follow_multiple"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  text: "FOLLOW MULTIPLE"
+  id: "follow_multiple/text"
+  parent: "follow_multiple/button"
+  overridden_fields: 8
+  template_node_child: true
+}
+nodes {
+  position {
     x: 1047.0
   }
   type: TYPE_BOX

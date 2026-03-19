@@ -2,15 +2,7 @@ local camera = require "orthographic.camera"
 
 local CAMERA_ID = hash("/camera")
 local PLAYER_ID = hash("/hitman")
-
-local PROJECTIONS = {
-	camera.PROJECTOR.FIXED_AUTO,
-	camera.PROJECTOR.FIXED_ZOOM,
-}
-local PROJECTION_NAMES = {
-	[camera.PROJECTOR.FIXED_AUTO] = "Fixed Auto",
-	[camera.PROJECTOR.FIXED_ZOOM] = "Fixed Zoom",
-}
+local ENEMY_ID = hash("/enemy")
 
 function init(self)
 	msg.post(".", "acquire_input_focus")
@@ -19,16 +11,6 @@ function init(self)
 	self.deadzone_enabled = false
 	self.current_projection = 1
 	self.lerp = 0
-end
-
-local function get_scaling_factor()
-	if not defos then return 1 end
-	local displays = defos.get_displays()
-	if not displays or #displays == 0 then
-		return 1
-	end
-	local main_display = displays[1]
-	return main_display.mode and main_display.mode.scaling_factor or 1
 end
 
 
@@ -114,6 +96,14 @@ function on_input(self, action_id, action)
 			self.follow_vertical = true
 			self.lerp = 0.1
 			post_follow_message(self)
+			return true
+		elseif gui.pick_node(gui.get_node("follow_multiple/button"), action.x, action.y) then
+			self.follow = true
+			self.follow_horizontal = false
+			self.follow_vertical = true
+			self.lerp = 0.1
+			local targets = { PLAYER_ID, ENEMY_ID }
+			camera.follow(CAMERA_ID, targets)
 			return true
 		elseif gui.pick_node(gui.get_node("shake_both/button"), action.x, action.y) then
 			msg.post(CAMERA_ID, "shake", { intensity = 0.05, duration = 0.5, direction = hash("both") })
