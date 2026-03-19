@@ -431,6 +431,10 @@ function M.update(camera_id, dt)
 	if not camera then
 		return
 	end
+	local url = msg.url()
+	if camera.url.socket ~= url.socket then
+		return
+	end
 
 	local enabled = go.get(camera.url, "enabled")
 	local order = go.get(camera.url, "order")
