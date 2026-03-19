@@ -182,11 +182,11 @@ Set if the camera should use automatic zoom level.
 ---
 
 ### camera.follow(camera_id, target, [options])
-Follow a game object.
+Follow one or more game objects. When following multiple objects the camera will follow the center point between the objects.
 
 **PARAMETERS**
 * `camera_id` (hash|url|nil) nil for the first camera
-* `target` (hash|url) - Game object to follow
+* `targets` (hash|url|table) - Game object(s) to follow
 * `options` (table) - Options (see below)
 
 Acceptable values for the `options` table:
