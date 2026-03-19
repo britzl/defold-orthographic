@@ -409,7 +409,7 @@ function M.final(camera_id)
 	-- check that a new camera with the same id but from a different go hasn't been
 	-- replacing the camera that is being unregistered
 	-- if this is the case we simply ignore the call to final()
-	if cameras[camera_id].url == msg.url() then
+	if cameras[camera_id] and cameras[camera_id].url == msg.url() then
 		cameras[camera_id] = nil
 		cameras_dirty = true
 	end
