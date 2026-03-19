@@ -201,7 +201,7 @@ local function update_viewport(camera)
 end
 
 local function shake(camera, dt)
-	if not camera.shake then return end
+	if not camera.shake or dt == 0 then return end
 
 	camera.shake.duration = camera.shake.duration - dt
 	if camera.shake.duration < 0 then
