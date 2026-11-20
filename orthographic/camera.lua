@@ -402,8 +402,6 @@ function M.init(camera_id, _, settings)
 
 	if not sys.get_engine_info().is_debug then
 		log = function() end
-	else
-		print(camera_id)
 	end
 end
 
